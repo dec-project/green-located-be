@@ -1,3 +1,22 @@
 spring:
   profiles:
     include: secret
+
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+    servlet:
+      multipart:
+        max-file-size: 100MB # 단일 파일 최대 크기
+        max-request-size: 110MB #전체 요청 크기의 최대 크기
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 400
+
+  file:
+    filePath: /Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/file/
+    fileUrl: http://localhost:8080/image/
