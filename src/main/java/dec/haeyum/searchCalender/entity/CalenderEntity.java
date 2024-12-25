@@ -1,7 +1,9 @@
 package dec.haeyum.searchCalender.entity;
 
 import dec.haeyum.member.entity.MemberEntity;
+import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -31,4 +33,7 @@ public class CalenderEntity {
         this.calenderDate = startDate;
         this.viewCount = 0;
     }
+
+    @OneToMany(mappedBy = "calenderEntity")
+    private List<CalendarSong> calendarSongs = new ArrayList<>();
 }
