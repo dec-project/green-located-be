@@ -1,8 +1,8 @@
-package dec.haeyum.searchCalender.dto.response;
+package dec.haeyum.calendar.dto.response;
 
-import dec.haeyum.searchCalender.dto.ResponseCode;
-import dec.haeyum.searchCalender.dto.ResponseDto;
-import dec.haeyum.searchCalender.entity.CalenderEntity;
+import dec.haeyum.calendar.dto.ResponseCode;
+import dec.haeyum.calendar.dto.ResponseDto;
+import dec.haeyum.calendar.entity.CalendarEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PostCalenderResponseDto extends ResponseDto {
+public class PostCalendarResponseDto extends ResponseDto {
 
     private Integer count;
     private Integer totalPages;
@@ -22,11 +22,11 @@ public class PostCalenderResponseDto extends ResponseDto {
     private boolean last;
     private List<boardItem> itemList = new ArrayList<>();
 
-    public PostCalenderResponseDto() {
+    public PostCalendarResponseDto() {
         super(ResponseCode.success,ResponseMessage.success);
     }
 
-    public PostCalenderResponseDto(Page<CalenderEntity> paging) {
+    public PostCalendarResponseDto(Page<CalendarEntity> paging) {
         super(ResponseCode.success,ResponseMessage.success);
         this.count = (int)paging.getTotalElements();
         this.totalPages = paging.getTotalPages() - 1;
@@ -36,9 +36,9 @@ public class PostCalenderResponseDto extends ResponseDto {
     }
 
 
-    public static ResponseEntity<? super PostCalenderResponseDto> success(Page<CalenderEntity> paging) {
-        PostCalenderResponseDto postCalenderResponseDto = new PostCalenderResponseDto(paging);
-        return ResponseEntity.status(HttpStatus.OK).body(postCalenderResponseDto);
+    public static ResponseEntity<? super PostCalendarResponseDto> success(Page<CalendarEntity> paging) {
+        PostCalendarResponseDto postCalendarResponseDto = new PostCalendarResponseDto(paging);
+        return ResponseEntity.status(HttpStatus.OK).body(postCalendarResponseDto);
     }
 
     public static ResponseEntity<ResponseDto> notExistedBoundary() {
@@ -46,7 +46,7 @@ public class PostCalenderResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 
-    public static ResponseEntity<ResponseDto> notExistedCalender() {
+    public static ResponseEntity<ResponseDto> notExistedCalendar() {
         ResponseDto responseDto = new ResponseDto(ResponseCode.notExistedData, ResponseMessage.notExistedData);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }

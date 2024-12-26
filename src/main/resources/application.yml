@@ -5,7 +5,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 
     servlet:
@@ -17,6 +17,5 @@ spring:
         jdbc:
           batch_size: 400
 
-  file:
-    filePath: /Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/file/
-    fileUrl: http://localhost:8080/image/
+weather:
+  api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"

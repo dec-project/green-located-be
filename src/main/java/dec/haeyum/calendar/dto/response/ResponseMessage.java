@@ -1,6 +1,4 @@
-package dec.haeyum.searchCalender.dto.response;
-
-import java.sql.Struct;
+package dec.haeyum.calendar.dto.response;
 
 public interface ResponseMessage {
 

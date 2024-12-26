@@ -1,6 +1,6 @@
-package dec.haeyum.searchCalender.dto;
+package dec.haeyum.calendar.dto;
 
-import dec.haeyum.searchCalender.dto.response.ResponseMessage;
+import dec.haeyum.calendar.dto.response.ResponseMessage;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
