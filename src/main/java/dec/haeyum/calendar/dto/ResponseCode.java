@@ -1,4 +1,4 @@
-package dec.haeyum.searchCalender.dto;
+package dec.haeyum.calendar.dto;
 
 public interface ResponseCode {
 
@@ -8,6 +8,9 @@ public interface ResponseCode {
     // 날짜 형식 에러
     String notExistedDate = "IVD";
     String duplicatedDate = "DD";
+    // 검색 범위 초과
     String notExistedBoundary = "EB";
     String notExistedData = "ED";
+    // API 호출 실패
+    String apiCallFail = "AF";
 }

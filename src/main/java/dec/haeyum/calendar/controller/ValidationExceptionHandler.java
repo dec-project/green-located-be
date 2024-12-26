@@ -1,7 +1,6 @@
-package dec.haeyum.searchCalender.controller;
+package dec.haeyum.calendar.controller;
 
-import dec.haeyum.searchCalender.dto.ResponseCode;
-import dec.haeyum.searchCalender.dto.ResponseDto;
+import dec.haeyum.calendar.dto.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
