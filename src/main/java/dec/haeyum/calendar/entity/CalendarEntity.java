@@ -2,7 +2,9 @@ package dec.haeyum.calendar.entity;
 
 import dec.haeyum.member.entity.MemberEntity;
 import dec.haeyum.weather.entity.WeatherEntity;
+import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -41,4 +43,6 @@ public class CalendarEntity {
         this.weather = weather;
         this.weather.setCalendar(this);
     }
+    @OneToMany(mappedBy = "calenderEntity")
+    private List<CalendarSong> calendarSongs = new ArrayList<>();
 }
