@@ -1,5 +1,6 @@
 package dec.haeyum.song.controller;
 
+import dec.haeyum.song.dto.SongDetailDto;
 import dec.haeyum.song.dto.SongSummaryDto;
 import dec.haeyum.song.service.SongService;
 import dec.haeyum.song.service.impl.SongServiceImlp;
@@ -22,5 +23,11 @@ public class SongController {
     public ResponseEntity<List<SongSummaryDto>> getTop5Songs(@PathVariable Long calendarId) {
         List<SongSummaryDto> top5Songs = songService.getTop5Songs(calendarId);
         return ResponseEntity.ok(top5Songs);
+    }
+
+    @GetMapping("/search/{calendarId}/songs/{songId}")
+    public ResponseEntity<SongDetailDto> getSongDetail(@PathVariable Long calendarId, @PathVariable Long songId) {
+        SongDetailDto songDetails = songService.getSongDetails(songId);
+        return ResponseEntity.ok(songDetails);
     }
 }
