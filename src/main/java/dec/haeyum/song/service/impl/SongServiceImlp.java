@@ -1,5 +1,7 @@
 package dec.haeyum.song.service.impl;
 
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.song.dto.SongDetailDto;
 import dec.haeyum.song.dto.SongSummaryDto;
 import dec.haeyum.song.entity.CalendarSong;
@@ -23,7 +25,8 @@ public class SongServiceImlp implements SongService {
     @Override
     @Transactional
     public List<SongSummaryDto> getTop5Songs(Long calendarId) {
-        List<CalendarSong> calendarSongs = calendarSongRepository.findByCalenderEntity_CalenderId(calendarId);
+        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalenderEntityId(calendarId);
+
         List<SongSummaryDto> songSummaryDtos = calendarSongs.stream()
                 .map(cs -> SongSummaryDto.toDto(cs.getSong(), cs.getRanking()))
                 .toList();
@@ -33,6 +36,9 @@ public class SongServiceImlp implements SongService {
 
     @Override
     public SongDetailDto getSongDetails(Long songId) {
-        return null;
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SONG_NOT_FOUND));
+
+        return SongDetailDto.toDto(song);
     }
 }
