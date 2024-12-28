@@ -1,5 +1,4 @@
 package dec.haeyum.config.error;
-
 import lombok.Getter;
 
 @Getter
@@ -25,4 +24,5 @@ public class ErrorResponse {
     public static ErrorResponse of(final ErrorCode code, final String message) {
         return new ErrorResponse(code, message);
     }
+
 }
