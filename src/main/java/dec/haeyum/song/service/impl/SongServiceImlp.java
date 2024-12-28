@@ -25,8 +25,8 @@ public class SongServiceImlp implements SongService {
     @Override
     @Transactional
     public List<SongSummaryDto> getTop5Songs(Long calendarId) {
-        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalenderEntityId(calendarId);
 
+        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalenderEntityId(calendarId);
         List<SongSummaryDto> songSummaryDtos = calendarSongs.stream()
                 .map(cs -> SongSummaryDto.toDto(cs.getSong(), cs.getRanking()))
                 .toList();
