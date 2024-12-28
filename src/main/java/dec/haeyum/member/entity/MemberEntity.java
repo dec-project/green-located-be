@@ -1,6 +1,6 @@
 package dec.haeyum.member.entity;
 
-import dec.haeyum.searchCalender.entity.CalenderEntity;
+import dec.haeyum.calendar.entity.CalendarEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -20,9 +20,9 @@ public class MemberEntity {
     @JoinTable(
             name = "favorite",
             joinColumns = @JoinColumn(name = "memberId"),
-            inverseJoinColumns = @JoinColumn(name = "calenderId")
+            inverseJoinColumns = @JoinColumn(name = "calendarId")
     )
-    private List<CalenderEntity> favorite = new ArrayList<>();
+    private List<CalendarEntity> favorite = new ArrayList<>();
 
 
 }
