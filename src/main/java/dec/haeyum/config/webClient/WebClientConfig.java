@@ -1,4 +1,4 @@
-package dec.haeyum.weather.config;
+package dec.haeyum.config.webClient;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
