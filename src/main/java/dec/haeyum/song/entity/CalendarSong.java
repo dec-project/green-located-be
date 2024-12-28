@@ -1,8 +1,7 @@
 package dec.haeyum.song.entity;
 
-import dec.haeyum.searchCalender.entity.CalenderEntity;
+import dec.haeyum.calendar.entity.CalendarEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 
 
@@ -14,7 +13,7 @@ public class CalendarSong {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "calendar_id")
-    private CalenderEntity calenderEntity;
+    private CalendarEntity calendarEntity;
     @ManyToOne
     @JoinColumn(name = "song_id")
     private Song song;
