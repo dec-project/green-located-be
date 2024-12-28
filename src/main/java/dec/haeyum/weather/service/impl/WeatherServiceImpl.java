@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.weather.dto.response.GetWeatherResponseDto;
 import dec.haeyum.weather.dto.response.WeatherApiResponseDto;
 import dec.haeyum.weather.entity.WeatherEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,23 +58,27 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     @Transactional
     public ResponseEntity<? super GetWeatherResponseDto> getWeather(Long calendarId) {
-        String weather = "";
+        String weather;
         try {
             // DB 조회
-            CalendarEntity calendar = calendarService.getCalendar(calendarId);
-            // 달력에 날씨 데이터 없을 경우
+            Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
+            if (calendarEntityOptional.isEmpty()){
+                throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+            }
+            CalendarEntity calendar = calendarEntityOptional.get();
+            // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
             if (calendar.getWeather() == null){
                 WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
                 WeatherEntity weatherEntity = new WeatherEntity(weatherApiResponseDto);
                 calendar.setWeather(weatherEntity);
                 return GetWeatherResponseDto.success(weatherEntity.getWeatherName());
             }else {
-                // 달력에 날씨 데이터 있을 경우
+                // 달력에 날씨 데이터 있을 경우 그대로 반환
                 weather = calendar.getWeather().getWeatherName();
             }
         }catch (Exception e){
             e.printStackTrace();
-            return GetWeatherResponseDto.serverError();
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
         return GetWeatherResponseDto.success(weather);
     }

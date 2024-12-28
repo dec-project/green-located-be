@@ -1,7 +1,5 @@
 package dec.haeyum.calendar.dto.response;
 
-import dec.haeyum.calendar.dto.ResponseCode;
-import dec.haeyum.calendar.dto.ResponseDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PostCalendarResponseDto extends ResponseDto {
+public class PostCalendarResponseDto {
 
     private Integer count;
     private Integer totalPages;
@@ -22,12 +20,8 @@ public class PostCalendarResponseDto extends ResponseDto {
     private boolean last;
     private List<boardItem> itemList = new ArrayList<>();
 
-    public PostCalendarResponseDto() {
-        super(ResponseCode.success,ResponseMessage.success);
-    }
 
     public PostCalendarResponseDto(Page<CalendarEntity> paging) {
-        super(ResponseCode.success,ResponseMessage.success);
         this.count = (int)paging.getTotalElements();
         this.totalPages = paging.getTotalPages() - 1;
         this.currentPage = paging.getNumber();
@@ -41,13 +35,5 @@ public class PostCalendarResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.OK).body(postCalendarResponseDto);
     }
 
-    public static ResponseEntity<ResponseDto> notExistedBoundary() {
-        ResponseDto responseDto = new ResponseDto(ResponseCode.notExistedBoundary, ResponseMessage.notExistedBoundary);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
-    }
 
-    public static ResponseEntity<ResponseDto> notExistedCalendar() {
-        ResponseDto responseDto = new ResponseDto(ResponseCode.notExistedData, ResponseMessage.notExistedData);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
-    }
 }

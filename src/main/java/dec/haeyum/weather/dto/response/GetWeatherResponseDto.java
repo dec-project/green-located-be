@@ -1,8 +1,5 @@
 package dec.haeyum.weather.dto.response;
 
-import dec.haeyum.calendar.dto.ResponseCode;
-import dec.haeyum.calendar.dto.ResponseDto;
-import dec.haeyum.calendar.dto.response.ResponseMessage;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,12 +7,11 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 @NoArgsConstructor
-public class GetWeatherResponseDto extends ResponseDto {
+public class GetWeatherResponseDto  {
 
     private String weather;
 
     public GetWeatherResponseDto(String weather) {
-        super(ResponseCode.success, ResponseMessage.success);
         this.weather = weather;
     }
 
@@ -29,11 +25,5 @@ public class GetWeatherResponseDto extends ResponseDto {
         GetWeatherResponseDto result = new GetWeatherResponseDto();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-    public static ResponseEntity<ResponseDto> apiCallFail(String message){
-        ResponseDto result = new ResponseDto(ResponseCode.apiCallFail, message);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-
 
 }
