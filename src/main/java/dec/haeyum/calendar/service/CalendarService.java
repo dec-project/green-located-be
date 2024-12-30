@@ -3,9 +3,11 @@ package dec.haeyum.calendar.service;
 import dec.haeyum.calendar.dto.request.PostCalendarRequestDto;
 import dec.haeyum.calendar.dto.response.GetInitCalendarResponseDto;
 import dec.haeyum.calendar.dto.response.PostCalendarResponseDto;
+import dec.haeyum.calendar.dto.response.Top5MoviesDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CalendarService {
@@ -18,4 +20,5 @@ public interface CalendarService {
     boolean validateCalendar(Long calendarId);
     // 특정 달력 조회
     Optional<CalendarEntity> getCalendar(Long calendarId);
+
 }
