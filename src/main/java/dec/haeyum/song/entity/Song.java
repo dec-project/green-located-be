@@ -30,7 +30,7 @@ public class Song {
     private List<String> composers;
     @ElementCollection
     private List<String> arrangers;
-    private String songImg;
+    private String imgName;
     private String youtubeAddr;
     @OneToMany(mappedBy = "song")
     private List<CalendarSong> calendarSongs = new ArrayList<>();
