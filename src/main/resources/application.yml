@@ -4,7 +4,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 
     servlet:
@@ -18,3 +18,6 @@ spring:
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"
+
+movie:
+  api-url: "https://www.kobis.or.kr/kobis/business/stat/boxs/findDailyBoxOfficeList.do"
