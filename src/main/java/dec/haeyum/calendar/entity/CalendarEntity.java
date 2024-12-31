@@ -30,8 +30,6 @@ public class CalendarEntity {
     private WeatherEntity weather;
     @OneToMany(mappedBy = "calendarEntity")
     private List<CalendarSong> calendarSongs = new ArrayList<>();
-    @OneToMany(mappedBy = "calendarId")
-    private List<CalendarMovieEntity> movies = new ArrayList<>();
 
     public void createCalendar(LocalDate startDate) {
         // 2001-1-2 데이터를 2001년 1월 2일 로 변환
