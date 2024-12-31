@@ -10,5 +10,5 @@ import java.util.List;
 public interface CalendarSongRepository extends JpaRepository<CalendarSong, Long> {
 
     @Query("SELECT cs FROM CalendarSong cs WHERE cs.calendarEntity.calendarId = :calendarId AND cs.ranking BETWEEN 1 AND 5")
-    List<CalendarSong> findTop5ByCalenderEntityId(@Param("calendarId") Long calenderId);
+    List<CalendarSong> findTop5ByCalendarEntityId(@Param("calendarId") Long calendarId);
 }
