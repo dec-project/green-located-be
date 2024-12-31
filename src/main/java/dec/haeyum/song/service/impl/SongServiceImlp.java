@@ -27,7 +27,7 @@ public class SongServiceImlp implements SongService {
     public List<SongSummaryDto> getTop5Songs(Long calendarId) {
 
         // 1. Top5 노래 조회
-        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalenderEntityId(calendarId);
+        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalendarEntityId(calendarId);
 
         // 2. 각 Song의 이미지 url 생성
         List<SongSummaryDto> songSummaryDtos = calendarSongs.stream()
