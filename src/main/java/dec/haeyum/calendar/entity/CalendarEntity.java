@@ -43,6 +43,7 @@ public class CalendarEntity {
         this.weather = weather;
         this.weather.setCalendar(this);
     }
+
     @OneToMany(mappedBy = "calendarEntity")
     private List<CalendarSong> calendarSongs = new ArrayList<>();
 }
