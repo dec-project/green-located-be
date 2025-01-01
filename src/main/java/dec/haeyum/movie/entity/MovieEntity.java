@@ -22,6 +22,7 @@ public class MovieEntity {
     @Column(unique = true) // 예외 -> DataIntegrityViolationException
     private Integer movieUuid;
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDate openDate;
     private String img;
@@ -34,5 +35,6 @@ public class MovieEntity {
         this.title = data.getTitle();
         this.img = data.getImg();
         this.director = data.getDirector();
+        this.content = data.getContent();
     }
 }
