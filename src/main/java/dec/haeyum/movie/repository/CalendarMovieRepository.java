@@ -22,7 +22,8 @@ public interface CalendarMovieRepository extends JpaRepository<CalendarMovieEnti
                             "from calendar_movie as C " +
                             "inner join movie as M " +
                             "on C.movie_id = M.movie_id " +
-                            "where C.calendar_id = ?1 ",
+                            "where C.calendar_id = :calendarId " +
+                            "between 1 and 5",
             nativeQuery = true
 
     )

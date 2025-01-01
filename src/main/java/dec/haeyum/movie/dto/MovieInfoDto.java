@@ -17,6 +17,7 @@ public class MovieInfoDto {
 
     private String img;
     private String director;
+    private String content;
 
     @Override
     public boolean equals(Object o) {

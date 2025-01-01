@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -74,9 +75,11 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<GetTop5Movies> getTop5Movies(Long calendarId) {
+        List<Top5MoviesDto> top5MoviesDto = new ArrayList<>();
         // 1. DB 데이터 체크
-        List<Top5MoviesDto> top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
+        top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
                 .orElse(null);
         // 2. 없으면 스크랩핑
         if (top5MoviesDto == null || top5MoviesDto.isEmpty()){
@@ -86,6 +89,8 @@ public class MovieServiceImpl implements MovieService {
                 throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
             }
             searchMovie(calendar);
+            top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
+                    .get();
         }
 
         // 3. 있으면 해당 데이터 반환
@@ -102,26 +107,6 @@ public class MovieServiceImpl implements MovieService {
             movieInfoParsing(html, calendar);
     }
 
-    private String getMovieInfoWebClient(LocalDate calendarDate) {
-        //String sSearchFrom = String.valueOf(calendarDate.minusDays(3));
-        String sSearchFrom = String.valueOf(calendarDate);
-        String sSearchTo = String.valueOf(calendarDate);
-        String CSRFToken = "xj6vtA4p6rTaiq5vAGm1p0p1WhIMJ1K0_IwR4B3N3Bk";
-
-        String html = webClient.post()
-                .uri(movie_rank_url)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(
-                        "CSRFToken",CSRFToken)
-                        .with("loadEnd","0")
-                        .with("searchType","search")
-                        .with("sSearchFrom",sSearchFrom)
-                        .with("sSearchTo",sSearchTo))
-                .retrieve() // 응답 처리
-                .bodyToMono(String.class)
-                .block();
-        return html;
-    }
 
     private void movieInfoParsing(String html, CalendarEntity calendar) {
         // 영화 페이지
@@ -144,10 +129,31 @@ public class MovieServiceImpl implements MovieService {
                 .toList();
         if (list.size() >= 1){
             // 영화 디테일 데이터 매핑(영화별 이미지, 감독)
-            mapMovieDetailInfo(list, calendar);
+            getMovieDetailInfoWebClient(list, calendar);
         }
+    }
 
 
+
+    private String getMovieInfoWebClient(LocalDate calendarDate) {
+        //String sSearchFrom = String.valueOf(calendarDate.minusDays(3));
+        String sSearchFrom = String.valueOf(calendarDate);
+        String sSearchTo = String.valueOf(calendarDate);
+        String CSRFToken = "xj6vtA4p6rTaiq5vAGm1p0p1WhIMJ1K0_IwR4B3N3Bk";
+
+        String html = webClient.post()
+                .uri(movie_rank_url)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(
+                        "CSRFToken",CSRFToken)
+                        .with("loadEnd","0")
+                        .with("searchType","search")
+                        .with("sSearchFrom",sSearchFrom)
+                        .with("sSearchTo",sSearchTo))
+                .retrieve() // 응답 처리
+                .bodyToMono(String.class)
+                .block();
+        return html;
     }
 
     private Set<MovieInfoDto> changeDataStructure(List<MovieInfoDto> movieInfo) {
@@ -156,11 +162,6 @@ public class MovieServiceImpl implements MovieService {
         list.addAll(movieInfo);
 
         return list;
-    }
-
-    private void mapMovieDetailInfo(List<MovieInfoDto> list, CalendarEntity calendar) {
-        // webClient 전송
-        getMovieDetailInfoWebClient(list, calendar);
     }
 
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
@@ -190,12 +191,15 @@ public class MovieServiceImpl implements MovieService {
     private void movieDetailInfoParsing(String result, Integer movieUuid, MovieInfoDto data) {
         Document document = Jsoup.parse(result);
         String imgPath = document.select("a.fl").attr("href");
-        String uuid = String.valueOf(movieUuid)+"_director";
-        String directorName = document.select("div#" + uuid + " dd a").text();
+        String directorPath = String.format("div#%d_director dd a", movieUuid);
+
+        String directorName = document.select(directorPath).text();
+        String content = document.select("p.desc_info").text();
 
         byte[] imgFile = downloadImage(imgPath);
         String fileName = saveImgFile(imgFile);
 
+        data.setContent(content);
         data.setImg(fileName);
         data.setDirector(directorName);
 
@@ -236,7 +240,6 @@ public class MovieServiceImpl implements MovieService {
         return list;
     }
 
-    // 문제가 2틀의 영화 데이터만 요청했는데 마지막에 more 해서 html이 하나의 테이블을 더 건내주는데 거기에 10위 이상의 영화 데이터가 있음;;;
     private List<MovieInfoDto> mapMovieInfo(Document document) {
         List<MovieInfoDto> item = new ArrayList<>();
         for (Element tbody : document.select("table.th_sort tbody tr")) {
