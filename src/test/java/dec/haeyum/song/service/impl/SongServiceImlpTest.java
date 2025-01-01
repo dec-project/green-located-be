@@ -1,6 +1,5 @@
 package dec.haeyum.song.service.impl;
 
-import dec.haeyum.searchCalender.entity.CalenderEntity;
 import dec.haeyum.song.dto.SongSummaryDto;
 import dec.haeyum.song.entity.CalendarSong;
 import dec.haeyum.song.entity.Song;
