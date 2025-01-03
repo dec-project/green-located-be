@@ -6,6 +6,7 @@ import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Entity(name = "calendar")
 @Getter
-
+@Setter
 public class CalendarEntity {
 
     @Id
