@@ -1,6 +1,11 @@
 package dec.haeyum.config.error;
 
+import dec.haeyum.calendar.controller.CalendarController;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.movie.controller.MovieController;
+import dec.haeyum.song.controller.SongController;
+import dec.haeyum.weather.controller.WeatherController;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,10 +23,11 @@ public class GlobalExceptionHandler {
 
     // 예상하지 못한 예외 처리
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handle(Exception e){
+    protected ResponseEntity<ErrorResponse> handle(Exception e) {
         e.printStackTrace();
         return createErrorResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
     }
+
 
     private ResponseEntity<ErrorResponse> createErrorResponseEntity(ErrorCode errorCode) {
         return new ResponseEntity<>(
@@ -35,9 +41,5 @@ public class GlobalExceptionHandler {
                 ErrorResponse.of(e.getErrorCode(), e.getMessage()),
                 e.getErrorCode().getStatus());
     }
-
-
-
-
 
 }
