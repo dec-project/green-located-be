@@ -20,4 +20,11 @@ public class CalendarMovieEntity {
         this.movieId = movie.getMovieId();
         this.ranking = ranking;
     }
+
+    public CalendarMovieEntity(Long calendarId, Long movieId, Integer ranking) {
+        this.calendarId = calendarId;
+        this.movieId = movieId;
+        this.ranking = ranking;
+
+    }
 }

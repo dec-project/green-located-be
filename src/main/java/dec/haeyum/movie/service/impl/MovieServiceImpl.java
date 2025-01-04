@@ -7,6 +7,7 @@ import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.movie.dto.MovieInfoDto;
 import dec.haeyum.movie.dto.response.GetTop5Movies;
+import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import dec.haeyum.movie.entity.CalendarMovieEntity;
 import dec.haeyum.movie.entity.MovieEntity;
 import dec.haeyum.movie.repository.CalendarMovieRepository;
@@ -19,6 +20,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +30,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.View;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import reactor.core.publisher.Mono;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,6 +54,7 @@ public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final CalendarMovieRepository calendarMovieRepository;
     private final CalendarService calendarService;
+    private final View error;
     private WebClient webClient;
 
     @Value("${movie.base-url}")
@@ -57,6 +65,8 @@ public class MovieServiceImpl implements MovieService {
     private String movie_detail_url;
     @Value("${spring.file.filePath}")
     private String file_path;
+    @Value("${spring.file.fileUrl}")
+    private String file_url;
 
     @PostConstruct
     public void initWebClient(){
@@ -69,13 +79,14 @@ public class MovieServiceImpl implements MovieService {
                 .defaultHeader(HttpHeaders.ACCEPT,MediaType.APPLICATION_JSON_VALUE)
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs()
-                                .maxInMemorySize(10 * 1024 * 1024))
+                                .maxInMemorySize(30 * 1024 * 1024))
                         .build())
                 .build();
     }
 
     @Override
     @Transactional
+    // 날짜별 TOP 5 영화 가져오기
     public ResponseEntity<GetTop5Movies> getTop5Movies(Long calendarId) {
         List<Top5MoviesDto> top5MoviesDto = new ArrayList<>();
         // 1. DB 데이터 체크
@@ -94,43 +105,17 @@ public class MovieServiceImpl implements MovieService {
         }
 
         // 3. 있으면 해당 데이터 반환
-        return GetTop5Movies.success(top5MoviesDto);
+        return GetTop5Movies.success(top5MoviesDto,file_url);
     }
 
     private void searchMovie(CalendarEntity calendar) {
-            // 페이지 Get
+            // 크롤링 페이지 GET
             String html = getMovieInfoWebClient(calendar.getCalendarDate());
             if (html == null || html.isEmpty()){
                 throw new BusinessException(ErrorCode.NOT_CONNECT_PAGE);
             }
             // 페이지에서 원하는 데이터 추출
             movieInfoParsing(html, calendar);
-    }
-
-
-    private void movieInfoParsing(String html, CalendarEntity calendar) {
-        // 영화 페이지
-        Document document = Jsoup.parse(html);
-        // 날짜 데이터 매핑
-        HashMap<String, List<MovieInfoDto>> movieDate = mapMovieDate(html, document);
-        // 날짜별 영화 데이터 매핑(영화별 영화ID, 순위, 제목, 개봉일)
-        List<MovieInfoDto> movieInfo = mapMovieInfo(document);
-        // 중복 영화 제거
-        Set<MovieInfoDto> infoDtos = changeDataStructure(movieInfo);
-        // movieUuid 만 추출해서 있는거
-        Set<Integer> collect = infoDtos.stream()
-                .map(item -> item.getMovieUuid())
-                .collect(Collectors.toSet());
-        // DB에 있는 uuid  검증 , 존재하면 uuid 반환
-        Set<Integer> byMovieUuid = movieRepository.findByMovieUuid(collect);
-        // DB uuid - 중복 제거 List = DB에 저장되지 않은 영화
-        List<MovieInfoDto> list = infoDtos.stream()
-                .filter(movie -> !byMovieUuid.contains(movie.getMovieUuid()))
-                .toList();
-        if (list.size() >= 1){
-            // 영화 디테일 데이터 매핑(영화별 이미지, 감독)
-            getMovieDetailInfoWebClient(list, calendar);
-        }
     }
 
 
@@ -145,7 +130,7 @@ public class MovieServiceImpl implements MovieService {
                 .uri(movie_rank_url)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(
-                        "CSRFToken",CSRFToken)
+                                "CSRFToken",CSRFToken)
                         .with("loadEnd","0")
                         .with("searchType","search")
                         .with("sSearchFrom",sSearchFrom)
@@ -155,6 +140,54 @@ public class MovieServiceImpl implements MovieService {
                 .block();
         return html;
     }
+
+
+
+    private void movieInfoParsing(String html, CalendarEntity calendar) {
+        // 영화 페이지
+        Document document = Jsoup.parse(html);
+
+        // 날짜 데이터 매핑
+        HashMap<String, List<MovieInfoDto>> movieDate = mapMovieDate(html, document);
+
+        // 날짜별 영화 데이터 매핑(영화별 영화ID, 순위, 제목, 개봉일)
+        List<MovieInfoDto> movieInfo = mapMovieInfo(document);
+
+        // 중복 영화 제거( 다른 날짜 영화 순위도 수집할 경우)
+        Set<MovieInfoDto> infoDtos = changeDataStructure(movieInfo);
+
+        // movieUuid 만 추출해서 있는거
+        Set<String> collect = infoDtos.stream()
+                .map(item -> item.getMovieUuid())
+                .collect(Collectors.toSet());
+        // DB에 있는 uuid  검증 , 존재하면 uuid 반환
+        List<MovieDbKeyDto> byMovieUuid = movieRepository.findByMovieUuid(collect);
+        // 중복 제거 List - DB 검증 list = DB에 저장되지 않은 영화
+        List<MovieInfoDto> list = infoDtos.stream()
+                .filter(movie -> byMovieUuid.stream()
+                        .noneMatch(dbkey -> Objects.equals(movie.getMovieUuid(), dbkey.getMovieUuid())))
+                .toList();
+
+        // DB에 저장된 영화가 없을 경우
+        if (list.size() >= 1){
+            // 영화 디테일 데이터 매핑(영화별 이미지, 감독)
+            getMovieDetailInfoWebClient(list, calendar);
+        }
+        // DB에 저장된 영화가 있을 경우
+        if (byMovieUuid.size() > 1){
+            List<CalendarMovieEntity> calendarMovieList = new ArrayList<>();
+            for (MovieDbKeyDto dto : byMovieUuid) {
+                MovieInfoDto targetMovie = movieInfo.stream()
+                        .filter(movie -> movie.equals(dto))
+                        .findFirst()
+                        .get();
+                CalendarMovieEntity calendarMovieEntity = new CalendarMovieEntity(calendar.getCalendarId(), dto.getMovieId(), targetMovie.getRanking());
+                calendarMovieList.add(calendarMovieEntity);
+            }
+            calendarMovieRepository.saveAll(calendarMovieList);
+        }
+    }
+
 
     private Set<MovieInfoDto> changeDataStructure(List<MovieInfoDto> movieInfo) {
 
@@ -172,7 +205,7 @@ public class MovieServiceImpl implements MovieService {
             String html = webClient.post()
                     .uri(movie_detail_url)
                     .body(BodyInserters.fromFormData(
-                                    "code", String.valueOf(data.getMovieUuid()))
+                                    "code", data.getMovieUuid())
                             .with("titleYN", "Y")
                             .with("isOuterReq", "false")
                             .with("CSRFToken", csrfToken))
@@ -180,7 +213,7 @@ public class MovieServiceImpl implements MovieService {
                     .bodyToMono(String.class)
                     .block();
 
-            movieDetailInfoParsing(html,data.getMovieUuid(),data);
+            movieDetailInfoParsing(html,data);
             MovieEntity movie = movieRepository.save(new MovieEntity(data));
             calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
 
@@ -188,44 +221,44 @@ public class MovieServiceImpl implements MovieService {
         }
     }
 
-    private void movieDetailInfoParsing(String result, Integer movieUuid, MovieInfoDto data) {
+    private void movieDetailInfoParsing(String result, MovieInfoDto data) {
         Document document = Jsoup.parse(result);
+        // 영화 이미지 경로
         String imgPath = document.select("a.fl").attr("href");
-        String directorPath = String.format("div#%d_director dd a", movieUuid);
-
-        String directorName = document.select(directorPath).text();
+        // 영화 내용 경로
         String content = document.select("p.desc_info").text();
-
-        byte[] imgFile = downloadImage(imgPath);
-        String fileName = saveImgFile(imgFile);
-
+        // 이미지 다운
+        downloadImage(imgPath,data);
         data.setContent(content);
-        data.setImg(fileName);
-        data.setDirector(directorName);
 
     }
 
-    private String saveImgFile(byte[] imgFile) {
+    private void downloadImage(String imgPath, MovieInfoDto data) {
+        final String pullPath = movie_api_url + imgPath;
         UUID uuid = UUID.randomUUID();
         String fileName = uuid + ".jpg";
-        String pullPath = file_path + fileName;
-        Path path = Paths.get(pullPath);
-        try {
-            Files.createDirectories(path.getParent());
-            Files.write(path,imgFile);
-        }catch (IOException e){
-            throw new BusinessException(ErrorCode.NOT_CONNECT_PAGE);
-        }
-        return fileName;
-    }
+        String filePath = file_path + fileName;
 
-    private byte[] downloadImage(String imgPath) {
-        final String pullPath = movie_api_url + imgPath;
-        return webClient.get()
-                .uri(pullPath)
-                .retrieve()
-                .bodyToMono(byte[].class)
-                .block();
+        try {
+            byte[] imgBytes = webClient.get()
+                    .uri(pullPath)
+                    .header("Accept-Encoding", "gzip")
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+
+            Path path = Paths.get(filePath);
+            Files.createDirectories(path.getParent());
+            Files.write(path,imgBytes);
+            data.setImg(fileName);
+            Thread.sleep(200);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
     }
 
 
@@ -256,7 +289,7 @@ public class MovieServiceImpl implements MovieService {
     private void mapMovieId(MovieInfoDto dto, Element tr) {
         String onClick = tr.select("td.tal span a").attr("onClick");
         String movieId = onClick.replaceAll(".*mstView\\('movie','(\\d+)'\\).*", "$1");
-        dto.setMovieUuid(Integer.parseInt(movieId));
+        dto.setMovieUuid((movieId));
 
     }
 

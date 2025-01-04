@@ -16,6 +16,7 @@ spring:
         jdbc:
           batch_size: 400
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"

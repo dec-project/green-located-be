@@ -16,13 +16,8 @@ public class GetWeatherResponseDto  {
     }
 
     // 200
-    public static ResponseEntity<? super GetWeatherResponseDto> success(String weather){
+    public static ResponseEntity<GetWeatherResponseDto> success(String weather){
         GetWeatherResponseDto result = new GetWeatherResponseDto(weather);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-    // 200 - 날씨 데이터 없음
-    public static ResponseEntity<? super GetWeatherResponseDto> success(){
-        GetWeatherResponseDto result = new GetWeatherResponseDto();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
