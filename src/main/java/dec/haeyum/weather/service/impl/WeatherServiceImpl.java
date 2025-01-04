@@ -6,9 +6,13 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.weather.dto.request.PostWeatherImgRequestDto;
 import dec.haeyum.weather.dto.response.GetWeatherResponseDto;
+import dec.haeyum.weather.dto.response.PostWeatherImgResponseDto;
 import dec.haeyum.weather.dto.response.WeatherApiResponseDto;
 import dec.haeyum.weather.entity.WeatherEntity;
+import dec.haeyum.weather.entity.WeatherImgEntity;
+import dec.haeyum.weather.repository.WeatherImgRepository;
 import dec.haeyum.weather.repository.WeatherRepository;
 import dec.haeyum.weather.service.WeatherService;
 import jakarta.annotation.PostConstruct;
@@ -20,12 +24,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +40,7 @@ import java.util.Optional;
 public class WeatherServiceImpl implements WeatherService {
 
     private final WeatherRepository weatherRepository;
+    private final WeatherImgRepository weatherImgRepository;
     private final CalendarService calendarService;
     private WebClient webClient;
 
@@ -40,6 +48,10 @@ public class WeatherServiceImpl implements WeatherService {
     private String serviceKey ;
     @Value("${weather.api-url}")
     private String weather_api_url;
+    @Value("${spring.file.filePath}")
+    private String filePath;
+    @Value("${spring.file.fileUrl}")
+    private String fileUrl;
 
 
     @PostConstruct
@@ -57,30 +69,66 @@ public class WeatherServiceImpl implements WeatherService {
 
     @Override
     @Transactional
-    public ResponseEntity<? super GetWeatherResponseDto> getWeather(Long calendarId) {
-        String weather;
+    public ResponseEntity<GetWeatherResponseDto> getWeather(Long calendarId) {
+        GetWeatherResponseDto responseDto = new GetWeatherResponseDto();
+
+        // DB 조회
+        Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
+        if (calendarEntityOptional.isEmpty()){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+        }
+        CalendarEntity calendar = calendarEntityOptional.get();
+
+        // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
+        if (calendar.getWeather() == null){
+            WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
+            WeatherEntity weatherEntity = new WeatherEntity(weatherApiResponseDto);
+            calendar.setWeather(weatherEntity);
+            responseDto.setWeather(weatherEntity.getWeatherName());
+        }else {
+            // 달력에 날씨 데이터 있을 경우 그대로 반환
+            responseDto.setWeather(calendar.getWeather().getWeatherName());
+        }
+        WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(responseDto.getWeather())
+                .orElse(null);
+
+        if (weatherImgEntity == null){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
+        }
+        String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
+        responseDto.setImg(imgPath);
+        return GetWeatherResponseDto.success(responseDto);
+    }
+
+    @Override
+    @Transactional
+    // 날씨 이미지 저장
+    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(PostWeatherImgRequestDto dto) {
+
+        WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(dto.getWeatherImgName())
+                .orElse(null);
+        String uuidFileName = saveFile(dto.getWeatherImg());
+        if (weatherImgEntity == null){
+            WeatherImgEntity saveWeatherImgEntity = new WeatherImgEntity(dto.getWeatherImgName(), uuidFileName);
+            weatherImgRepository.save(saveWeatherImgEntity);
+        }else {
+            weatherImgEntity.setWeatherImg(uuidFileName);
+        }
+        return PostWeatherImgResponseDto.success();
+    }
+
+    private String saveFile(MultipartFile weatherImg) {
+        MultipartFile img = weatherImg;
+        String originalFilename = img.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String uuidFileName = UUID.randomUUID().toString() + extension;
+        String saveFile = filePath + uuidFileName;
         try {
-            // DB 조회
-            Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
-            if (calendarEntityOptional.isEmpty()){
-                throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-            }
-            CalendarEntity calendar = calendarEntityOptional.get();
-            // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
-            if (calendar.getWeather() == null){
-                WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
-                WeatherEntity weatherEntity = new WeatherEntity(weatherApiResponseDto);
-                calendar.setWeather(weatherEntity);
-                return GetWeatherResponseDto.success(weatherEntity.getWeatherName());
-            }else {
-                // 달력에 날씨 데이터 있을 경우 그대로 반환
-                weather = calendar.getWeather().getWeatherName();
-            }
+            img.transferTo(new File(saveFile));
         }catch (Exception e){
             e.printStackTrace();
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return GetWeatherResponseDto.success(weather);
+        return uuidFileName;
     }
 
 

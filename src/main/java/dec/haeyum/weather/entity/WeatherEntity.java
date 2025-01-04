@@ -65,9 +65,14 @@ public class WeatherEntity {
         if (this.sumRn > 0){
             return "비";
         }
-        if (this.avgTca != null){
-            if (this.avgTca > 4){
+        // 구름량과 강수량으로 흐림/약간 흐림 판별
+        if (this.avgTca != null) {
+            if (this.avgTca > 7 && this.sumRn != null && this.sumRn > 0.5) {
+                // 구름량이 7 이상이고 강수량이 조금이라도 있으면 흐림
                 return "흐림";
+            } else if (this.avgTca > 4) {
+                // 구름량만 기준으로 약간 흐림
+                return "약간 흐림";
             }
         }
         return "맑음";
