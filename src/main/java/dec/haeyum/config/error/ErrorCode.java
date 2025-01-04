@@ -13,7 +13,11 @@ public enum ErrorCode {
     NOT_EXISTED_BOUNDARY(HttpStatus.NOT_FOUND,"EB","검색할 수 있는 범위를 초과했습니다."),
     DUPLICATED_CALENDAR_DATE(HttpStatus.BAD_REQUEST,"DC","이미 가장 최신 달력입니다."),
     NOT_EXISTED_DATETIME_PARSE(HttpStatus.BAD_REQUEST,"ED","유효하지 않은 날짜 형식입니다. ex)2024-12-25"),
-    NOT_EXISTED_CALENDAR(HttpStatus.NOT_FOUND,"EC","찾을 수 있는 달력이 없습니다.");
+    NOT_EXISTED_CALENDAR(HttpStatus.NOT_FOUND,"EC","찾을 수 있는 달력이 없습니다."),
+    // 날씨 에러
+    NOT_EXISTED_WEATHERIMG(HttpStatus.NOT_FOUND,"EI","존재하지 않는 날씨 이미지입니다."),
+    // 이미지 전송 에러
+    NOT_EXISTED_IMG(HttpStatus.INTERNAL_SERVER_ERROR,"EI","존재하지 않는 이미지 파일입니다.");
 
     private final String message;
     private final String code;
