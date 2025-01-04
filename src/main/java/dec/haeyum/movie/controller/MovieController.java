@@ -16,8 +16,8 @@ public class MovieController {
 
     @GetMapping("/search/{calendarId}/movies")
     public ResponseEntity<GetTop5Movies> getTop5Movies(@PathVariable("calendarId")Long calendarId){
-        movieService.getTop5Movies(calendarId);
-        return null;
+        ResponseEntity<GetTop5Movies> result = movieService.getTop5Movies(calendarId);
+        return result;
     }
 
 

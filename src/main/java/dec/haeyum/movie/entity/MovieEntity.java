@@ -20,13 +20,12 @@ public class MovieEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long movieId;
     @Column(unique = true) // 예외 -> DataIntegrityViolationException
-    private Integer movieUuid;
+    private String movieUuid;
     private String title;
     @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDate openDate;
     private String img;
-    private String director;
     private String youtube_address;
 
     public MovieEntity(MovieInfoDto data) {
@@ -34,7 +33,6 @@ public class MovieEntity {
         this.openDate = data.getOpenDate();
         this.title = data.getTitle();
         this.img = data.getImg();
-        this.director = data.getDirector();
         this.content = data.getContent();
     }
 }

@@ -18,6 +18,6 @@ public class WeatherController {
     @GetMapping("/weather/{calendarId}")
     public ResponseEntity<? super GetWeatherResponseDto> getWeather(@PathVariable("calendarId") Long calendarId){
         ResponseEntity<? super GetWeatherResponseDto> result = weatherService.getWeather(calendarId);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return result;
     }
 }

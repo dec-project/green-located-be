@@ -14,19 +14,20 @@ public class MovieItem {
     private String title;
     private String img;
 
-    protected MovieItem(Long movieId, Integer ranking, String title, String img) {
+    protected MovieItem(Long movieId, Integer ranking, String title, String img, String file_url) {
         this.movieId = movieId;
         this.ranking = ranking;
         this.title = title;
-        this.img = img;
+        this.img = file_url+img;
     }
 
-    public static List<MovieItem> asList(List<Top5MoviesDto> list) {
+    public static List<MovieItem> asList(List<Top5MoviesDto> list, String file_url) {
         return list.stream()
                 .map(dto -> new MovieItem(dto.getMovieId(),
                         dto.getRanking(),
                         dto.getTitle(),
-                        dto.getImg()))
+                        dto.getImg(),
+                        file_url))
                 .collect(Collectors.toList());
     }
 }

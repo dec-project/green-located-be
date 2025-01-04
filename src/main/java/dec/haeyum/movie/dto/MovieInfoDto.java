@@ -1,5 +1,6 @@
 package dec.haeyum.movie.dto;
 
+import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,21 +11,22 @@ import java.util.Objects;
 @Setter
 public class MovieInfoDto {
 
-    private Integer movieUuid;
+    private String movieUuid;
     private Integer ranking;
     private LocalDate openDate;
     private String title;
 
     private String img;
-    private String director;
     private String content;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MovieInfoDto that = (MovieInfoDto) o;
-        return Objects.equals(movieUuid, that.movieUuid) ;
+        if (o == null ) return false;
+        MovieDbKeyDto that = (MovieDbKeyDto) o;
+        if (this.getMovieUuid().equals(that.getMovieUuid())){
+            return true;
+        }
+        return false;
     }
 
     @Override

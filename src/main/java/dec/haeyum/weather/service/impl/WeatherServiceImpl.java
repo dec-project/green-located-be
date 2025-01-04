@@ -58,27 +58,23 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     @Transactional
     public ResponseEntity<? super GetWeatherResponseDto> getWeather(Long calendarId) {
-        String weather;
-        try {
-            // DB 조회
-            Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
-            if (calendarEntityOptional.isEmpty()){
-                throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-            }
-            CalendarEntity calendar = calendarEntityOptional.get();
-            // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
-            if (calendar.getWeather() == null){
-                WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
-                WeatherEntity weatherEntity = new WeatherEntity(weatherApiResponseDto);
-                calendar.setWeather(weatherEntity);
-                return GetWeatherResponseDto.success(weatherEntity.getWeatherName());
-            }else {
-                // 달력에 날씨 데이터 있을 경우 그대로 반환
-                weather = calendar.getWeather().getWeatherName();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+        String weather = null;
+        // DB 조회
+        Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
+        if (calendarEntityOptional.isEmpty()){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+        }
+
+        CalendarEntity calendar = calendarEntityOptional.get();
+        // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
+        if (calendar.getWeather() == null){
+            WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
+            WeatherEntity weatherEntity = new WeatherEntity(weatherApiResponseDto);
+            calendar.setWeather(weatherEntity);
+            weather = weatherEntity.getWeatherName();
+        }else {
+            // 달력에 날씨 데이터 있을 경우 그대로 반환
+            weather = calendar.getWeather().getWeatherName();
         }
         return GetWeatherResponseDto.success(weather);
     }
