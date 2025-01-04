@@ -29,6 +29,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -112,9 +116,21 @@ public class WeatherServiceImpl implements WeatherService {
             WeatherImgEntity saveWeatherImgEntity = new WeatherImgEntity(dto.getWeatherImgName(), uuidFileName);
             weatherImgRepository.save(saveWeatherImgEntity);
         }else {
+            deleteFile(weatherImgEntity.getWeatherImg());
+
             weatherImgEntity.setWeatherImg(uuidFileName);
         }
         return PostWeatherImgResponseDto.success();
+    }
+
+    private void deleteFile(String weatherImg) {
+        String imgFilePath = filePath + weatherImg;
+        Path path = Paths.get(imgFilePath);
+        try {
+            Files.deleteIfExists(path);
+        }catch (IOException e){
+            throw new BusinessException(ErrorCode.CANT_DELETE_FILE);
+        }
     }
 
     private String saveFile(MultipartFile weatherImg) {
