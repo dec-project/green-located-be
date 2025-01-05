@@ -202,21 +202,26 @@ public class MovieServiceImpl implements MovieService {
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
 
         for (MovieInfoDto data : list) {
-            String html = webClient.post()
-                    .uri(movie_detail_url)
-                    .body(BodyInserters.fromFormData(
-                                    "code", data.getMovieUuid())
-                            .with("titleYN", "Y")
-                            .with("isOuterReq", "false")
-                            .with("CSRFToken", csrfToken))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            try {
+                String html = webClient.post()
+                        .uri(movie_detail_url)
+                        .header("Accept-Encoding","gzip")
+                        .body(BodyInserters.fromFormData(
+                                        "code", data.getMovieUuid())
+                                .with("titleYN", "Y")
+                                .with("isOuterReq", "false")
+                                .with("CSRFToken", csrfToken))
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
 
-            movieDetailInfoParsing(html,data);
-            MovieEntity movie = movieRepository.save(new MovieEntity(data));
-            calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
-
+                movieDetailInfoParsing(html,data);
+                MovieEntity movie = movieRepository.save(new MovieEntity(data));
+                calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
+                Thread.sleep(200);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
         }
     }
