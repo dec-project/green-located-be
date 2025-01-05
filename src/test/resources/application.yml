@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    include: secret
+
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+    servlet:
+      multipart:
+        max-file-size: 100MB # 단일 파일 최대 크기
+        max-request-size: 110MB #전체 요청 크기의 최대 크기
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 400
+
+weather:
+  api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"

@@ -9,11 +9,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // 모든 경로 허용
+
         registry.addMapping("/**")
-                // 허용할 도메인
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET","POST","DELETE","PUT")
-                .allowedHeaders("*");
+                .allowedMethods("GET","POST","DELETE","OPTIONS","PUT")
+                .allowedHeaders("*")
+                .allowedOriginPatterns("*");
+                //.allowCredentials(true);
     }
 }

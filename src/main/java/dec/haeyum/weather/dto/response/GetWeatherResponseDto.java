@@ -2,23 +2,22 @@ package dec.haeyum.weather.dto.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class GetWeatherResponseDto  {
 
     private String weather;
+    private String img;
 
-    public GetWeatherResponseDto(String weather) {
-        this.weather = weather;
-    }
 
     // 200
-    public static ResponseEntity<GetWeatherResponseDto> success(String weather){
-        GetWeatherResponseDto result = new GetWeatherResponseDto(weather);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+    public static ResponseEntity<GetWeatherResponseDto> success(GetWeatherResponseDto dto){
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 
 }

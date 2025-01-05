@@ -1,5 +1,7 @@
 package dec.haeyum.song.service.impl;
 
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.song.dto.SongDetailDto;
 import dec.haeyum.song.dto.SongSummaryDto;
 import dec.haeyum.song.entity.CalendarSong;
@@ -23,9 +25,19 @@ public class SongServiceImlp implements SongService {
     @Override
     @Transactional
     public List<SongSummaryDto> getTop5Songs(Long calendarId) {
-        List<CalendarSong> calendarSongs = calendarSongRepository.findByCalendarEntity_CalendarId(calendarId);
+
+        // 1. Top5 노래 조회
+        List<CalendarSong> calendarSongs = calendarSongRepository.findTop5ByCalendarEntityId(calendarId);
+
+        // 2. 각 Song의 이미지 url 생성
         List<SongSummaryDto> songSummaryDtos = calendarSongs.stream()
-                .map(cs -> SongSummaryDto.toDto(cs.getSong(), cs.getRanking()))
+                .map(cs -> {
+                    String imgName = cs.getSong().getImgName();
+                    String imgUrl = "/images/" + imgName;
+
+                    //DTO 변환
+                    return SongSummaryDto.toDto(cs.getSong(), cs.getRanking(), imgUrl);
+                })
                 .toList();
 
         return songSummaryDtos;
@@ -33,6 +45,9 @@ public class SongServiceImlp implements SongService {
 
     @Override
     public SongDetailDto getSongDetails(Long songId) {
-        return null;
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SONG_NOT_FOUND));
+
+        return SongDetailDto.toDto(song);
     }
 }
