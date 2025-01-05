@@ -4,11 +4,14 @@ import dec.haeyum.calendar.dto.request.PostCalendarDto;
 import dec.haeyum.calendar.dto.request.PostCalendarRequestDto;
 import dec.haeyum.calendar.dto.response.GetInitCalendarResponseDto;
 import dec.haeyum.calendar.dto.response.PostCalendarResponseDto;
+import dec.haeyum.calendar.dto.response.Top5MoviesDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.movie.entity.MovieEntity;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -66,6 +69,7 @@ public class CalendarServiceImpl implements CalendarService {
 
 
     @Override
+    @Transactional
     public ResponseEntity<? super PostCalendarResponseDto> getCalendar(PostCalendarRequestDto dto) {
         final int MAX_BOUNDARY = 90;
         Page<CalendarEntity> paging;
@@ -91,15 +95,6 @@ public class CalendarServiceImpl implements CalendarService {
         return calendarRepository.findById(calendarId);
     }
 
-
-    private PostCalendarDto parseString(PostCalendarRequestDto dto) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
-        String startDate = dto.getStartDate().format(formatter);
-        String endDate = dto.getEndDate().format(formatter);
-        PostCalendarDto postCalendarDto = new PostCalendarDto(startDate, endDate);
-        return postCalendarDto;
-    }
-
     private void createCalendar(LocalDate startDate, LocalDate endDate) {
         List<CalendarEntity> list = new ArrayList<>();
         int size = 400;
@@ -118,22 +113,8 @@ public class CalendarServiceImpl implements CalendarService {
         }
     }
 
-    private LocalDate changeDate(CalendarEntity calendarEntity) {
-        // 2001년 1월 2일
-        String calendarName = calendarEntity.getCalendarName();
-        // LocalDate로 변환
-        String parseCalendar = calendarName
-                .replace("년", "-")
-                .replace("월", "-")
-                .replace("일", "")
-                .replaceAll("\\s+", "");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
-        LocalDate parse = LocalDate.parse(parseCalendar, formatter);
-        return parse;
-    }
-
+    // 달력 DB 가장 최신 일 조회
     private CalendarEntity searchDatabase() {
-        // 1. 달력 DB 가장 최신 일 조회
         return calendarRepository.findByLastData();
     }
 
