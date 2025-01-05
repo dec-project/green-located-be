@@ -1,11 +1,12 @@
 package dec.haeyum.calendar.entity;
 
 import dec.haeyum.member.entity.MemberEntity;
-import dec.haeyum.movie.entity.CalendarMovieEntity;
 import dec.haeyum.weather.entity.WeatherEntity;
 import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Entity(name = "calendar")
 @Getter
-
+@Setter
 public class CalendarEntity {
 
     @Id
@@ -28,8 +29,7 @@ public class CalendarEntity {
     private List<MemberEntity> favorite = new ArrayList<>();
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private WeatherEntity weather;
-    @OneToMany(mappedBy = "calendarEntity")
-    private List<CalendarSong> calendarSongs = new ArrayList<>();
+
 
     public void createCalendar(LocalDate startDate) {
         // 2001-1-2 데이터를 2001년 1월 2일 로 변환
@@ -45,5 +45,6 @@ public class CalendarEntity {
         this.weather.setCalendar(this);
     }
 
-
+    @OneToMany(mappedBy = "calendarEntity")
+    private List<CalendarSong> calendarSongs = new ArrayList<>();
 }

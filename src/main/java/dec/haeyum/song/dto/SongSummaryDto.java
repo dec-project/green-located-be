@@ -14,15 +14,15 @@ public class SongSummaryDto {
     private String title;
     private List<String> artists;
     private int ranking;
-    private String songImg;
+    private String imgUrl;
 
-    public static SongSummaryDto toDto(Song song, int ranking) {
+    public static SongSummaryDto toDto(Song song, int ranking, String imgUrl) {
         return SongSummaryDto.builder()
                 .songId(song.getSongId())
                 .title(song.getTitle())
                 .artists(song.getArtists())
                 .ranking(ranking)
-                .songImg(song.getSongImg())
+                .imgUrl(imgUrl)
                 .build();
     }
 }

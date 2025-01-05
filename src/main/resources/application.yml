@@ -18,6 +18,12 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
 
+server:
+  compression:
+    enabled: true
+    mime-types: application/json, image/gif, image/jpeg, image/png
+    min-response-size: 1024
+
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"
 
