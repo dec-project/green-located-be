@@ -18,18 +18,14 @@ public class Song {
     @Id
     private Long songId;
     private String title;
-    @ElementCollection
-    private List<String> artists;
+    private String artists;
     private LocalDate releaseDate;
     private String genre;
     private String albumTitle;
     private String lyrics;
-    @ElementCollection
-    private List<String> lyricists;
-    @ElementCollection
-    private List<String> composers;
-    @ElementCollection
-    private List<String> arrangers;
+    private String lyricists;
+    private String composers;
+    private String arrangers;
     private String imgName;
     private String youtubeAddr;
     @OneToMany(mappedBy = "song")
