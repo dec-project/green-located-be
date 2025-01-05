@@ -10,14 +10,14 @@ import java.util.List;
 public class SongDetailDto {
     private Long songId;
     private String title;
-    private List<String> artists;
+    private String artists;
     private LocalDate releaseDate;
     private String genre;
     private String albumTitle;
     private String lyrics;
-    private List<String> lyricists;
-    private List<String> composers;
-    private List<String> arrangers;
+    private String lyricists;
+    private String composers;
+    private String arrangers;
     private String youtubeAddr;
 
     public static SongDetailDto toDto(Song song) {

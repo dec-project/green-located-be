@@ -33,7 +33,7 @@ public class SongServiceImlp implements SongService {
         List<SongSummaryDto> songSummaryDtos = calendarSongs.stream()
                 .map(cs -> {
                     String imgName = cs.getSong().getImgName();
-                    String imgUrl = "/images/" + imgName;
+                    String imgUrl = "/img/song/" + imgName;
 
                     //DTO 변환
                     return SongSummaryDto.toDto(cs.getSong(), cs.getRanking(), imgUrl);
