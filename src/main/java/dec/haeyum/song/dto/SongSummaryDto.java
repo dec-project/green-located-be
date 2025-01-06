@@ -12,7 +12,7 @@ import java.util.List;
 public class SongSummaryDto {
     private Long songId;
     private String title;
-    private List<String> artists;
+    private String artists;
     private int ranking;
     private String imgUrl;
 
