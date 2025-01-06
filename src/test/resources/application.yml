@@ -20,6 +20,9 @@ spring:
       hibernate:
         jdbc:
           batch_size: 400
+  batch:
+    jdbc:
+      initialize-schema: always
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"

@@ -22,29 +22,28 @@ public class CalendarSong {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "calendar_id")
+    //@ManyToOne
+    //@JoinColumn(name = "calendar_id")
 
-    private CalendarEntity calendarEntity;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn(name = "song_id")
     private Song song;
     private int ranking;
-    /*
-    public static CalendarSong of(CalendarSongCsvDto calendarSongCsvDto, SongRepository songRepository, CalendarRepository calendarRepository) {
+
+    public static CalendarSong of(CalendarSongCsvDto calendarSongCsvDto, SongRepository songRepository) {
         Song song = songRepository.findById(calendarSongCsvDto.getSongId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.SONG_NOT_FOUND));
-        LocalDate calendarDate = LocalDate.parse(calendarSongCsvDto.getCalendarDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        CalendarEntity calendarEntity = calendarRepository.findByCalendarDate(calendarDate)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+        LocalDate startDate = LocalDate.parse(calendarSongCsvDto.getStartDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        LocalDate endDate = LocalDate.parse(calendarSongCsvDto.getEndDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         return CalendarSong.builder()
-                .calendarEntity(calendarEntity)
+                .startDate(startDate)
+                .endDate(endDate)
                 .song(song)
                 .ranking(calendarSongCsvDto.getRanking())
                 .build();
     }
-
-     */
 
 }
