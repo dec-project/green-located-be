@@ -35,7 +35,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-
     private ResponseEntity<ErrorResponse> createErrorResponseEntity(BusinessException e) {
         return new ResponseEntity<>(
                 ErrorResponse.of(e.getErrorCode(), e.getMessage()),
