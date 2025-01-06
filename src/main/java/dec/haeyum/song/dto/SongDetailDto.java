@@ -11,7 +11,7 @@ public class SongDetailDto {
     private Long songId;
     private String title;
     private String artists;
-    private LocalDate releaseDate;
+    private String releaseDate;
     private String genre;
     private String albumTitle;
     private String lyrics;

@@ -12,7 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 
 @Configuration
 @RequiredArgsConstructor
-public class SongCsvReader {
+public class SongDetailCsvReader {
 
     @Value("${song.song-detail.csv-path}")
     private String songDetailCsv;
@@ -23,6 +23,7 @@ public class SongCsvReader {
         FlatFileItemReader<SongDetailCsvDto> flatFileItemReader = new FlatFileItemReader<>();
         flatFileItemReader.setResource(new ClassPathResource(songDetailCsv));
         flatFileItemReader.setEncoding("UTF-8");
+        flatFileItemReader.setLinesToSkip(1);   // 첫 줄(헤더) 무시
 
         // CSV 데이터를 한 줄씩 읽어서 DTO에 매핑
         DefaultLineMapper<SongDetailCsvDto> defaultLineMapper = new DefaultLineMapper<>();
