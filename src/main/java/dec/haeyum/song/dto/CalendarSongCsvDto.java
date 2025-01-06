@@ -10,7 +10,8 @@ import java.util.List;
 @Getter
 @Setter
 public class CalendarSongCsvDto {
-    private String calendarDate;
+    private String startDate;
+    private String endDate;
     private int ranking;
     private Long songId;
 

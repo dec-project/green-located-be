@@ -2,11 +2,13 @@ package dec.haeyum.song.dto;
 
 import dec.haeyum.song.entity.Song;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Builder
+@Getter
 public class SongDetailDto {
     private Long songId;
     private String title;
