@@ -1,12 +1,23 @@
 package dec.haeyum.song.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.calendar.repository.CalendarRepository;
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.song.dto.CalendarSongCsvDto;
+import dec.haeyum.song.repository.SongRepository;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class CalendarSong {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +31,20 @@ public class CalendarSong {
     @JoinColumn(name = "song_id")
     private Song song;
     private int ranking;
+    /*
+    public static CalendarSong of(CalendarSongCsvDto calendarSongCsvDto, SongRepository songRepository, CalendarRepository calendarRepository) {
+        Song song = songRepository.findById(calendarSongCsvDto.getSongId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.SONG_NOT_FOUND));
+        LocalDate calendarDate = LocalDate.parse(calendarSongCsvDto.getCalendarDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        CalendarEntity calendarEntity = calendarRepository.findByCalendarDate(calendarDate)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+        return CalendarSong.builder()
+                .calendarEntity(calendarEntity)
+                .song(song)
+                .ranking(calendarSongCsvDto.getRanking())
+                .build();
+    }
+
+     */
 
 }
