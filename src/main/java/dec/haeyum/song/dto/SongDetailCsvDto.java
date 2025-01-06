@@ -1,17 +1,23 @@
 package dec.haeyum.song.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class SongDetailCsvDto {
     private Long songId;
     private String title;
+    private String imgName;
     private String artists;
-    private LocalDate releaseDate;
-    private String genre;
     private String albumTitle;
+    private String releaseDate;
+    private String genre;
     private String lyrics;
     private String lyricists;
     private String composers;
