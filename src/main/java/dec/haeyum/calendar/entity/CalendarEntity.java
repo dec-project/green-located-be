@@ -25,7 +25,7 @@ public class CalendarEntity {
     private String calendarName; // 2022년 10월 12일
     private String content;
     private Integer viewCount;
-    @ManyToMany(mappedBy = "favorite")
+    @ManyToMany(mappedBy = "favorite", fetch = FetchType.EAGER)
     private List<MemberEntity> favorite = new ArrayList<>();
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private WeatherEntity weather;
