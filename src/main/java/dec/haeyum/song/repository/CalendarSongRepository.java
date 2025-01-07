@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CalendarSongRepository extends JpaRepository<CalendarSong, Long> {
 /*
@@ -15,6 +16,7 @@ public interface CalendarSongRepository extends JpaRepository<CalendarSong, Long
 
  */
 
-    @Query("SELECT s FROM CalendarSong s WHERE :date BETWEEN s.startDate AND s.endDate")
+    @Query("SELECT cs FROM CalendarSong cs WHERE :date BETWEEN cs.startDate AND cs.endDate")
     List<CalendarSong> findSongsByDate(@Param("date") LocalDate date);
+
 }
