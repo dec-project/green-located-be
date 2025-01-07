@@ -23,7 +23,11 @@ public enum ErrorCode {
     NOT_EXISTED_NEWS(HttpStatus.NOT_FOUND,"NN","찾을 수 있는 뉴스가 없습니다."),
     // 영화 에러
     NOT_CONNECT_PAGE(HttpStatus.INTERNAL_SERVER_ERROR,"NC","영화 페이지 를 찾을 수 없습니다."),
-    TOO_MANY_REQUESTS(HttpStatus.INTERNAL_SERVER_ERROR,"TR","너무 많은 요청 입니다. 잠시 후 다시 시도해 주세요.");
+    TOO_MANY_REQUESTS(HttpStatus.INTERNAL_SERVER_ERROR,"TR","너무 많은 요청 입니다. 잠시 후 다시 시도해 주세요."),
+    // 뉴스 에러
+    NOT_EXISTED_NEWS(HttpStatus.NOT_FOUND,"NN","찾을 수 있는 뉴스가 없습니다.");
+
+
     private final String message;
     private final String code;
     private final HttpStatus status;
