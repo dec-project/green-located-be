@@ -1,26 +1,83 @@
 spring:
-  profiles:
-    include: secret
-
+  config:
+    activate:
+      on-profile: default
+    import: application-secret.yml
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 
-    servlet:
-      multipart:
-        max-file-size: 100MB # 단일 파일 최대 크기
-        max-request-size: 110MB #전체 요청 크기의 최대 크기
     properties:
       hibernate:
         jdbc:
           batch_size: 400
-
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
 server:
   compression:
-    enabled: true
-    mime-types: application/json, image/gif, image/jpeg, image/png
     min-response-size: 1024
+    mime-types: application/json, image/png, image/jpeg, image/gif, image/gif
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"
+
+selenium:
+  selenium-name: "chromedriver"
+  selenium-path: "/Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/chromedriver-mac-arm64/"
+  selenium-bigKinds-page: "https://www.bigkinds.or.kr/v2/news/index.do"
+  selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
+---
+
+spring:
+  config:
+    activate:
+      on-profile: env
+    import: application-secret.yml
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 400
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+server:
+  compression:
+    min-response-size: 1024
+    mime-types: application/json, image/png, image/jpeg, image/gif, image/gif
+
+weather:
+  api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"
+
+selenium:
+  selenium-name: "chromedriver"
+  selenium-path: "/Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/chromedriver-mac-arm64/"
+  selenium-bigKinds-page: "https://www.bigkinds.or.kr/v2/news/index.do"
+  selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+

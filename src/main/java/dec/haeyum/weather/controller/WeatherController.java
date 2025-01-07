@@ -24,6 +24,7 @@ public class WeatherController {
     @PostMapping("/weather/img")
     public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(@ModelAttribute PostWeatherImgRequestDto dto){
         ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(dto);
+
         return result;
     }
 }
