@@ -14,14 +14,16 @@ public class PopularSearchDto {
     private String calendarName; // 2022년 10월 12일
     private Integer viewCount;
     private Integer favoriteCount;
+    private String imgUrl;
 
-    public static PopularSearchDto toDto(CalendarEntity calendarEntity) {
+    public static PopularSearchDto toDto(CalendarEntity calendarEntity, String imgUrl) {
         return PopularSearchDto.builder()
                 .calendarId(calendarEntity.getCalendarId())
                 .calendarDate(calendarEntity.getCalendarDate())
                 .calendarName(calendarEntity.getCalendarName())
                 .viewCount(calendarEntity.getViewCount())
                 .favoriteCount(calendarEntity.getFavorite().size())
+                .imgUrl(imgUrl)
                 .build();
     }
 }

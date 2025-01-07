@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
-    SONG_NOT_FOUND(HttpStatus.NOT_FOUND, "E404001", "존재하지 않는 songId입니다."),
+    SONG_NOT_FOUND(HttpStatus.NOT_FOUND, "E404001", "노래를 찾을 수 없습니다."),
     // 공통 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"ISE","서버 처리 중 오류가 발생했습니다. 관리자에게 문의하세요."),
     // Calendar 에러

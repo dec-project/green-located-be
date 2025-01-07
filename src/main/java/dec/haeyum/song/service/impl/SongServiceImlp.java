@@ -57,4 +57,20 @@ public class SongServiceImlp implements SongService {
 
         return SongDetailDto.toDto(song);
     }
+
+    @Override
+    public String getCalendarSongImageUrl(Long calendarId) {
+        //1. Top1 노래 조회
+        CalendarEntity findCalendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+        List<CalendarSong> calendarSongs = calendarSongRepository.findSongsByDate(findCalendar.getCalendarDate());
+
+        if (calendarSongs.isEmpty()) {
+            return "img/song/" + "default.png";
+        }
+        CalendarSong topSong = calendarSongs.get(0);
+        String imgName = topSong.getSong().getImgName();
+
+        return "/img/song/" + imgName;
+    }
 }
