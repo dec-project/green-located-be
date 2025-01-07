@@ -6,7 +6,6 @@ import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.news.dto.response.GetNewsResponseDto;
 import dec.haeyum.news.dto.response.NewsItem;
-import dec.haeyum.news.repository.NewsRepository;
 import dec.haeyum.news.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
@@ -30,7 +29,6 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
-    private final NewsRepository newsRepository;
     private final CalendarRepository calendarRepository;
 
     @Value("${selenium.selenium-name}")
