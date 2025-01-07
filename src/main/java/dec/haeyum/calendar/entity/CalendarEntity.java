@@ -1,6 +1,10 @@
 package dec.haeyum.calendar.entity;
 
 import dec.haeyum.member.entity.MemberEntity;
+<<<<<<< HEAD
+=======
+import dec.haeyum.news.entity.NewsEntity;
+>>>>>>> feature/news
 import dec.haeyum.weather.entity.WeatherEntity;
 import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
@@ -30,7 +34,6 @@ public class CalendarEntity {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private WeatherEntity weather;
 
-
     public void createCalendar(LocalDate startDate) {
         // 2001-1-2 데이터를 2001년 1월 2일 로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
@@ -49,4 +52,5 @@ public class CalendarEntity {
     private List<CalendarSong> calendarSongs = new ArrayList<>();
 
  */
+
 }
