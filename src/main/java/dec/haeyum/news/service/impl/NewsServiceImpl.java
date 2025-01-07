@@ -109,7 +109,7 @@ public class NewsServiceImpl implements NewsService {
         String title = newsDetailPage.until(ExpectedConditions.elementToBeClickable(By.cssSelector("h1.headline"))).getText();
         String content = newsDetailPage.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.article_body p"))).getText();
 
-        String substringContent = content.length() > 100 ? content.substring(100) : content;
+        String substringContent = content.length() > 100 ? content.substring(0,100) : content;
         NewsItem newsItem = new NewsItem(title,  newsUrl,substringContent, category);
         itemList.add(newsItem);
 
