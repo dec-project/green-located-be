@@ -1,10 +1,6 @@
 package dec.haeyum.calendar.entity;
 
 import dec.haeyum.member.entity.MemberEntity;
-<<<<<<< HEAD
-=======
-import dec.haeyum.news.entity.NewsEntity;
->>>>>>> feature/news
 import dec.haeyum.weather.entity.WeatherEntity;
 import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;

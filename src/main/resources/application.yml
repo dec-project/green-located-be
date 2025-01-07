@@ -5,7 +5,7 @@ spring:
     import: application-secret.yml
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
     properties:
@@ -51,4 +51,3 @@ selenium:
   selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
 
 
->>>>>>> feature/news
