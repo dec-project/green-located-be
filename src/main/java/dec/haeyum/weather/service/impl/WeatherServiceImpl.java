@@ -99,7 +99,7 @@ public class WeatherServiceImpl implements WeatherService {
         if (weatherImgEntity == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
-        String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
+        String imgPath = "image/" + weatherImgEntity.getWeatherImg();
         responseDto.setImg(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }

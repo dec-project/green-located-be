@@ -105,7 +105,7 @@ public class MovieServiceImpl implements MovieService {
         }
 
         // 3. 있으면 해당 데이터 반환
-        return GetTop5Movies.success(top5MoviesDto,file_url);
+        return GetTop5Movies.success(top5MoviesDto);
     }
 
     private void searchMovie(CalendarEntity calendar) {
