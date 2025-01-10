@@ -7,6 +7,11 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     SONG_NOT_FOUND(HttpStatus.NOT_FOUND, "E404001", "노래를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E404002", "존재하지 않는 아이디입니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "E401001", "사용자 인증에 실패했습니다."),
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "E401002", "만료된 JWT입니다."),
+    DUPLICATED_USERNAME(HttpStatus.CONFLICT, "E409001", "이미 사용중인 사용자 이름입니다."),
+
     // 공통 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"ISE","서버 처리 중 오류가 발생했습니다. 관리자에게 문의하세요."),
     // Calendar 에러
