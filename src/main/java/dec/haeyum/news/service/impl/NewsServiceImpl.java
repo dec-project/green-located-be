@@ -7,11 +7,15 @@ import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.news.dto.response.GetNewsResponseDto;
 import dec.haeyum.news.dto.response.NewsItem;
 import dec.haeyum.news.service.NewsService;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,27 +35,46 @@ public class NewsServiceImpl implements NewsService {
 
     private final CalendarRepository calendarRepository;
 
-    @Value("${selenium.selenium-name}")
+    @Value("${selenium.selenium-driver-name}")
     private String seleniumName;
-    @Value("${selenium.selenium-path}")
+    @Value("${selenium.selenium-driver-path}")
     private String seleniumPath;
+
+
     @Value("${selenium.selenium-bigKinds-page}")
     private String big_kinds_page;
     @Value("${selenium.selenium-joongang-page}")
     private String joongAng_page;
+    @Value("${selenium.isHeadless}")
+    private boolean isHeadLess;
+
 
     @Override
     @Transactional
     public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
         CalendarEntity calendar = calendarRepository.findById(calendarId).orElse(null);
 
+        System.out.println("셀레니움 시작");
+
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+//        options.addArguments("--disable-dev-shm-usage");
+//        options.addArguments("--disable-gpu");
+//        options.addArguments("--single-process");
+//        options.addArguments("--verbose");
+
+        ChromeDriver driver = new ChromeDriver(options);
+
+        System.out.println("셀레니움 세팅 완료");
+
         if (calendar == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
         }
 
         List<NewsItem> itemList = new ArrayList<>();
-        System.setProperty(seleniumName,seleniumPath);
-        ChromeDriver driver = new ChromeDriver();
+
         LocalDate current = LocalDate.of(1990,01,01);
 
         try {
@@ -191,7 +214,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     private static void dataMapping(List<NewsItem> itemList, WebDriverWait homePage, String categoryName, ChromeDriver driver) throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         List<WebElement> newsItemList = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.news-item")));
         if (newsItemList.isEmpty()){
