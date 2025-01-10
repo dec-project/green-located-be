@@ -1,10 +1,8 @@
 package dec.haeyum.calendar.entity;
 
-import dec.haeyum.member.entity.MemberEntity;
+import dec.haeyum.member.entity.Member;
 import dec.haeyum.weather.entity.WeatherEntity;
-import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +24,7 @@ public class CalendarEntity {
     private String content;
     private Integer viewCount;
     @ManyToMany(mappedBy = "favorite", fetch = FetchType.EAGER)
-    private List<MemberEntity> favorite = new ArrayList<>();
+    private List<Member> favorite = new ArrayList<>();
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private WeatherEntity weather;
 
