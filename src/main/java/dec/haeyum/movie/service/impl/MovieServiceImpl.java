@@ -45,6 +45,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
@@ -219,16 +222,50 @@ public class MovieServiceImpl implements MovieService {
 
         return list;
     }
+//
+//    private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
+//
+//        final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
+//
+//        for (MovieInfoDto data : list) {
+//            try {
+//                String html = webClient.post()
+//                        .uri(movie_detail_url)
+//                        .header("Accept-Encoding","gzip")
+//                        .body(BodyInserters.fromFormData(
+//                                        "code", data.getMovieUuid())
+//                                .with("titleYN", "Y")
+//                                .with("isOuterReq", "false")
+//                                .with("CSRFToken", csrfToken))
+//                        .retrieve()
+//                        .bodyToMono(String.class)
+//                        .block();
+//
+//                movieDetailInfoParsing(html,data);
+//                MovieEntity movie = movieRepository.save(new MovieEntity(data));
+//                calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
+//                Thread.sleep(200);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
+
+
 
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
 
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
 
-        for (MovieInfoDto data : list) {
+        ExecutorService executorService = Executors.newFixedThreadPool(list.size());
+
+        list.forEach(data -> executorService.submit(() -> {
+
             try {
                 String html = webClient.post()
                         .uri(movie_detail_url)
-                        .header("Accept-Encoding","gzip")
+                        .header("Accept-Encoding", "gzip")
                         .body(BodyInserters.fromFormData(
                                         "code", data.getMovieUuid())
                                 .with("titleYN", "Y")
@@ -238,16 +275,28 @@ public class MovieServiceImpl implements MovieService {
                         .bodyToMono(String.class)
                         .block();
 
-                movieDetailInfoParsing(html,data);
-                MovieEntity movie = movieRepository.save(new MovieEntity(data));
-                calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
-                Thread.sleep(200);
-            }catch (Exception e){
-                e.printStackTrace();
+                movieDetailInfoParsing(html, data);
+                synchronized (this) { // 동기화 블록으로 데이터 저장
+                    MovieEntity movie = movieRepository.save(new MovieEntity(data));
+                    calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
+                }
+                Thread.sleep(500);
+            } catch (Exception e) {
+                log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
             }
+        }));
 
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
+
 
     private void movieDetailInfoParsing(String result, MovieInfoDto data) {
         Document document = Jsoup.parse(result);
