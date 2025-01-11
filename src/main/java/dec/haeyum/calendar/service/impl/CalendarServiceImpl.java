@@ -91,8 +91,15 @@ public class CalendarServiceImpl implements CalendarService {
 
     // 특정 달력 DB 반환
     @Override
-    public Optional<CalendarEntity> getCalendar(Long calendarId) {
-        return calendarRepository.findById(calendarId);
+    public CalendarEntity getCalendar(Long calendarId) {
+        return calendarRepository.findById(calendarId).orElseThrow(() ->  new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+    @Override
+    @Transactional
+    public void increaseViewCount(CalendarEntity calendar) {
+        calendar.increaseViewCount();
+        calendarRepository.save(calendar);
     }
 
     private void createCalendar(LocalDate startDate, LocalDate endDate) {

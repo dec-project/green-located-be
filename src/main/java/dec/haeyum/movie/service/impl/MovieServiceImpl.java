@@ -5,7 +5,10 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
+import dec.haeyum.external.youtube.service.YoutubeService;
 import dec.haeyum.movie.dto.MovieInfoDto;
+import dec.haeyum.movie.dto.response.GetMovieDetailResponseDto;
 import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import dec.haeyum.movie.entity.CalendarMovieEntity;
@@ -56,6 +59,7 @@ public class MovieServiceImpl implements MovieService {
     private final CalendarService calendarService;
     private final View error;
     private WebClient webClient;
+    private final YoutubeService youtubeService;
 
     @Value("${movie.base-url}")
     private String movie_api_url;
@@ -94,8 +98,7 @@ public class MovieServiceImpl implements MovieService {
                 .orElse(null);
         // 2. 없으면 스크랩핑
         if (top5MoviesDto == null || top5MoviesDto.isEmpty()){
-            CalendarEntity calendar = calendarService.getCalendar(calendarId)
-                    .orElse(null);
+            CalendarEntity calendar = calendarService.getCalendar(calendarId);
             if (calendar == null){
                 throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
             }
@@ -107,6 +110,26 @@ public class MovieServiceImpl implements MovieService {
         // 3. 있으면 해당 데이터 반환
         return GetTop5Movies.success(top5MoviesDto);
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(Long calendarId, Long movieId) {
+
+        MovieEntity movie = movieRepository.findById(movieId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_CONNECT_PAGE));
+
+        if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
+            String word = "영화 " + movie.getTitle() + " 예고편";
+            YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
+            movie.setYoutubeData(youtubeDetailDto);
+        }
+        return GetMovieDetailResponseDto.success(movie);
+
+    }
+
+
+
+
+
 
     private void searchMovie(CalendarEntity calendar) {
             // 크롤링 페이지 GET

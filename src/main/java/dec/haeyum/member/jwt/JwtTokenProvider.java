@@ -37,6 +37,7 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
 
+
     // application.yml에서 secret 값 가져와서 key에 저장
     public  JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);

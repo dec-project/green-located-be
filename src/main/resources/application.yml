@@ -5,7 +5,7 @@ spring:
     import: application-secret.yml
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
     properties:
       hibernate:
@@ -42,6 +42,9 @@ movie:
   rank-url: "/kobis/business/stat/boxs/findDailyBoxOfficeList.do"
   detail-url: "/kobis/business/mast/mvie/searchMovieDtl.do"
 
+youtube:
+  baseUrl: "https://www.googleapis.com/youtube/v3"
+
 
 selenium:
   selenium-driver-name: "chromedriver"
@@ -50,6 +53,10 @@ selenium:
   selenium-bigKinds-page: "https://www.bigkinds.or.kr/v2/news/index.do"
   selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
   isHeadless: true
+
+
+
+
 
 ---
 
