@@ -77,11 +77,7 @@ public class WeatherServiceImpl implements WeatherService {
         GetWeatherResponseDto responseDto = new GetWeatherResponseDto();
 
         // DB 조회
-        Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
-        if (calendarEntityOptional.isEmpty()){
-            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-        }
-        CalendarEntity calendar = calendarEntityOptional.get();
+        CalendarEntity calendar = calendarService.getCalendar(calendarId);
 
         // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
         if (calendar.getWeather() == null){
@@ -99,7 +95,7 @@ public class WeatherServiceImpl implements WeatherService {
         if (weatherImgEntity == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
-        String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
+        String imgPath = "image/" + weatherImgEntity.getWeatherImg();
         responseDto.setImg(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }

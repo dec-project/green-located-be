@@ -1,10 +1,8 @@
 package dec.haeyum.calendar.entity;
 
-import dec.haeyum.member.entity.MemberEntity;
+import dec.haeyum.member.entity.Member;
 import dec.haeyum.weather.entity.WeatherEntity;
-import dec.haeyum.song.entity.CalendarSong;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,11 +23,10 @@ public class CalendarEntity {
     private String calendarName; // 2022년 10월 12일
     private String content;
     private Integer viewCount;
-    @ManyToMany(mappedBy = "favorite")
-    private List<MemberEntity> favorite = new ArrayList<>();
+    @ManyToMany(mappedBy = "favorite", fetch = FetchType.EAGER)
+    private List<Member> favorite = new ArrayList<>();
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private WeatherEntity weather;
-
 
     public void createCalendar(LocalDate startDate) {
         // 2001-1-2 데이터를 2001년 1월 2일 로 변환
@@ -45,6 +42,13 @@ public class CalendarEntity {
         this.weather.setCalendar(this);
     }
 
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+/*
     @OneToMany(mappedBy = "calendarEntity")
     private List<CalendarSong> calendarSongs = new ArrayList<>();
+
+ */
+
 }

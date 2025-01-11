@@ -15,7 +15,7 @@ public class WeatherController {
 
     private final WeatherService weatherService;
 
-    @GetMapping("/weather/{calendarId}")
+    @GetMapping("/search/weather/{calendarId}")
     public ResponseEntity<GetWeatherResponseDto> getWeather(@PathVariable("calendarId") Long calendarId){
         ResponseEntity<GetWeatherResponseDto> result = weatherService.getWeather(calendarId);
         return result;

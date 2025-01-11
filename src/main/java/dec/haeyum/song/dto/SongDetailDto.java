@@ -2,22 +2,24 @@ package dec.haeyum.song.dto;
 
 import dec.haeyum.song.entity.Song;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Builder
+@Getter
 public class SongDetailDto {
     private Long songId;
     private String title;
-    private List<String> artists;
-    private LocalDate releaseDate;
+    private String artists;
+    private String releaseDate;
     private String genre;
     private String albumTitle;
     private String lyrics;
-    private List<String> lyricists;
-    private List<String> composers;
-    private List<String> arrangers;
+    private String lyricists;
+    private String composers;
+    private String arrangers;
     private String youtubeAddr;
 
     public static SongDetailDto toDto(Song song) {

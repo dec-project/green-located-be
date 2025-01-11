@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CalendarRepository extends JpaRepository<CalendarEntity,Long> {
@@ -27,5 +28,7 @@ public interface CalendarRepository extends JpaRepository<CalendarEntity,Long> {
 
     @Query(value = "SELECT c FROM calendar c ORDER BY c.viewCount DESC")
     List<CalendarEntity> findTop5ByViewCount(Pageable pageable);
+
+    Optional<CalendarEntity> findByCalendarDate(LocalDate calendarDate);
 
 }
