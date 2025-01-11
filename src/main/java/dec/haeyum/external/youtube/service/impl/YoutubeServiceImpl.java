@@ -85,10 +85,7 @@ public class YoutubeServiceImpl implements YoutubeService {
                     log.info("videoId={} , releaseDate={}",videoId,releaseDate);
                     youtubeDetailDto.setData(videoId,releaseDate);
                 }
-
             }
-
-
         }catch (Exception e){
             e.printStackTrace();
         }
