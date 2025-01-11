@@ -18,22 +18,36 @@ public class PostCalendarResponseDto {
     private Integer totalPages;
     private Integer currentPage;
     private boolean last;
-    private List<boardItem> itemList = new ArrayList<>();
+    private List<ResponseCalendarDto> itemList = new ArrayList<>();
 
-
-    public PostCalendarResponseDto(Page<CalendarEntity> paging) {
+    public PostCalendarResponseDto(Page<CalendarEntity> paging, List<ResponseCalendarDto> responseItems) {
         this.count = (int)paging.getTotalElements();
         this.totalPages = paging.getTotalPages() - 1;
         this.currentPage = paging.getNumber();
         this.last = paging.isLast();
-        this.itemList = boardItem.asList(paging);
+        this.itemList.addAll(responseItems);
     }
 
-
-    public static ResponseEntity<? super PostCalendarResponseDto> success(Page<CalendarEntity> paging) {
-        PostCalendarResponseDto postCalendarResponseDto = new PostCalendarResponseDto(paging);
-        return ResponseEntity.status(HttpStatus.OK).body(postCalendarResponseDto);
+    public static ResponseEntity<PostCalendarResponseDto> success(Page<CalendarEntity> paging, List<ResponseCalendarDto> responseItems) {
+        PostCalendarResponseDto result = new PostCalendarResponseDto(paging, responseItems);
+        return ResponseEntity.ok(result);
     }
+
+//
+//    public PostCalendarResponseDto(Page<CalendarEntity> paging) {
+//        this.count = (int)paging.getTotalElements();
+//        this.totalPages = paging.getTotalPages() - 1;
+//        this.currentPage = paging.getNumber();
+//        this.last = paging.isLast();
+//        this.itemList = boardItem.asList(paging);
+//    }
+
+
+
+//    public static ResponseEntity<? super PostCalendarResponseDto> success(Page<CalendarEntity> paging) {
+//        PostCalendarResponseDto postCalendarResponseDto = new PostCalendarResponseDto(paging);
+//        return ResponseEntity.status(HttpStatus.OK).body(postCalendarResponseDto);
+//    }
 
 
 }
