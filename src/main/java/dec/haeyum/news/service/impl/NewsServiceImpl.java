@@ -67,8 +67,6 @@ public class NewsServiceImpl implements NewsService {
 
         ChromeDriver driver = new ChromeDriver(options);
 
-        System.out.println("셀레니움 세팅 완료");
-
         if (calendar == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
         }
