@@ -2,6 +2,7 @@ package dec.haeyum.news.service.impl;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
+import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.news.dto.response.GetNewsResponseDto;
@@ -23,13 +24,14 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
-    private final CalendarRepository calendarRepository;
+    private final CalendarService calendarService;
 
     @Value("${selenium.selenium-name}")
     private String seleniumName;
@@ -40,54 +42,67 @@ public class NewsServiceImpl implements NewsService {
     @Value("${selenium.selenium-joongang-page}")
     private String joongAng_page;
 
+//    @Override
+//    @Transactional
+//    public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
+//        CalendarEntity calendar = calendarRepository.findById(calendarId).orElse(null);
+//
+//        if (calendar == null){
+//            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+//        }
+//
+//        List<NewsItem> itemList = new ArrayList<>();
+//        System.setProperty(seleniumName,seleniumPath);
+//        ChromeDriver driver = new ChromeDriver();
+//        LocalDate current = LocalDate.of(1990,01,01);
+//
+//        try {
+//
+//            // 1. 1990년 1월 1일 이전 자료
+//            if (calendar.getCalendarDate().isBefore(current)){
+//                String urlDate = calendar.getCalendarDate().toString().replace("-", "/");
+//                driver.get(joongAng_page+urlDate);
+//                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
+//
+//                searchGeneral2(itemList, homePage, driver);
+//
+//            }
+//
+//            // 2. 1990년 1월 1일 이후 자료
+//            if (calendar.getCalendarDate().isEqual(current) || calendar.getCalendarDate().isAfter(current)){
+//
+//                driver.get(big_kinds_page);
+//                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
+//                searchGeneral(calendar,itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchIt(calendar,itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchEntertainment(calendar, itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchSports(calendar,itemList, homePage, driver);
+//            }
+//
+//        }catch (InterruptedException e){
+//            e.printStackTrace();
+//        }finally {
+//            driver.close();
+//        }
+//
+//        return GetNewsResponseDto.success(itemList);
+//    }
+
+
     @Override
     @Transactional
     public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
-        CalendarEntity calendar = calendarRepository.findById(calendarId).orElse(null);
 
-        if (calendar == null){
-            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-        }
 
-        List<NewsItem> itemList = new ArrayList<>();
-        System.setProperty(seleniumName,seleniumPath);
-        ChromeDriver driver = new ChromeDriver();
-        LocalDate current = LocalDate.of(1990,01,01);
-
-        try {
-
-            // 1. 1990년 1월 1일 이전 자료
-            if (calendar.getCalendarDate().isBefore(current)){
-                String urlDate = calendar.getCalendarDate().toString().replace("-", "/");
-                driver.get(joongAng_page+urlDate);
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-                searchGeneral2(itemList, homePage, driver);
-
-            }
-
-            // 2. 1990년 1월 1일 이후 자료
-            if (calendar.getCalendarDate().isEqual(current) || calendar.getCalendarDate().isAfter(current)){
-
-                driver.get(big_kinds_page);
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
-                searchGeneral(calendar,itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchIt(calendar,itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchEntertainment(calendar, itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchSports(calendar,itemList, homePage, driver);
-            }
-
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }finally {
-            driver.close();
-        }
-
-        return GetNewsResponseDto.success(itemList);
     }
+
+
+
+
+
 
     private void searchGeneral2(List<NewsItem> itemList, WebDriverWait homePage, ChromeDriver driver) {
 
@@ -246,5 +261,6 @@ public class NewsServiceImpl implements NewsService {
         js.executeScript("document.getElementById('search-begin-date').value='" + String.valueOf(calendar.getCalendarDate()) + "';");
         js.executeScript("document.getElementById('search-end-date').value='" + String.valueOf(calendar.getCalendarDate()) + "';");
     }
+
 
 }
