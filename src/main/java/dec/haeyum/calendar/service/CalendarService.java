@@ -19,6 +19,8 @@ public interface CalendarService {
     // 달력 검증
     boolean validateCalendar(Long calendarId);
     // 특정 달력 조회
-    Optional<CalendarEntity> getCalendar(Long calendarId);
+    CalendarEntity getCalendar(Long calendarId);
+    //ViewCount 증가
+    void increaseViewCount(CalendarEntity calendarId);
 
 }

@@ -4,6 +4,7 @@ import dec.haeyum.calendar.dto.request.PostCalendarDto;
 import dec.haeyum.calendar.dto.request.PostCalendarRequestDto;
 import dec.haeyum.calendar.dto.response.GetInitCalendarResponseDto;
 import dec.haeyum.calendar.dto.response.PostCalendarResponseDto;
+import dec.haeyum.calendar.dto.response.ResponseCalendarDto;
 import dec.haeyum.calendar.dto.response.Top5MoviesDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
@@ -11,6 +12,7 @@ import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.movie.entity.MovieEntity;
+import dec.haeyum.song.service.SongService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ import java.util.Optional;
 public class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
+    private final SongService songService;
 
     @Override
     @Transactional
@@ -70,18 +73,31 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public ResponseEntity<? super PostCalendarResponseDto> getCalendar(PostCalendarRequestDto dto) {
+    public ResponseEntity<PostCalendarResponseDto> getCalendar(PostCalendarRequestDto dto) {
         final int MAX_BOUNDARY = 90;
         Page<CalendarEntity> paging;
-            PageRequest pageable = PageRequest.of(dto.getPage(), dto.getSize(), Sort.by(Sort.Direction.ASC, "calendar_id"));
-            paging = calendarRepository.findByCalendarNameBetween(dto.getStartDate(), dto.getEndDate(),pageable);
-            if (paging.isEmpty()){
-                throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-            }
-            if (paging.getTotalElements() > MAX_BOUNDARY){
-                throw new BusinessException(ErrorCode.NOT_EXISTED_BOUNDARY);
-            }
-        return PostCalendarResponseDto.success(paging);
+        PageRequest pageable = PageRequest.of(dto.getPage(), dto.getSize(), Sort.by(Sort.Direction.ASC, "calendar_id"));
+        paging = calendarRepository.findByCalendarNameBetween(dto.getStartDate(), dto.getEndDate(),pageable);
+
+        validatePagingData(paging, MAX_BOUNDARY);
+
+        List<ResponseCalendarDto> responseItems = new ArrayList<>();
+        for (CalendarEntity calendar : paging.getContent()) {
+            String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
+            ResponseCalendarDto responseCalendarDto = new ResponseCalendarDto(calendar, calendarSongImageUrl);
+            responseItems.add(responseCalendarDto);
+        }
+
+        return PostCalendarResponseDto.success(paging,responseItems);
+    }
+
+    private static void validatePagingData(Page<CalendarEntity> paging, int MAX_BOUNDARY) {
+        if (paging.isEmpty()){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+        }
+        if (paging.getTotalElements() > MAX_BOUNDARY){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_BOUNDARY);
+        }
     }
 
     // DB에 달력 있는지 검증
@@ -91,8 +107,15 @@ public class CalendarServiceImpl implements CalendarService {
 
     // 특정 달력 DB 반환
     @Override
-    public Optional<CalendarEntity> getCalendar(Long calendarId) {
-        return calendarRepository.findById(calendarId);
+    public CalendarEntity getCalendar(Long calendarId) {
+        return calendarRepository.findById(calendarId).orElseThrow(() ->  new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+    @Override
+    @Transactional
+    public void increaseViewCount(CalendarEntity calendar) {
+        calendar.increaseViewCount();
+        calendarRepository.save(calendar);
     }
 
     private void createCalendar(LocalDate startDate, LocalDate endDate) {

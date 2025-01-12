@@ -1,5 +1,6 @@
 package dec.haeyum.movie.controller;
 
+import dec.haeyum.movie.dto.response.GetMovieDetailResponseDto;
 import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,14 @@ public class MovieController {
         ResponseEntity<GetTop5Movies> result = movieService.getTop5Movies(calendarId);
         return result;
     }
+
+    @GetMapping("/search/{calendarId}/movies/{movieId}")
+    public ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(@PathVariable(name = "calendarId") Long calendarId, @PathVariable(name = "movieId") Long movieId){
+        ResponseEntity<GetMovieDetailResponseDto> result = movieService.getMovieDetail(calendarId, movieId);
+
+        return result;
+    }
+
 
 
 }
