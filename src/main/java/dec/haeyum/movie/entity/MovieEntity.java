@@ -1,10 +1,12 @@
 package dec.haeyum.movie.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
 import dec.haeyum.movie.dto.MovieInfoDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.time.LocalDate;
@@ -13,6 +15,7 @@ import java.util.List;
 
 @Entity(name = "movie")
 @Getter
+@Setter
 @NoArgsConstructor
 public class MovieEntity {
 
@@ -34,5 +37,9 @@ public class MovieEntity {
         this.title = data.getTitle();
         this.img = data.getImg();
         this.content = data.getContent();
+    }
+
+    public void setYoutubeData(YoutubeDetailDto youtubeDetailDto) {
+        this.youtube_address = youtubeDetailDto.getYoutubeAddr();
     }
 }

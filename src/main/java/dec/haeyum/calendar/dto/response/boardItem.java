@@ -18,16 +18,21 @@ public class boardItem {
     private Integer viewCount ;
     private Integer favoriteCount;
 
-    public static List<boardItem> asList(Page<CalendarEntity> paging) {
-        List<boardItem> list = new ArrayList<>();
-        for (CalendarEntity calendarEntity : paging.getContent()) {
-            boardItem boardItem = new boardItem();
-            boardItem.setCalendarId(calendarEntity.getCalendarId());
-            boardItem.setCalendarName(calendarEntity.getCalendarName());
-            boardItem.setViewCount(calendarEntity.getViewCount());
-            boardItem.setFavoriteCount(calendarEntity.getFavorite().size());
-            list.add(boardItem);
-        }
-        return list;
-    }
+
+//    public static List<boardItem> asList(Page<CalendarEntity> paging) {
+//        List<boardItem> list = new ArrayList<>();
+//        for (CalendarEntity calendarEntity : paging.getContent()) {
+//            boardItem boardItem = new boardItem();
+//            boardItem.setCalendarId(calendarEntity.getCalendarId());
+//            boardItem.setCalendarName(calendarEntity.getCalendarName());
+//            boardItem.setViewCount(calendarEntity.getViewCount());
+//            boardItem.setFavoriteCount(calendarEntity.getFavorite().size());
+//            list.add(boardItem);
+//        }
+//        return list;
+//    }
+//
+
+
+
 }

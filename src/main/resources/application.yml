@@ -42,12 +42,17 @@ movie:
   rank-url: "/kobis/business/stat/boxs/findDailyBoxOfficeList.do"
   detail-url: "/kobis/business/mast/mvie/searchMovieDtl.do"
 
+youtube:
+  baseUrl: "https://www.googleapis.com/youtube/v3"
+
 
 selenium:
-  selenium-name: "chromedriver"
-  selenium-path: "/Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/chromedriver-mac-arm64/"
+  selenium-driver-name: "chromedriver"
+  selenium-driver-path: "/Users/sanggyun/Downloads/chromedriver-mac-arm64/"
+  selenium-headless-path: "/Users/sanggyun/Downloads/chrome-headless-shell-linux64/chrome-headless-shell"
   selenium-bigKinds-page: "https://www.bigkinds.or.kr/v2/news/index.do"
   selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
+  isHeadless: true
 
 
 
