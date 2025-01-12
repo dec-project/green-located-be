@@ -24,10 +24,12 @@ public class ChatController {
 
     // 채팅방 메시지조회
     @GetMapping("/chat/{id}")
-    public ResponseEntity<List<ChatMessage>> getChatMessages(@PathVariable Long id){
-        List<ChatMessage> messages = chatService.getMessagesByChatRoomId(id);
+    public ResponseEntity<List<ChatMessageDto>> getChatMessages(@PathVariable Long id){
+        List<ChatMessageDto> chatMessageDtos = chatService.getMessagesByChatRoomId(id).stream()
+                .map(ChatMessageDto::toDto)
+                .toList();
 
-        return ResponseEntity.ok(messages);
+        return ResponseEntity.ok(chatMessageDtos);
     }
 
     //메시지 송신 및 수신, /pub가 생략된 모습. 클라이언트 단에선 /pub/message로 요청

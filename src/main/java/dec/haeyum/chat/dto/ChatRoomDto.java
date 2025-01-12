@@ -2,11 +2,9 @@ package dec.haeyum.chat.dto;
 
 import dec.haeyum.chat.Entity.ChatRoom;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Builder
