@@ -23,7 +23,8 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
                     "/sign-up",
-                    "/search/**");
+                    "/search/**",
+                    "/calendar/**");
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
 

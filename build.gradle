@@ -25,8 +25,9 @@ repositories {
 
 dependencies {
 	implementation 'com.google.api-client:google-api-client:1.32.1'
-	implementation 'org.seleniumhq.selenium:selenium-java:4.6.0'
-	implementation 'io.github.bonigarcia:webdrivermanager:5.6.2'
+	implementation 'org.seleniumhq.selenium:selenium-java:4.22.0'
+	//implementation "org.seleniumhq.selenium:selenium-devtools-v126:4.23.0"
+	implementation 'io.github.bonigarcia:webdrivermanager:5.8.0'
 	implementation 'org.jsoup:jsoup:1.16.1'
 	implementation 'org.seleniumhq.selenium:selenium-java:4.6.0'
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.97.Final:osx-aarch_64'

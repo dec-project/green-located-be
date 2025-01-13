@@ -2,6 +2,7 @@ package dec.haeyum.news.service.impl;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
+import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.news.dto.response.GetNewsResponseDto;
@@ -16,6 +17,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,16 +25,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
+    private final CalendarService calendarService;
     private final CalendarRepository calendarRepository;
 
     @Value("${selenium.selenium-driver-name}")
@@ -49,68 +57,170 @@ public class NewsServiceImpl implements NewsService {
     private boolean isHeadLess;
 
 
+//    @Override
+//    @Transactional
+//    public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
+//        CalendarEntity calendar = calendarRepository.findById(calendarId).orElse(null);
+//
+//        System.out.println("셀레니움 시작");
+//
+//        WebDriverManager.chromedriver().setup();
+//        ChromeOptions options = new ChromeOptions();
+//        options.addArguments("--headless");
+//        options.addArguments("--no-sandbox");
+////        options.addArguments("--disable-dev-shm-usage");
+////        options.addArguments("--disable-gpu");
+////        options.addArguments("--single-process");
+////        options.addArguments("--verbose");
+//
+//        ChromeDriver driver = new ChromeDriver(options);
+//
+//        System.out.println("셀레니움 세팅 완료");
+//
+//        if (calendar == null){
+//            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
+//        }
+//
+//        List<NewsItem> itemList = new ArrayList<>();
+//
+//        LocalDate current = LocalDate.of(1990,01,01);
+//
+//        try {
+//
+//            // 1. 1990년 1월 1일 이전 자료
+//            if (calendar.getCalendarDate().isBefore(current)){
+//                String urlDate = calendar.getCalendarDate().toString().replace("-", "/");
+//                driver.get(joongAng_page+urlDate);
+//                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
+//
+//                searchGeneral2(itemList, homePage, driver);
+//
+//            }
+//
+//            // 2. 1990년 1월 1일 이후 자료
+//            if (calendar.getCalendarDate().isEqual(current) || calendar.getCalendarDate().isAfter(current)){
+//
+//                driver.get(big_kinds_page);
+//                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
+//                searchGeneral(calendar,itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchIt(calendar,itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchEntertainment(calendar, itemList, homePage, driver);
+//                driver.get(big_kinds_page);
+//                searchSports(calendar,itemList, homePage, driver);
+//            }
+//
+//        }catch (InterruptedException e){
+//            e.printStackTrace();
+//        }finally {
+//            driver.close();
+//        }
+//
+//        return GetNewsResponseDto.success(itemList);
+//    }
+
+
+
     @Override
-    @Transactional
     public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
-        CalendarEntity calendar = calendarRepository.findById(calendarId).orElse(null);
 
-        System.out.println("셀레니움 시작");
+        CalendarEntity calendar = calendarService.getCalendar(calendarId);
+        List<NewsItem> itemList = Collections.synchronizedList(new ArrayList<>());
 
-        WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--no-sandbox");
-//        options.addArguments("--disable-dev-shm-usage");
-//        options.addArguments("--disable-gpu");
-//        options.addArguments("--single-process");
-//        options.addArguments("--verbose");
 
-        ChromeDriver driver = new ChromeDriver(options);
-
-        System.out.println("셀레니움 세팅 완료");
-
-        if (calendar == null){
-            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-        }
-
-        List<NewsItem> itemList = new ArrayList<>();
-
-        LocalDate current = LocalDate.of(1990,01,01);
+        LocalDate current = LocalDate.of(1990, 1, 1);
 
         try {
-
             // 1. 1990년 1월 1일 이전 자료
             if (calendar.getCalendarDate().isBefore(current)){
+                ChromeDriver driver = createDriver();
                 String urlDate = calendar.getCalendarDate().toString().replace("-", "/");
                 driver.get(joongAng_page+urlDate);
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
-
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
                 searchGeneral2(itemList, homePage, driver);
+            }else {
+                ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+                searchNewsData(executorService, calendar, itemList);
 
             }
 
-            // 2. 1990년 1월 1일 이후 자료
-            if (calendar.getCalendarDate().isEqual(current) || calendar.getCalendarDate().isAfter(current)){
-
-                driver.get(big_kinds_page);
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
-                searchGeneral(calendar,itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchIt(calendar,itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchEntertainment(calendar, itemList, homePage, driver);
-                driver.get(big_kinds_page);
-                searchSports(calendar,itemList, homePage, driver);
-            }
-
-        }catch (InterruptedException e){
+        }catch (Exception e){
             e.printStackTrace();
-        }finally {
-            driver.close();
         }
 
         return GetNewsResponseDto.success(itemList);
     }
+
+    private void searchNewsData(ExecutorService executorService, CalendarEntity calendar, List<NewsItem> itemList) throws InterruptedException {
+        executorService.submit(() -> {
+            try {
+                ChromeDriver driver = createDriver();
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                driver.get(big_kinds_page);
+                searchGeneral(calendar, itemList, homePage, driver);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        executorService.submit(() -> {
+            try {
+                ChromeDriver driver = createDriver();
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                driver.get(big_kinds_page);
+                searchIt(calendar, itemList, homePage, driver);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        executorService.submit(() -> {
+            try {
+                ChromeDriver driver = createDriver();
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                driver.get(big_kinds_page);
+                searchEntertainment(calendar, itemList, homePage, driver);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        executorService.submit(() -> {
+            try {
+                ChromeDriver driver = createDriver();
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                driver.get(big_kinds_page);
+                searchSports(calendar, itemList, homePage, driver);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // 스레드 종료 대기
+        executorService.shutdown();
+        executorService.awaitTermination(10, TimeUnit.SECONDS);
+    }
+
+    private ChromeDriver createDriver() {
+        ChromeOptions options = new ChromeOptions();
+
+        if (!isHeadLess){
+            WebDriverManager.chromedriver().setup();
+        }
+
+        if (isHeadLess){
+            System.setProperty(seleniumName,seleniumPath);
+            options.addArguments("--headless");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--disable-gpu");
+        }
+        ChromeDriver driver = new ChromeDriver(options);
+        return driver;
+
+    }
+
 
     private void searchGeneral2(List<NewsItem> itemList, WebDriverWait homePage, ChromeDriver driver) {
 
@@ -225,7 +335,7 @@ public class NewsServiceImpl implements NewsService {
         WebElement targetNewsItem = newsItemList.get(randomIndex);
         targetNewsItem.click();
 
-        WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement detailPageTitle = wait1.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.news-view-head h1.title")));
         // 뉴스 제목
         String title = detailPageTitle.getText();
