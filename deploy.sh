@@ -1,7 +1,7 @@
 
 # 설정
 EC2_USER="ec2-user"
-EC2_HOST="3.37.130.252"
+EC2_HOST="13.209.17.226"
 JAR_NAME="haeyum-0.0.1-SNAPSHOT.jar"
 LOCAL_JAR_PATH="/Users/sanggyun/Documents/GitHub/haeyum-server/build/libs/$JAR_NAME"
 TARGET_DIR="/home/ec2-user/forder2/"

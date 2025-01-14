@@ -3,21 +3,39 @@ package dec.haeyum.img.service.impl;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.img.service.ImgService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ImgServiceImpl implements ImgService {
 
     @Value("${spring.file.filePath}")
     private String filePath;
+    private WebClient webClient;
+
+    @PostConstruct
+    public void init(){
+        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
+        factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
+        this.webClient = WebClient.builder()
+                .uriBuilderFactory(factory)
+                .build();
+    }
+
 
     @Override
     public Resource getImg(String fileName) {
@@ -48,4 +66,35 @@ public class ImgServiceImpl implements ImgService {
         }
         return "image/jpeg";
     }
+    @Override
+    public String downloadImg(String url)  {
+
+        String extension = url.substring(url.lastIndexOf("."));
+
+        String uuidName = UUID.randomUUID().toString() + extension;
+
+        String fileName = filePath + uuidName;
+
+        try {
+            byte[] response = webClient.get()
+                    .uri(url)
+                    .header("Accept-Encoding","gzip")
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+            if (response != null){
+                Path path = Paths.get(fileName);
+                Files.write(path,response);
+            }else {
+                throw new BusinessException(ErrorCode.NOT_EXISTED_IMGPATH);
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return uuidName;
+    }
+
 }

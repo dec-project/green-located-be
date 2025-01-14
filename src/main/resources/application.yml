@@ -5,7 +5,7 @@ spring:
     import: application-secret.yml
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
 
     properties:
       hibernate:
@@ -16,6 +16,7 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+
 
 server:
   compression:
@@ -54,6 +55,23 @@ selenium:
   selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
   isHeadless: false
 
+kaKao:
+  clientId: eeea6d87ff0261c7795936bbea225e5c
+  nonce: haeyumAppPrivateSecretIdKey
+  kakaoAuthorizeUrl: "https://kauth.kakao.com/oauth/authorize"
+  kakaoAuthorizeRedirectUrl: "http://localhost:8080/oauth/kakao/authorize/fallback"
+  kakaoTokenUrl: "https://kauth.kakao.com/oauth/token"
+
+
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG
+
+
 
 ---
 
@@ -64,7 +82,7 @@ spring:
     import: application-secret.yml
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
 
     properties:
       hibernate:
@@ -114,9 +132,11 @@ selenium:
   selenium-joongang-page: "https://www.joongang.co.kr/sitemap/index/"
   isHeadless: true
 
-
-
-
-
+kaKao:
+  clientId: eeea6d87ff0261c7795936bbea225e5c
+  nonce: haeyumAppPrivateSecretIdKey
+  kakaoAuthorizeUrl: "https://kauth.kakao.com/oauth/authorize"
+  kakaoAuthorizeRedirectUrl: "http://localhost:8080/oauth/kakao/authorize/fallback"
+  kakaoTokenUrl: "https://kauth.kakao.com/oauth/token"
 
 

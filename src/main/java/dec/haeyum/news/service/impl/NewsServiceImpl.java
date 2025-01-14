@@ -11,6 +11,7 @@ import dec.haeyum.news.service.NewsService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -32,16 +33,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
     private final CalendarService calendarService;
-    private final CalendarRepository calendarRepository;
 
     @Value("${selenium.selenium-driver-name}")
     private String seleniumName;
@@ -124,8 +126,9 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
-
+        log.info("NewsServiceImpl::getNews::start");
         CalendarEntity calendar = calendarService.getCalendar(calendarId);
+        log.info("calendarDate={}",calendar.getCalendarDate());
         List<NewsItem> itemList = Collections.synchronizedList(new ArrayList<>());
 
 
@@ -137,12 +140,13 @@ public class NewsServiceImpl implements NewsService {
                 ChromeDriver driver = createDriver();
                 String urlDate = calendar.getCalendarDate().toString().replace("-", "/");
                 driver.get(joongAng_page+urlDate);
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
                 searchGeneral2(itemList, homePage, driver);
             }else {
-                ExecutorService executorService = Executors.newFixedThreadPool(4);
+                ExecutorService executorService = Executors.newFixedThreadPool(8);
 
                 searchNewsData(executorService, calendar, itemList);
+                log.info("itemList={}",itemList.toString());
 
             }
 
@@ -154,67 +158,98 @@ public class NewsServiceImpl implements NewsService {
     }
 
     private void searchNewsData(ExecutorService executorService, CalendarEntity calendar, List<NewsItem> itemList) throws InterruptedException {
+        log.info("searchnewsData::start");
+        int taskCount = 4;
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
         executorService.submit(() -> {
             try {
                 ChromeDriver driver = createDriver();
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
                 driver.get(big_kinds_page);
+                log.info("driver.get={}",driver.getTitle());
                 searchGeneral(calendar, itemList, homePage, driver);
+                driver.quit();
+                executorService.shutdown();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                countDownLatch.countDown();
             }
         });
         executorService.submit(() -> {
             try {
                 ChromeDriver driver = createDriver();
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
                 driver.get(big_kinds_page);
                 searchIt(calendar, itemList, homePage, driver);
+                driver.quit();
+                executorService.shutdown();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                countDownLatch.countDown();
             }
         });
 
         executorService.submit(() -> {
             try {
                 ChromeDriver driver = createDriver();
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
                 driver.get(big_kinds_page);
                 searchEntertainment(calendar, itemList, homePage, driver);
+                driver.quit();
+                executorService.shutdown();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                countDownLatch.countDown();
             }
         });
 
         executorService.submit(() -> {
             try {
                 ChromeDriver driver = createDriver();
-                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait homePage = new WebDriverWait(driver, Duration.ofSeconds(5));
                 driver.get(big_kinds_page);
                 searchSports(calendar, itemList, homePage, driver);
+                driver.quit();
+                executorService.shutdown();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                countDownLatch.countDown();
             }
         });
-
+        countDownLatch.await();
         // 스레드 종료 대기
-        executorService.shutdown();
-        executorService.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     private ChromeDriver createDriver() {
         ChromeOptions options = new ChromeOptions();
 
+
         if (!isHeadLess){
             WebDriverManager.chromedriver().setup();
+            options.addArguments("--headless");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--disable-images");
+            options.addArguments("--blink-settings=imagesEnabled=false");
+            options.addArguments("--disable-javascript");
+            ChromeDriver driver = new ChromeDriver(options);
+
         }
 
         if (isHeadLess){
-            System.setProperty(seleniumName,seleniumPath);
+            WebDriverManager.chromedriver().setup();
+            //System.setProperty(seleniumName,seleniumPath);
             options.addArguments("--headless");
             options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
             options.addArguments("--disable-gpu");
+            options.addArguments("--disable-images");
+            options.addArguments("--blink-settings=imagesEnabled=false");
+            options.addArguments("--disable-javascript");
         }
         ChromeDriver driver = new ChromeDriver(options);
         return driver;
@@ -337,6 +372,7 @@ public class NewsServiceImpl implements NewsService {
 
         WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement detailPageTitle = wait1.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.news-view-head h1.title")));
+        log.info("detailPageTitle={}",detailPageTitle.toString());
         // 뉴스 제목
         String title = detailPageTitle.getText();
         String originalNewsPageValue = null;
@@ -354,6 +390,7 @@ public class NewsServiceImpl implements NewsService {
         String substringText = text.length() > 100 ? text.substring(0, 100) : text;
 
         NewsItem newsItem = new NewsItem(title, originalNewsPageValue, substringText, categoryName);
+        log.info("newsItem={}",newsItem.toString());
         itemList.add(newsItem);
     }
 
@@ -374,7 +411,6 @@ public class NewsServiceImpl implements NewsService {
         WebElement date = homePage.until(ExpectedConditions.elementToBeClickable(By.cssSelector("label[for='date1-7']")));
         date.click();
         WebElement dateInput = homePage.until(ExpectedConditions.elementToBeClickable(By.id("search-begin-date")));
-
         JavascriptExecutor js = driver;
         js.executeScript("document.getElementById('search-begin-date').value='" + String.valueOf(calendar.getCalendarDate()) + "';");
         js.executeScript("document.getElementById('search-end-date').value='" + String.valueOf(calendar.getCalendarDate()) + "';");

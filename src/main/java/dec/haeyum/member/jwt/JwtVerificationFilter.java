@@ -22,9 +22,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
-                    "/sign-up",
-                    "/search/**",
-                    "/calendar/**");
+                    "/sign-up");
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
 

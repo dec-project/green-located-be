@@ -17,7 +17,7 @@ public class YoutubeDetailDto {
 
 
     public void setData(String videoId, String releaseDate) {
-        this.youtubeAddr = "https://www.youtube.com/watch?v=" + videoId;
+        this.youtubeAddr = "https://www.youtube.com/embed/" + videoId;
 
         DateTimeFormatter isoDateTime = DateTimeFormatter.ISO_DATE_TIME;
         ZonedDateTime zonDate = ZonedDateTime.parse(releaseDate, isoDateTime);

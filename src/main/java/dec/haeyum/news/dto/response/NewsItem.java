@@ -19,4 +19,13 @@ public class NewsItem {
         this.url = originalNewsPageValue;
     }
 
+    @Override
+    public String toString() {
+        return "NewsItem{" +
+                "category='" + category + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }
