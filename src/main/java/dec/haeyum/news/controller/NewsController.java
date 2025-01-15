@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 
 @RestController
 public class NewsController {
+
     private  NewsService newsService;
 
     public NewsController(@Qualifier("NewsServiceImplWithJsoup")NewsService newsService) {

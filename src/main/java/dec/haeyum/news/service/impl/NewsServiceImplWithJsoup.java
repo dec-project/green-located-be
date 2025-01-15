@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +26,16 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Service("NewsServiceImplWithJsoup")
 @Slf4j
 @RequiredArgsConstructor
+@Primary
 public class NewsServiceImplWithJsoup implements NewsService {
 
     private final CalendarService calendarService;
-
     private WebClient webClient;
-
     @Value("${selenium.selenium-joongang-page}")
     private String news_api_url;
 
@@ -69,38 +66,44 @@ public class NewsServiceImplWithJsoup implements NewsService {
         Elements select = document.select("li.card");
         Random random = new Random();
 
-        // 2. 뉴스가 4개 미만일 경우
-        if (select.size() < 4 && select.size() > 0){
-            ExecutorService executorService = Executors.newFixedThreadPool(select.size());
-            for (int i = 0; i < select.size(); i++) {
-                int num = i;
-                executorService.submit(() -> {
-                    Element element = select.get(num);
-                    crowlingPage(element,itemList);
-                });
+        try {
+
+            // 2. 뉴스가 4개 미만일 경우
+            if (select.size() < 4 && select.size() > 0){
+                ExecutorService executorService = Executors.newFixedThreadPool(select.size());
+                for (int i = 0; i < select.size(); i++) {
+                    int num = i;
+                    executorService.submit(() -> {
+                        Element element = select.get(num);
+                        crowlingPage(element,itemList);
+                    });
+                }
+                shutdownExecutor(executorService);
             }
-            shutdownExecutor(executorService);
+
+            // 1. 뉴스가 4개 이상일 경우
+            if (select.size() >= 4){
+                ExecutorService executorService = Executors.newFixedThreadPool(4);
+                Set<Integer> randomList = Collections.synchronizedSet(new HashSet<>());
+                for (int i = 0; i < 4; i++) {
+                    executorService.submit(() -> {
+                        int randomIndex;
+                        synchronized (randomList){
+                            do {
+                                randomIndex = random.nextInt(select.size());
+                            }while (randomList.contains(randomIndex));
+                            randomList.add(randomIndex);
+                        }
+                        Element element = select.get(randomIndex);
+                        crowlingPage(element, itemList);
+                    });
+                }
+                shutdownExecutor(executorService);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        // 1. 뉴스가 4개 이상일 경우
-        if (select.size() >= 4){
-            ExecutorService executorService = Executors.newFixedThreadPool(4);
-            Set<Integer> randomList = Collections.synchronizedSet(new HashSet<>());
-            for (int i = 0; i < 4; i++) {
-                executorService.submit(() -> {
-                    int randomIndex;
-                    synchronized (randomList){
-                        do {
-                            randomIndex = random.nextInt(select.size());
-                        }while (randomList.contains(randomIndex));
-                        randomList.add(randomIndex);
-                    }
-                    Element element = select.get(randomIndex);
-                    crowlingPage(element, itemList);
-                });
-            }
-            shutdownExecutor(executorService);
-        }
         return GetNewsResponseDto.success(itemList);
     }
 

@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NewsServiceImpl implements NewsService {
+public class NewsServiceImpl {
 
     private final CalendarService calendarService;
 
@@ -124,7 +124,7 @@ public class NewsServiceImpl implements NewsService {
 
 
 
-    @Override
+    //@Override
     public ResponseEntity<GetNewsResponseDto> getNews(Long calendarId) {
         log.info("NewsServiceImpl::getNews::start");
         CalendarEntity calendar = calendarService.getCalendar(calendarId);

@@ -12,7 +12,7 @@ spring:
         jdbc:
           batch_size: 400
         dialect: org.hibernate.dialect.MySQLDialect
-    open-in-view: false
+    open-in-viewx: false
   batch:
     jdbc:
       initialize-schema: always
@@ -136,7 +136,7 @@ kaKao:
   clientId: eeea6d87ff0261c7795936bbea225e5c
   nonce: haeyumAppPrivateSecretIdKey
   kakaoAuthorizeUrl: "https://kauth.kakao.com/oauth/authorize"
-  kakaoAuthorizeRedirectUrl: "http://localhost:8080/oauth/kakao/authorize/fallback"
+  kakaoAuthorizeRedirectUrl: "http://13.209.17.226:8080/oauth/kakao/authorize/fallback"
   kakaoTokenUrl: "https://kauth.kakao.com/oauth/token"
 
 
