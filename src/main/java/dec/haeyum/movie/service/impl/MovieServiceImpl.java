@@ -92,7 +92,6 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    @Transactional
     // 날짜별 TOP 5 영화 가져오기
     public ResponseEntity<GetTop5Movies> getTop5Movies(Long calendarId) {
         List<Top5MoviesDto> top5MoviesDto = new ArrayList<>();
@@ -108,6 +107,7 @@ public class MovieServiceImpl implements MovieService {
             searchMovie(calendar);
             top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
                     .get();
+
         }
 
         // 3. 있으면 해당 데이터 반환
@@ -222,36 +222,6 @@ public class MovieServiceImpl implements MovieService {
 
         return list;
     }
-//
-//    private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
-//
-//        final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
-//
-//        for (MovieInfoDto data : list) {
-//            try {
-//                String html = webClient.post()
-//                        .uri(movie_detail_url)
-//                        .header("Accept-Encoding","gzip")
-//                        .body(BodyInserters.fromFormData(
-//                                        "code", data.getMovieUuid())
-//                                .with("titleYN", "Y")
-//                                .with("isOuterReq", "false")
-//                                .with("CSRFToken", csrfToken))
-//                        .retrieve()
-//                        .bodyToMono(String.class)
-//                        .block();
-//
-//                movieDetailInfoParsing(html,data);
-//                MovieEntity movie = movieRepository.save(new MovieEntity(data));
-//                calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
-//                Thread.sleep(200);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//
-//        }
-//    }
-
 
 
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
@@ -280,7 +250,7 @@ public class MovieServiceImpl implements MovieService {
                     MovieEntity movie = movieRepository.save(new MovieEntity(data));
                     calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
                 }
-                Thread.sleep(500);
+                Thread.sleep(300);
             } catch (Exception e) {
                 log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
             }
@@ -288,7 +258,7 @@ public class MovieServiceImpl implements MovieService {
 
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -332,10 +302,6 @@ public class MovieServiceImpl implements MovieService {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
-
     }
 
 

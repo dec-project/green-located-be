@@ -2,6 +2,7 @@ package dec.haeyum.member.service.impl;
 
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.member.dto.JwtToken;
 import dec.haeyum.member.dto.SignUpDto;
 import dec.haeyum.member.entity.Member;
@@ -91,4 +92,5 @@ public class MemberServiceImlp implements MemberService {
             log.info("logout success");
         }
     }
+
 }

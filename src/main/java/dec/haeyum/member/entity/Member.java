@@ -1,6 +1,7 @@
 package dec.haeyum.member.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.social.entity.SocialEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +27,8 @@ public class Member implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
-
     private String username;
+    private String profileImg;
     private String password;
     private LocalDate createDate;
 
@@ -42,10 +43,25 @@ public class Member implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     List<String> roles = new ArrayList<>();
 
+    @OneToOne(mappedBy = "member")
+    private SocialEntity social;
+
+    public Member(String nickname, String picture) {
+        this.username = nickname;
+        this.profileImg = picture;
+        this.createDate = LocalDate.now();
+    }
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
+
+    public void setSocial(SocialEntity socialEntity) {
+       this.social = socialEntity;
+    }
+
 }

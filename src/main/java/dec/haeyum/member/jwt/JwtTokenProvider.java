@@ -75,6 +75,32 @@ public class JwtTokenProvider {
                 .build();
     }
 
+    // JWT 생성
+    public JwtToken generateTokenWithKakao(String sub) {
+        long now = new Date().getTime();
+
+        //Access Token 생성
+        Date accessTokenExpiresln = new Date(now + accessTokenExpirationMillis);
+        String accessToken = Jwts.builder()
+                .setSubject(sub)
+                .setExpiration(accessTokenExpiresln)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        //Refresh Token 생성
+        String refreshToken = Jwts.builder()
+                .setSubject(sub)
+                .setExpiration(new Date(now + refreshTokenExpirationMillis))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
     // 토큰 복호화
     public Claims parseClaims(String token) {
         try {
