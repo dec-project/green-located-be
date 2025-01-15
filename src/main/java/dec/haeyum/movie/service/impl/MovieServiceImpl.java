@@ -5,7 +5,10 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
+import dec.haeyum.external.youtube.service.YoutubeService;
 import dec.haeyum.movie.dto.MovieInfoDto;
+import dec.haeyum.movie.dto.response.GetMovieDetailResponseDto;
 import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import dec.haeyum.movie.entity.CalendarMovieEntity;
@@ -42,6 +45,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
@@ -56,6 +62,7 @@ public class MovieServiceImpl implements MovieService {
     private final CalendarService calendarService;
     private final View error;
     private WebClient webClient;
+    private final YoutubeService youtubeService;
 
     @Value("${movie.base-url}")
     private String movie_api_url;
@@ -85,7 +92,6 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    @Transactional
     // 날짜별 TOP 5 영화 가져오기
     public ResponseEntity<GetTop5Movies> getTop5Movies(Long calendarId) {
         List<Top5MoviesDto> top5MoviesDto = new ArrayList<>();
@@ -94,19 +100,39 @@ public class MovieServiceImpl implements MovieService {
                 .orElse(null);
         // 2. 없으면 스크랩핑
         if (top5MoviesDto == null || top5MoviesDto.isEmpty()){
-            CalendarEntity calendar = calendarService.getCalendar(calendarId)
-                    .orElse(null);
+            CalendarEntity calendar = calendarService.getCalendar(calendarId);
             if (calendar == null){
                 throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
             }
             searchMovie(calendar);
             top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
                     .get();
+
         }
 
         // 3. 있으면 해당 데이터 반환
         return GetTop5Movies.success(top5MoviesDto);
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(Long calendarId, Long movieId) {
+
+        MovieEntity movie = movieRepository.findById(movieId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_CONNECT_PAGE));
+
+        if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
+            String word = "영화 " + movie.getTitle() + " 예고편";
+            YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
+            movie.setYoutubeData(youtubeDetailDto);
+        }
+        return GetMovieDetailResponseDto.success(movie);
+
+    }
+
+
+
+
+
 
     private void searchMovie(CalendarEntity calendar) {
             // 크롤링 페이지 GET
@@ -197,15 +223,19 @@ public class MovieServiceImpl implements MovieService {
         return list;
     }
 
+
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
 
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
 
-        for (MovieInfoDto data : list) {
+        ExecutorService executorService = Executors.newFixedThreadPool(list.size());
+
+        list.forEach(data -> executorService.submit(() -> {
+
             try {
                 String html = webClient.post()
                         .uri(movie_detail_url)
-                        .header("Accept-Encoding","gzip")
+                        .header("Accept-Encoding", "gzip")
                         .body(BodyInserters.fromFormData(
                                         "code", data.getMovieUuid())
                                 .with("titleYN", "Y")
@@ -215,16 +245,28 @@ public class MovieServiceImpl implements MovieService {
                         .bodyToMono(String.class)
                         .block();
 
-                movieDetailInfoParsing(html,data);
-                MovieEntity movie = movieRepository.save(new MovieEntity(data));
-                calendarMovieRepository.save(new CalendarMovieEntity(calendar,movie,data.getRanking()));
-                Thread.sleep(200);
-            }catch (Exception e){
-                e.printStackTrace();
+                movieDetailInfoParsing(html, data);
+                synchronized (this) { // 동기화 블록으로 데이터 저장
+                    MovieEntity movie = movieRepository.save(new MovieEntity(data));
+                    calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
+                }
+                Thread.sleep(300);
+            } catch (Exception e) {
+                log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
             }
+        }));
 
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
+
 
     private void movieDetailInfoParsing(String result, MovieInfoDto data) {
         Document document = Jsoup.parse(result);
@@ -260,10 +302,6 @@ public class MovieServiceImpl implements MovieService {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
-
     }
 
 

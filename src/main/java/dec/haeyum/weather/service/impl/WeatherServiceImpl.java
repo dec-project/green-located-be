@@ -77,11 +77,7 @@ public class WeatherServiceImpl implements WeatherService {
         GetWeatherResponseDto responseDto = new GetWeatherResponseDto();
 
         // DB 조회
-        Optional<CalendarEntity> calendarEntityOptional = calendarService.getCalendar(calendarId);
-        if (calendarEntityOptional.isEmpty()){
-            throw new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR);
-        }
-        CalendarEntity calendar = calendarEntityOptional.get();
+        CalendarEntity calendar = calendarService.getCalendar(calendarId);
 
         // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
         if (calendar.getWeather() == null){

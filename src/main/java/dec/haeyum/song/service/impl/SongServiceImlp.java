@@ -4,6 +4,8 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
+import dec.haeyum.external.youtube.service.YoutubeService;
 import dec.haeyum.song.dto.SongDetailDto;
 import dec.haeyum.song.dto.SongSummaryDto;
 import dec.haeyum.song.entity.CalendarSong;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Service
 public class SongServiceImlp implements SongService {
 
+    private final YoutubeService youtubeService;
     private final SongRepository songRepository;
     private final CalendarRepository calendarRepository;
     private final CalendarSongRepository calendarSongRepository;
@@ -54,7 +57,9 @@ public class SongServiceImlp implements SongService {
     public SongDetailDto getSongDetails(Long songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SONG_NOT_FOUND));
-
+        String searchWord = song.getArtists() + song.getTitle();
+        YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(searchWord);
+        song.setImg(youtubeDetailDto);
         return SongDetailDto.toDto(song);
     }
 

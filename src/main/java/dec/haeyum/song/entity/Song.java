@@ -1,5 +1,6 @@
 package dec.haeyum.song.entity;
 
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
 import dec.haeyum.song.dto.SongDetailCsvDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,5 +49,9 @@ public class Song {
                 .arrangers(songDetailCsvDto.getArrangers())
                 .imgName(songDetailCsvDto.getImgName())
                 .build();
+    }
+
+    public void setImg(YoutubeDetailDto youtubeDetailDto) {
+        this.youtubeAddr = youtubeDetailDto.getYoutubeAddr();
     }
 }

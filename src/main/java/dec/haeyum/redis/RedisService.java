@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +33,18 @@ public class RedisService {
         }
         return (String) values.get(key);
     }
+    @Transactional(readOnly = true)
+    public Boolean isValueInSet(String key, String value){
+        Boolean isMember = redisTemplate.opsForSet().isMember(key, value);
+
+        return Boolean.TRUE.equals(isMember);
+    }
+    public void setValuesInSet(String key, String values){
+        redisTemplate.opsForSet().add(key,values);
+        redisTemplate.expire(key,Duration.ofDays(1));
+    }
+
+
 
     public void deleteValues(String key) {
         redisTemplate.delete(key);

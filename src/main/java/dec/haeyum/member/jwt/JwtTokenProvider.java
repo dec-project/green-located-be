@@ -37,6 +37,7 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
 
+
     // application.yml에서 secret 값 가져와서 key에 저장
     public  JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -63,6 +64,32 @@ public class JwtTokenProvider {
         //Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
+                .setExpiration(new Date(now + refreshTokenExpirationMillis))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    // JWT 생성
+    public JwtToken generateTokenWithKakao(String sub) {
+        long now = new Date().getTime();
+
+        //Access Token 생성
+        Date accessTokenExpiresln = new Date(now + accessTokenExpirationMillis);
+        String accessToken = Jwts.builder()
+                .setSubject(sub)
+                .setExpiration(accessTokenExpiresln)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        //Refresh Token 생성
+        String refreshToken = Jwts.builder()
+                .setSubject(sub)
                 .setExpiration(new Date(now + refreshTokenExpirationMillis))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
