@@ -10,4 +10,5 @@ public interface MemberService {
     void signOut(String accessToken);
 
 
+    void searchProfile(String accessToken);
 }

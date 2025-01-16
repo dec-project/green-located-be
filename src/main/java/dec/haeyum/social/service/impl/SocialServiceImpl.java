@@ -46,7 +46,6 @@ public class SocialServiceImpl implements SocialService {
     }
 
     private Boolean findMember(TokenAccessResponseDto response) {
-
         String sub = response.idTokenDecode().getSub();
         if (sub == null || sub.isEmpty()){
             throw new BusinessException(ErrorCode.NOT_EXISTED_SUB);
@@ -56,6 +55,5 @@ public class SocialServiceImpl implements SocialService {
             return true;
         }
         return false;
-
     }
 }

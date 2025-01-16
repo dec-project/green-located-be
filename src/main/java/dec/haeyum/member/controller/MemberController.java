@@ -1,5 +1,6 @@
 package dec.haeyum.member.controller;
 
+import dec.haeyum.member.dto.GetSearchProfileResponseDto;
 import dec.haeyum.member.dto.JwtToken;
 import dec.haeyum.member.dto.SignInDto;
 import dec.haeyum.member.dto.SignUpDto;
@@ -8,6 +9,7 @@ import dec.haeyum.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +45,14 @@ public class MemberController {
 
         return ResponseEntity.ok("signed out successfully.");
     }
+
+    @GetMapping("/member/profile")
+    public ResponseEntity<GetSearchProfileResponseDto> searchProfile(@AuthenticationPrincipal String accessToken){
+        memberService.searchProfile(accessToken);
+        return null;
+    }
+
+
 
     @GetMapping("/jwt-test")
     public String test() {
