@@ -36,7 +36,7 @@ public class NewsServiceImplWithJsoup implements NewsService {
 
     private final CalendarService calendarService;
     private WebClient webClient;
-    @Value("${selenium.selenium-joongang-page}")
+    @Value("${news.joongang-page}")
     private String news_api_url;
 
     @PostConstruct

@@ -93,4 +93,10 @@ public class MemberServiceImlp implements MemberService {
         }
     }
 
+    @Override
+    public void searchProfile(String accessToken) {
+        log.info("accessToken ={}",accessToken);
+
+    }
+
 }

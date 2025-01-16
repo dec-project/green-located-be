@@ -27,7 +27,7 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/jwt-test").hasRole("USER")
+                        .requestMatchers("/jwt-test","/member/profile").hasRole("USER")
                         .anyRequest().permitAll())
                 .addFilterBefore(new JwtVerificationFilter(jwtTokenProvider, redisService),
                         UsernamePasswordAuthenticationFilter.class)
