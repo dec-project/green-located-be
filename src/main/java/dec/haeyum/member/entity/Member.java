@@ -50,6 +50,7 @@ public class Member implements UserDetails {
         this.username = nickname;
         this.profileImg = picture;
         this.createDate = LocalDate.now();
+        this.roles.add("USER");
     }
 
 
