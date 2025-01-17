@@ -27,7 +27,7 @@ public class SongDetailDto {
                 .songId(song.getSongId())
                 .title(song.getTitle())
                 .artists(song.getArtists())
-                .releaseDate(song.getReleaseDate())
+                .releaseDate(song.getReleaseDate().replace(".", "-"))
                 .genre(song.getGenre())
                 .albumTitle(song.getAlbumTitle())
                 .lyrics(song.getLyrics())
