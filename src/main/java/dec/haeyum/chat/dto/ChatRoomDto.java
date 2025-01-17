@@ -13,6 +13,7 @@ public class ChatRoomDto {
     private String name;
     private LocalDate lastMessageDate;
     private String lastMessage;
+    private String imgUrl;
 
     public static ChatRoomDto toDto(ChatRoom chatRoom) {
         return ChatRoomDto.builder()
@@ -20,6 +21,7 @@ public class ChatRoomDto {
                 .name(chatRoom.getName())
                 .lastMessageDate(chatRoom.getLastMessageDate())
                 .lastMessage(chatRoom.getLastMessage())
+                .imgUrl("/img/chatroom/" + chatRoom.getImgName())
                 .build();
     }
 }

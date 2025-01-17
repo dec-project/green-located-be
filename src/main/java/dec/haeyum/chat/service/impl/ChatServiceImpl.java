@@ -8,6 +8,7 @@ import dec.haeyum.chat.repository.ChatRoomRepository;
 import dec.haeyum.chat.service.ChatService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.member.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     //특정 채팅방 메시지 조회
     @Override
@@ -31,13 +33,16 @@ public class ChatServiceImpl implements ChatService {
     //메시지 저장
     @Override
     @Transactional
-    public ChatMessageDto saveMessage(ChatMessageDto chatMessageDto) {
+    public ChatMessageDto saveMessage(ChatMessageDto chatMessageDto, String bearerToken) {
+
+        String accessToken = jwtTokenProvider.resolveBearerToken(bearerToken);
+        String subject = jwtTokenProvider.parseClaims(accessToken).getSubject();
 
         //해당하는 채팅방 찾기
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHATROOM_NOT_FOUND));
 
-        ChatMessage message = new ChatMessage(chatRoom, chatMessageDto.getSender(), chatMessageDto.getContent());
+        ChatMessage message = new ChatMessage(chatRoom, subject, chatMessageDto.getContent());
         ChatMessage savedMessage = chatMessageRepository.save(message);
 
         chatRoom.setLastMessage(savedMessage.getContent());
@@ -49,13 +54,15 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void createChatRoom() {
-        ChatRoom chatRoom70s = ChatRoom.builder().name("1970년대").build();
-        ChatRoom chatRoom80s = ChatRoom.builder().name("1980년대").build();
-        ChatRoom chatRoom90s = ChatRoom.builder().name("1990년대").build();
-        ChatRoom chatRoom00s = ChatRoom.builder().name("2000년대").build();
-        ChatRoom chatRoom10s = ChatRoom.builder().name("2010년대").build();
-        ChatRoom chatRoom20s = ChatRoom.builder().name("2020년대").build();
+        ChatRoom chatRoom60s = ChatRoom.builder().name("1960년대").imgName("1960.png").build();
+        ChatRoom chatRoom70s = ChatRoom.builder().name("1970년대").imgName("1970.png").build();
+        ChatRoom chatRoom80s = ChatRoom.builder().name("1980년대").imgName("1980.png").build();
+        ChatRoom chatRoom90s = ChatRoom.builder().name("1990년대").imgName("1990.png").build();
+        ChatRoom chatRoom00s = ChatRoom.builder().name("2000년대").imgName("2000.png").build();
+        ChatRoom chatRoom10s = ChatRoom.builder().name("2010년대").imgName("2010.png").build();
+        ChatRoom chatRoom20s = ChatRoom.builder().name("2020년대").imgName("2020.png").build();
 
+        chatRoomRepository.save(chatRoom60s);
         chatRoomRepository.save(chatRoom70s);
         chatRoomRepository.save(chatRoom80s);
         chatRoomRepository.save(chatRoom90s);
