@@ -1,6 +1,11 @@
 package dec.haeyum.config;
 
+import dec.haeyum.chat.WebsocketInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -8,7 +13,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final WebsocketInterceptor websocketInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -21,9 +30,14 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // stomp 접속 주소 url = ws://localhost:8080/ws (프로토콜이 http가 x)
+        // stomp 접속 주소 url = ws://localhost:8080/ws
         registry.addEndpoint("/ws") // 연결될 엔드포인트
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(websocketInterceptor);
     }
 }
