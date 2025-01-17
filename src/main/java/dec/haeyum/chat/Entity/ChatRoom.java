@@ -22,6 +22,7 @@ public class ChatRoom {
     private String name;
     private String lastMessage;
     private LocalDate lastMessageDate;
+    private String imgName;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
