@@ -14,10 +14,12 @@ public class FavoriteItem {
     private Long calendarId;
     private String img;
     private String calendarName;
+    private Boolean isFavorite;
     public FavoriteItem(Long calendarId, String calendarName, String calendarSongImageUrl) {
         this.calendarId = calendarId;
         this.img = calendarSongImageUrl;
         this.calendarName = calendarName;
+        this.isFavorite = true;
     }
 
 }
