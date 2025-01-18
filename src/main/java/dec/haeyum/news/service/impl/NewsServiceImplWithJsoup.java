@@ -141,9 +141,14 @@ public class NewsServiceImplWithJsoup implements NewsService {
         Document document = Jsoup.parse(response);
 
         String content = document.select("div.article_body p[data-divno]").get(0).text();
-        Element imgElement = document.selectFirst("div.article_body div.image img");
-        String img = (imgElement != null && imgElement.hasAttr("src")) ? imgElement.attr("src") : fileUrl + "defaultImgOfNews.jpg";
-        //String img = document.select("div.article_body div.image img").attr("src");
+        //Element imgElement = document.selectFirst("div.article_body div.image img");
+        //String img = (imgElement != null && imgElement.hasAttr("src")) ? imgElement.attr("src") : fileUrl + "defaultImgOfNews.jpg";
+        String img = document.select("div.article_body div.image img").attr("src");
+        if (img == null || img.isEmpty()){
+            img = fileUrl + "defaultImgOfNews.jpg";
+        }else {
+            img = img.substring(0, img.lastIndexOf("/_"));
+        }
         newsItem.setContent(content);
         newsItem.setImg(img);
 
