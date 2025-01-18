@@ -2,6 +2,8 @@ package dec.haeyum.external.kakao.controller;
 
 import dec.haeyum.external.kakao.service.KakaoService;
 import dec.haeyum.member.dto.JwtToken;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,18 +15,17 @@ public class KakaoController {
 
     private final KakaoService kakaoService;
 
+    @Operation(summary = "카카오 로그인", description = "카카오 API로 redirect")
     @GetMapping("/login")
-    public ResponseEntity<Void> loginWithKakao(){
-        ResponseEntity<Void> result = kakaoService.KakaoAuthorize();
-        return result;
+    public void loginWithKakao(HttpServletResponse response){
+        kakaoService.KakaoAuthorize(response);
     }
-
+    @Operation(summary = "카카오 API 결과 redirect",description = "로그인 된 사용자 정보 수집 후 식별")
     @GetMapping("/authorize/fallback")
-    public ResponseEntity<JwtToken> tokenAccess(@RequestParam("code")String code, @RequestParam(value = "error", required = false)String error,
-                                                @RequestParam(value = "error_description", required = false)String errorDescription){
+    public void tokenAccess(@RequestParam("code")String code, @RequestParam(value = "error", required = false)String error,
+                                                @RequestParam(value = "error_description", required = false)String errorDescription, HttpServletResponse response){
 
-        ResponseEntity<JwtToken> result = kakaoService.tokenAccess(code, error, errorDescription);
-        return result;
+        kakaoService.tokenAccess(code, error, errorDescription, response);
     }
 
 }

@@ -16,7 +16,7 @@ public class ViewController {
     private final ViewService viewService;
 
 
-    @Operation(summary = "조회수 증가 API", description = "사용자 IP 확인 후 하루에 한명의 사용자가 동일한 달력에 대해서 한번의 조회수 증가")
+    @Operation(summary = "조회수 증가 ", description = "사용자 IP 식별 후 레디스로 IP 조회, 하루에 한 IP당 특정 달력 1번 증가")
     @GetMapping("/view/{calendarId}")
     public ResponseEntity<Void> increaseView(@PathVariable(name = "calendarId")Long calendarId, HttpServletRequest request){
         viewService.increaseView(calendarId, request);
