@@ -1,6 +1,8 @@
 package dec.haeyum.img.service;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -10,4 +12,8 @@ public interface ImgService {
     String findContentType(String fileName);
 
     String downloadImg(String url) ;
+
+    String downloadImg(@NotNull MultipartFile profileImg);
+
+    void deleteImg(String profileImg);
 }

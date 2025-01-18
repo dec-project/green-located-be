@@ -1,21 +1,31 @@
 package dec.haeyum.member.service.impl;
 
+import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
-import dec.haeyum.member.dto.JwtToken;
-import dec.haeyum.member.dto.SignUpDto;
+import dec.haeyum.img.service.ImgService;
+import dec.haeyum.member.dto.*;
 import dec.haeyum.member.entity.Member;
 import dec.haeyum.member.jwt.JwtTokenProvider;
 import dec.haeyum.member.reopository.MemberRepository;
 import dec.haeyum.member.service.MemberService;
 import dec.haeyum.redis.RedisService;
+import dec.haeyum.social.service.SocialService;
+import dec.haeyum.song.service.SongService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +34,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +47,13 @@ public class MemberServiceImlp implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisService redisService;
+    private final SocialService socialService;
+    private final ImgService imgService;
+    private final CalendarService calendarService;
+    private final SongService songService;
+
+    @Value("${spring.file.fileUrl}")
+    private String fileUrl;
 
     @Override
     @Transactional
@@ -92,11 +111,85 @@ public class MemberServiceImlp implements MemberService {
             log.info("logout success");
         }
     }
+    @Override
+    public ResponseEntity<GetSearchProfileResponseDto> searchProfile() {
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        SecurityContext context = SecurityContextHolder.getContext();
+        log.info("context ={}",context);
+        Member member = socialService.findMember(sub);
+        return GetSearchProfileResponseDto.success(fileUrl,member);
+    }
 
     @Override
-    public void searchProfile(String accessToken) {
-        log.info("accessToken ={}",accessToken);
+    @Transactional
+    public void updateProfile(PostUpdateProfileRequestDto dto) {
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = socialService.findMember(sub);
+        // 기존 이미지 -> /dmoekfope.png , 새 이미지 -> 인형.png
+        if (member.getProfileImg().equals(dto.getProfileImg().getOriginalFilename())){
+            member.setUsername(dto.getNickname());
+        }
+        if (!member.getProfileImg().equals(dto.getProfileImg().getOriginalFilename())){
+            imgService.deleteImg(member.getProfileImg());
+            String fileName = imgService.downloadImg(dto.getProfileImg());
+            member.setProfileImg(fileName);
+            member.setUsername(dto.getNickname());
+        }
 
     }
+
+    @Override
+    public ResponseEntity<GetSearchFavoriteResponseDto> searchFavorite(Long calendarId) {
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = socialService.findMember(sub);
+        Optional<CalendarEntity> isFavorite = member.getFavorite().stream()
+                .filter(target -> target.getCalendarId().equals(calendarId))
+                .findFirst();
+        if (isFavorite.isPresent()){
+            return GetSearchFavoriteResponseDto.success(true);
+        }
+        return GetSearchFavoriteResponseDto.success(false);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<PutUpdateFavoriteResponseDto> updateFavorite(Long calendarId) {
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = socialService.findMember(sub);
+        CalendarEntity calendar = calendarService.getCalendar(calendarId);
+
+        Optional<CalendarEntity> isFavorite = member.getFavorite().stream()
+                .filter(target -> target.getCalendarId().equals(calendarId))
+                .findFirst();
+
+        if (isFavorite == null || isFavorite.isEmpty()){
+            member.getFavorite().add(calendar);
+            return PutUpdateFavoriteResponseDto.success(true);
+        }
+        if (isFavorite.isPresent()){
+            member.getFavorite().remove(calendar);
+        }
+        return PutUpdateFavoriteResponseDto.success(false);
+    }
+
+    @Override
+    public ResponseEntity<GetFavoriteListResponseDto> favoriteList() {
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = socialService.findMember(sub);
+        List<CalendarEntity> favorite = member.getFavorite();
+        List<FavoriteItem> itemList = member.getFavorite().stream()
+                .map(calendar -> {
+                    String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
+                    return new FavoriteItem(
+                            calendar.getCalendarId(),
+                            calendar.getCalendarName(),
+                            calendarSongImageUrl
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return GetFavoriteListResponseDto.success(itemList);
+    }
+
 
 }

@@ -5,6 +5,7 @@ import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.img.service.ImgService;
 import dec.haeyum.member.dto.JwtToken;
+import dec.haeyum.member.entity.Member;
 import dec.haeyum.member.jwt.JwtTokenProvider;
 import dec.haeyum.social.entity.SocialEntity;
 import dec.haeyum.social.repository.SocialRepository;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,19 +33,37 @@ public class SocialServiceImpl implements SocialService {
     public JwtToken validateMember(TokenAccessResponseDto response) {
         // sub를 사용해서 회원 구분
         Boolean isMember = findMember(response);
+        List<String> roles = new ArrayList<>();
         // 신규 유저
         if (!isMember){
-            createMember(response);
+            roles = createMember(response);
         }
-        JwtToken jwtToken = jwtTokenProvider.generateTokenWithKakao(response.idTokenDecode().getSub());
+        if (isMember){
+            roles = searchRoles(response);
+        }
+        JwtToken jwtToken = jwtTokenProvider.generateTokenWithKakao(response.idTokenDecode().getSub(), roles);
         return jwtToken;
     }
 
-    private void createMember(TokenAccessResponseDto response){
+    public Member findMember(String sub){
+         return socialRepository.findBySocialSub(sub)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_SUB))
+                 .getMember();
+    }
+
+
+    private List<String> searchRoles(TokenAccessResponseDto response) {
+        SocialEntity socialEntity = socialRepository.findBySocialSub(response.idTokenDecode().getSub())
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_SUB));
+        return socialEntity.getMember().getRoles();
+    }
+
+    private List<String> createMember(TokenAccessResponseDto response){
         SocialEntity socialEntity = new SocialEntity();
         String imgName = imgService.downloadImg(response.idTokenDecode().getPicture());
-        socialEntity.createSocialWithKakao(response,imgName);
+        List<String> roles = socialEntity.createSocialWithKakao(response, imgName);
         socialRepository.save(socialEntity);
+        return roles;
     }
 
     private Boolean findMember(TokenAccessResponseDto response) {
@@ -56,4 +77,6 @@ public class SocialServiceImpl implements SocialService {
         }
         return false;
     }
+
+
 }

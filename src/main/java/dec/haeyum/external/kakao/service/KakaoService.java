@@ -1,12 +1,13 @@
 package dec.haeyum.external.kakao.service;
 
 import dec.haeyum.member.dto.JwtToken;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface KakaoService {
 
-     ResponseEntity<Void> KakaoAuthorize();
+     void KakaoAuthorize(HttpServletResponse response);
 
-     ResponseEntity<JwtToken> tokenAccess(String code, String error, String errorDescription);
+     void tokenAccess(String code, String error, String errorDescription, HttpServletResponse response);
 
 }

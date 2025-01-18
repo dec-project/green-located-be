@@ -31,8 +31,13 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         // 1. Request Header에서 JWT 토큰 추출
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
 
+//        // 2. 토큰 유효성 검사
+//        if (StringUtils.hasText(accessToken) && doNotLogout(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
+//            setAuthenticationToContext(accessToken);
+//        }
+
         // 2. 토큰 유효성 검사
-        if (StringUtils.hasText(accessToken) && doNotLogout(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
+        if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
             setAuthenticationToContext(accessToken);
         }
         filterChain.doFilter(request, response);
