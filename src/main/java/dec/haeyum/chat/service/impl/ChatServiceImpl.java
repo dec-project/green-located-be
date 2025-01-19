@@ -23,9 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-    @Value("${spring.file.fileUrl}")
-    private String fileUrl;
-
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -36,9 +33,7 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public List<ChatMessageDto> getMessages(Long chatRoomId) {
         return chatMessageRepository.findByChatRoomId(chatRoomId).stream()
-                .map(chatMessage -> {
-                    return ChatMessageDto.toDto(chatMessage, fileUrl);
-                })
+                .map(ChatMessageDto::toDto)
                 .toList();
     }
 
@@ -62,7 +57,7 @@ public class ChatServiceImpl implements ChatService {
         chatRoom.setLastMessage(savedMessage.getContent());
         chatRoom.setLastMessageDate(savedMessage.getDate());
 
-        return ChatMessageDto.toDto(savedMessage, fileUrl);
+        return ChatMessageDto.toDto(savedMessage);
     }
 
     @Override
