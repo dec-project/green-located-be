@@ -34,3 +34,42 @@ logging:
       springframework:
         web: DEBUG
         security: DEBUG
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: product
+    import: application-secret.yml
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 400
+        dialect: org.hibernate.dialect.MySQLDialect
+      open-in-view: false
+
+  batch:
+    jdbc:
+      initialize-schema: always
+
+server:
+  compression:
+    enabled: true
+    mime-types: application/json, image/gif, image/jpeg, image/png
+    min-response-size: 1024
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG

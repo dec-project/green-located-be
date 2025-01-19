@@ -1,5 +1,6 @@
 package dec.haeyum.chat.Entity;
 
+import dec.haeyum.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,15 +22,16 @@ public class ChatMessage {
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
-    private String sender;
-
     private String content;
 
     private LocalDate date = LocalDate.now();
 
-    public ChatMessage(ChatRoom chatRoom, String sender, String content) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member senderMember;
+
+    public ChatMessage(ChatRoom chatRoom, Member member, String content) {
         this.chatRoom = chatRoom;
-        this.sender = sender;
+        this.senderMember = member;
         this.content = content;
     }
 }

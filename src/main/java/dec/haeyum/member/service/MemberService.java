@@ -1,8 +1,8 @@
 package dec.haeyum.member.service;
 
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
-import dec.haeyum.member.dto.JwtToken;
-import dec.haeyum.member.dto.SignUpDto;
+import dec.haeyum.member.dto.*;
+import org.springframework.http.ResponseEntity;
 
 public interface MemberService {
     JwtToken signIn(String memberId, String password);
@@ -10,5 +10,13 @@ public interface MemberService {
     void signOut(String accessToken);
 
 
-    void searchProfile(String accessToken);
+    ResponseEntity<GetSearchProfileResponseDto> searchProfile();
+
+    void updateProfile(PostUpdateProfileRequestDto dto);
+
+    ResponseEntity<GetSearchFavoriteResponseDto> searchFavorite(Long calendarId);
+
+    ResponseEntity<PutUpdateFavoriteResponseDto> updateFavorite(Long calendarId);
+
+    ResponseEntity<GetFavoriteListResponseDto> favoriteList();
 }

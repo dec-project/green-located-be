@@ -1,10 +1,12 @@
 package dec.haeyum.external.kakao.service.impl;
 
+import dec.haeyum.external.kakao.dto.response.KakaoTokenResponseDto;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.external.kakao.service.KakaoService;
 import dec.haeyum.member.dto.JwtToken;
 import dec.haeyum.social.service.SocialService;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,36 +56,67 @@ public class KakaoServiceImpl implements KakaoService {
     }
 
     @Override
-    public ResponseEntity<Void> KakaoAuthorize() {
-        String redirectUrl = kakaoAuthorizeUrl
-                + "?client_id=" + clientId
-                + "&redirect_uri=" + kakaoAuthorizeRedirectUrl
-                + "&response_type=" + "code"
-                + "&nonce=" + nonce;
+    public void KakaoAuthorize(HttpServletResponse response) {
+        log.info("start");
+        try {
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION,redirectUrl)
-                .build();
+            String redirectUrl = kakaoAuthorizeUrl
+                    + "?client_id=" + clientId
+                    + "&redirect_uri=" + kakaoAuthorizeRedirectUrl
+                    + "&response_type=" + "code"
+                    + "&nonce=" + nonce;
+            response.sendRedirect(redirectUrl);
 
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
+//
+//    @Override
+//    public ResponseEntity<JwtToken> tokenAccess(String code, String error, String errorDescription) {
+//        log.info("start");
+//        TokenAccessResponseDto response = webClient.post()
+//                .uri(kakaoTokenUrl)
+//                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+//                        .with("client_id", clientId)
+//                        .with("redirect_uri", kakaoAuthorizeRedirectUrl)
+//                        .with("code", code))
+//                .retrieve()
+//                .bodyToMono(TokenAccessResponseDto.class)
+//                .block();
+//        log.info("response = {} ",response);
+//        JwtToken jwtToken = socialService.validateMember(response);
+//        log.info("JwtToken ={}",jwtToken);
+//        return ResponseEntity.status(HttpStatus.OK).body(jwtToken);
+//    }
+
 
     @Override
-    public ResponseEntity<JwtToken> tokenAccess(String code, String error, String errorDescription) {
+    public void tokenAccess(String code, String error, String errorDescription, HttpServletResponse servletResponse) {
+        log.info("start");
 
+        try {
 
-        TokenAccessResponseDto response = webClient.post()
-                .uri(kakaoTokenUrl)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                        .with("client_id", clientId)
-                        .with("redirect_uri", kakaoAuthorizeRedirectUrl)
-                        .with("code", code))
-                .retrieve()
-                .bodyToMono(TokenAccessResponseDto.class)
-                .block();
+            TokenAccessResponseDto response = webClient.post()
+                    .uri(kakaoTokenUrl)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                            .with("client_id", clientId)
+                            .with("redirect_uri", kakaoAuthorizeRedirectUrl)
+                            .with("code", code))
+                    .retrieve()
+                    .bodyToMono(TokenAccessResponseDto.class)
+                    .block();
+            log.info("response = {} ",response);
+            JwtToken jwtToken = socialService.validateMember(response);
+            log.info("JwtToken ={}",jwtToken);
 
-        JwtToken jwtToken = socialService.validateMember(response);
-        return ResponseEntity.status(HttpStatus.OK).body(jwtToken);
+            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken());
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 

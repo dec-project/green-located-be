@@ -5,6 +5,8 @@ import dec.haeyum.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.List;
+
 @Entity(name = "social")
 @Getter
 public class SocialEntity {
@@ -18,12 +20,13 @@ public class SocialEntity {
     private Member member;
 
 
-    public void createSocialWithKakao(TokenAccessResponseDto response, String imgName) {
+    public List<String> createSocialWithKakao(TokenAccessResponseDto response, String imgName) {
         this.socialName = "카카오";
         this.socialSub = response.idTokenDecode().getSub();
 
         Member memberEntity = new Member(response.idTokenDecode().getNickname(),imgName);
         setMember(memberEntity);
+        return member.getRoles();
     }
 
     private void setMember(Member memberEntity) {

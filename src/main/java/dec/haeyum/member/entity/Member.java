@@ -1,12 +1,10 @@
 package dec.haeyum.member.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.chat.Entity.ChatMessage;
 import dec.haeyum.social.entity.SocialEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -46,11 +45,14 @@ public class Member implements UserDetails {
     @OneToOne(mappedBy = "member")
     private SocialEntity social;
 
+    @OneToMany(mappedBy = "senderMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
+
     public Member(String nickname, String picture) {
         this.username = nickname;
         this.profileImg = picture;
         this.createDate = LocalDate.now();
-        this.roles.add("USER");
+        this.roles.add("ROLE_USER");
     }
 
 

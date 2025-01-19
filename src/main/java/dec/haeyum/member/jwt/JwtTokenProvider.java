@@ -22,6 +22,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -77,13 +78,17 @@ public class JwtTokenProvider {
     }
 
     // JWT 생성
-    public JwtToken generateTokenWithKakao(String sub) {
-        long now = new Date().getTime();
+    public JwtToken generateTokenWithKakao(String sub, List<String> roles) {
 
+        String authorities = roles.stream()
+                .collect(Collectors.joining(","));
+
+        long now = new Date().getTime();
         //Access Token 생성
         Date accessTokenExpiresln = new Date(now + accessTokenExpirationMillis);
         String accessToken = Jwts.builder()
                 .setSubject(sub)
+                .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresln)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -91,6 +96,7 @@ public class JwtTokenProvider {
         //Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .setSubject(sub)
+                .claim("auth", authorities)
                 .setExpiration(new Date(now + refreshTokenExpirationMillis))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
