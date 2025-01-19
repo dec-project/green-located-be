@@ -2,13 +2,14 @@ package dec.haeyum.chat.service;
 
 import dec.haeyum.chat.Entity.ChatMessage;
 import dec.haeyum.chat.dto.ChatMessageDto;
+import dec.haeyum.chat.dto.ChatMessageRequestDto;
 
 import java.util.List;
 
 public interface ChatService {
-    List<ChatMessage> getMessagesByChatRoomId(Long chatRoomId);
+    List<ChatMessageDto> getMessages(Long chatRoomId);
 
-    ChatMessageDto saveMessage(ChatMessageDto chatMessageDto, String bearerToken);
+    ChatMessageDto saveMessage(ChatMessageRequestDto chatMessageDto, String bearerToken);
 
     void createChatRoom();
 }

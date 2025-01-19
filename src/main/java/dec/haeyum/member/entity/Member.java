@@ -1,6 +1,7 @@
 package dec.haeyum.member.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.chat.Entity.ChatMessage;
 import dec.haeyum.social.entity.SocialEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,6 +44,9 @@ public class Member implements UserDetails {
 
     @OneToOne(mappedBy = "member")
     private SocialEntity social;
+
+    @OneToMany(mappedBy = "senderMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     public Member(String nickname, String picture) {
         this.username = nickname;

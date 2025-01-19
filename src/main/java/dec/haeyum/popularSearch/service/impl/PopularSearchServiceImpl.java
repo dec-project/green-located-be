@@ -1,6 +1,8 @@
 package dec.haeyum.popularSearch.service.impl;
 
 import dec.haeyum.calendar.repository.CalendarRepository;
+import dec.haeyum.chat.dto.ChatRoomDto;
+import dec.haeyum.chat.repository.ChatRoomRepository;
 import dec.haeyum.popularSearch.dto.PopularSearchDto;
 import dec.haeyum.popularSearch.service.PopularSearchService;
 import dec.haeyum.song.service.SongService;
@@ -15,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PopularSearchServiceImpl implements PopularSearchService {
     private final CalendarRepository calendarRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final SongService songService;
 
     public List<PopularSearchDto> getPopularSearch() {
@@ -25,6 +28,13 @@ public class PopularSearchServiceImpl implements PopularSearchService {
                     String imgUrl = songService.getCalendarSongImageUrl(calendarEntity.getCalendarId());
                     return PopularSearchDto.toDto(calendarEntity, imgUrl);
                 })
+                .toList();
+    }
+
+    @Override
+    public List<ChatRoomDto> getPopularChatRoom() {
+        return chatRoomRepository.findAllByOrderByLastMessageDateDesc().stream()
+                .map(ChatRoomDto::toDto)
                 .toList();
     }
 }
