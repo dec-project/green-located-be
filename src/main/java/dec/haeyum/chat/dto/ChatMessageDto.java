@@ -21,13 +21,13 @@ public class ChatMessageDto {
     private String content;
     private LocalDate date;
 
-    public static ChatMessageDto toDto(ChatMessage chatMessage, String fileUrl) {
+    public static ChatMessageDto toDto(ChatMessage chatMessage) {
         Member senderMember = chatMessage.getSenderMember();
         return ChatMessageDto.builder()
                 .chatRoomId(chatMessage.getChatRoom().getId())
                 .senderId(senderMember.getSocial().getSocialSub())
                 .senderName(senderMember.getUsername())
-                .profileImg(fileUrl + senderMember.getProfileImg())
+                .profileImg("/image/" + senderMember.getProfileImg())
                 .content(chatMessage.getContent())
                 .date(chatMessage.getDate())
                 .build();
