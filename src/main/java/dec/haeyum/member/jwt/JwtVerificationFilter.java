@@ -37,7 +37,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                     "/calendar/**",
                     "/view/**",
                     "/favorite/**",
-                    "/oauth/kakao/**");
+                    "/oauth/kakao/**",
+                    "/chatroom/**",
+                    "/img/**");
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
