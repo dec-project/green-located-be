@@ -44,6 +44,17 @@ public class RedisService {
         redisTemplate.expire(key,Duration.ofDays(1));
     }
 
+    public void setRefreshTokenInString(String key, String values){
+        // key = refreshToken::social_sub , Value = "refreshToken"
+        String keyValue = "refreshToken::" + key;
+        redisTemplate.opsForValue().set(keyValue,values,Duration.ofDays(7));
+    }
+
+    public String getRefreshTokenInString(String key){
+        String keyValue = "refreshToken::" + key;
+        return  (String) redisTemplate.opsForValue().get(keyValue);
+    }
+
 
 
     public void deleteValues(String key) {
