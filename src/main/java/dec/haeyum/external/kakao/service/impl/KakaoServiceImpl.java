@@ -4,6 +4,7 @@ import dec.haeyum.external.kakao.dto.response.KakaoTokenResponseDto;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.external.kakao.service.KakaoService;
 import dec.haeyum.member.dto.JwtToken;
+import dec.haeyum.member.entity.Member;
 import dec.haeyum.social.service.SocialService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
@@ -111,8 +112,9 @@ public class KakaoServiceImpl implements KakaoService {
             log.info("response = {} ",response);
             JwtToken jwtToken = socialService.validateMember(response);
             log.info("JwtToken ={}",jwtToken);
+            Member member = socialService.findMember(response.idTokenDecode().getSub());
 
-            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken());
+            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&memberId=" + member.getMemberId());
 
         }catch (Exception e){
             e.printStackTrace();
