@@ -2,7 +2,9 @@ package dec.haeyum.popularSearch.service.impl;
 
 import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.chat.dto.ChatRoomDto;
+import dec.haeyum.chat.repository.ChatMessageRepository;
 import dec.haeyum.chat.repository.ChatRoomRepository;
+import dec.haeyum.popularSearch.dto.PopularChatroomDto;
 import dec.haeyum.popularSearch.dto.PopularSearchDto;
 import dec.haeyum.popularSearch.service.PopularSearchService;
 import dec.haeyum.song.service.SongService;
@@ -18,6 +20,7 @@ import java.util.List;
 public class PopularSearchServiceImpl implements PopularSearchService {
     private final CalendarRepository calendarRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private final SongService songService;
 
     public List<PopularSearchDto> getPopularSearch() {
@@ -32,9 +35,12 @@ public class PopularSearchServiceImpl implements PopularSearchService {
     }
 
     @Override
-    public List<ChatRoomDto> getPopularChatRoom() {
+    public List<PopularChatroomDto> getPopularChatRoom() {
         return chatRoomRepository.findAllByOrderByLastMessageDateDesc().stream()
-                .map(ChatRoomDto::toDto)
+                .map(chatRoom -> {
+                    long chatCnt = chatMessageRepository.countByChatRoomId(chatRoom.getId());
+                    return PopularChatroomDto.toDto(chatRoom, chatCnt);
+                })
                 .toList();
     }
 }
