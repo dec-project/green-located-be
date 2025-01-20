@@ -107,11 +107,10 @@ public class MovieServiceImpl implements MovieService {
             searchMovie(calendar);
             top5MoviesDto = calendarMovieRepository.getTop5Movie(calendarId)
                     .get();
-
         }
 
         // 3. 있으면 해당 데이터 반환
-        return GetTop5Movies.success(top5MoviesDto);
+        return GetTop5Movies.success(top5MoviesDto, file_url);
     }
 
     @Override

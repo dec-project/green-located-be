@@ -5,6 +5,7 @@ import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.external.kakao.service.KakaoService;
 import dec.haeyum.member.dto.JwtToken;
 import dec.haeyum.member.entity.Member;
+import dec.haeyum.redis.RedisService;
 import dec.haeyum.social.service.SocialService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ public class KakaoServiceImpl implements KakaoService {
     private String nonce;
 
     private final SocialService socialService;
+    private final RedisService redisService;
 
 
     @PostConstruct
@@ -72,26 +74,6 @@ public class KakaoServiceImpl implements KakaoService {
             e.printStackTrace();
         }
     }
-//
-//    @Override
-//    public ResponseEntity<JwtToken> tokenAccess(String code, String error, String errorDescription) {
-//        log.info("start");
-//        TokenAccessResponseDto response = webClient.post()
-//                .uri(kakaoTokenUrl)
-//                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-//                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-//                        .with("client_id", clientId)
-//                        .with("redirect_uri", kakaoAuthorizeRedirectUrl)
-//                        .with("code", code))
-//                .retrieve()
-//                .bodyToMono(TokenAccessResponseDto.class)
-//                .block();
-//        log.info("response = {} ",response);
-//        JwtToken jwtToken = socialService.validateMember(response);
-//        log.info("JwtToken ={}",jwtToken);
-//        return ResponseEntity.status(HttpStatus.OK).body(jwtToken);
-//    }
-
 
     @Override
     public void tokenAccess(String code, String error, String errorDescription, HttpServletResponse servletResponse) {
@@ -112,9 +94,9 @@ public class KakaoServiceImpl implements KakaoService {
             log.info("response = {} ",response);
             JwtToken jwtToken = socialService.validateMember(response);
             log.info("JwtToken ={}",jwtToken);
-            Member member = socialService.findMember(response.idTokenDecode().getSub());
-
-            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&memberId=" + member.getMemberId());
+            // 레디스에 social_sub 별 refreshToken 저장
+            redisService.setRefreshTokenInString(response.idTokenDecode().getSub(), jwtToken.getRefreshToken());
+            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&socialSub=" + response.idTokenDecode().getSub());
 
         }catch (Exception e){
             e.printStackTrace();

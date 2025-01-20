@@ -63,13 +63,13 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void createChatRoom() {
-        ChatRoom chatRoomAll = ChatRoom.builder().name("전체").imgName("all.png").build();
-        ChatRoom chatRoom70s = ChatRoom.builder().name("1970년대").imgName("1970.png").build();
-        ChatRoom chatRoom80s = ChatRoom.builder().name("1980년대").imgName("1980.png").build();
-        ChatRoom chatRoom90s = ChatRoom.builder().name("1990년대").imgName("1990.png").build();
-        ChatRoom chatRoom00s = ChatRoom.builder().name("2000년대").imgName("2000.png").build();
-        ChatRoom chatRoom10s = ChatRoom.builder().name("2010년대").imgName("2010.png").build();
-        ChatRoom chatRoom20s = ChatRoom.builder().name("2020년대").imgName("2020.png").build();
+        ChatRoom chatRoomAll = ChatRoom.builder().name("전체").imgName("all.webp").build();
+        ChatRoom chatRoom70s = ChatRoom.builder().name("1970년대").imgName("1970.webp").build();
+        ChatRoom chatRoom80s = ChatRoom.builder().name("1980년대").imgName("1980.webp").build();
+        ChatRoom chatRoom90s = ChatRoom.builder().name("1990년대").imgName("1990.webp").build();
+        ChatRoom chatRoom00s = ChatRoom.builder().name("2000년대").imgName("2000.webp").build();
+        ChatRoom chatRoom10s = ChatRoom.builder().name("2010년대").imgName("2010.webp").build();
+        ChatRoom chatRoom20s = ChatRoom.builder().name("2020년대").imgName("2020.webp").build();
 
         chatRoomRepository.save(chatRoomAll);
         chatRoomRepository.save(chatRoom20s);
