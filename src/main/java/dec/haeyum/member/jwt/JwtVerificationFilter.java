@@ -30,6 +30,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
                     "/sign-up");
+
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
