@@ -37,9 +37,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                     "/calendar/**",
                     "/view/**",
                     "/favorite/**",
-                    "/oauth/kakao/**",
-                    "/chatroom/**",
-                    "/img/**");
+                    "/oauth/kakao/**");
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
@@ -57,9 +55,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
             setAuthenticationToContext(accessToken);
             log.info(SecurityContextHolder.getContext().toString());
-        }else {
-            expiredToken(response);
-            return;
         }
         filterChain.doFilter(request, response);
     }
