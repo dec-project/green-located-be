@@ -33,6 +33,7 @@ public enum ErrorCode {
     // 카카오 로그인 에러
     NOT_EXISTED_SUB(HttpStatus.NOT_FOUND,"NS","카카오의 고유 회원번호가 존재하지 않습니다."),
     EXPIRED_TOKNE(HttpStatus.NOT_EXTENDED,"ET","다시 로그인 하여 주시기 바랍니다."),
+    TEST(HttpStatus.BAD_REQUEST,"TEST","TEST"),
     NOT_EXISTED_IMGPATH(HttpStatus.NOT_FOUND,"NI","존재하지 않는 이미지 경로입니다.");
 
     private final String message;

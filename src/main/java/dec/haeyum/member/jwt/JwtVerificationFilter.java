@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,17 +28,33 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
-                    "/sign-up");
+                    "/sign-up",
+                    "/weather/img",
+                    "/oauth/kakao/login",
+                    "/image/**",
+                    "/search/**",
+                    "/calendar",
+                    "/calendar/**",
+                    "/view/**",
+                    "/favorite/**",
+                    "/oauth/kakao/**");
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.info("requestPath ={} ",request.getServletPath());
+        if (shouldNotFilter(request)){
+            filterChain.doFilter(request,response);
+        }
+
         // 1. Request Header에서 JWT 토큰 추출
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         // 2. 토큰 유효성 검사
         if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
             setAuthenticationToContext(accessToken);
+            log.info(SecurityContextHolder.getContext().toString());
         }else {
             expiredToken(response);
             return;
@@ -46,6 +63,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     }
 
     private static void expiredToken(HttpServletResponse response) throws IOException {
+        log.info("expiredToken");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
         Map<String, String> errorDetail = new HashMap<>();
@@ -70,6 +88,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
+        return EXCLUDE_URL.stream().anyMatch(exclude -> pathMatcher.match(exclude,request.getServletPath()));
     }
 }

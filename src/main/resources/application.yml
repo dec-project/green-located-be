@@ -37,7 +37,7 @@ logging:
 
 
 front:
-  url: "http://localhost:8080"
+  url: "http://localhost:3000"
 
 ---
 
@@ -79,4 +79,4 @@ logging:
         security: DEBUG
 
 front:
-  url: "http://localhost:8080"
+  url: "http://localhost:3000"

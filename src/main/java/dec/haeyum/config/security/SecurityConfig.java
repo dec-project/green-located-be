@@ -35,6 +35,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();

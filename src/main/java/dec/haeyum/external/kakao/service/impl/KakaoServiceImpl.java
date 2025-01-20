@@ -94,10 +94,9 @@ public class KakaoServiceImpl implements KakaoService {
             log.info("response = {} ",response);
             JwtToken jwtToken = socialService.validateMember(response);
             log.info("JwtToken ={}",jwtToken);
-            Member member = socialService.findMember(response.idTokenDecode().getSub());
             // 레디스에 social_sub 별 refreshToken 저장
             redisService.setRefreshTokenInString(response.idTokenDecode().getSub(), jwtToken.getRefreshToken());
-            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&memberId=" + member.getMemberId());
+            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&socialSub=" + response.idTokenDecode().getSub());
 
         }catch (Exception e){
             e.printStackTrace();
