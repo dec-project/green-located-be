@@ -2,6 +2,7 @@ package dec.haeyum.popularSearch.controller;
 
 import dec.haeyum.chat.dto.ChatRoomDto;
 import dec.haeyum.chat.repository.ChatRoomRepository;
+import dec.haeyum.popularSearch.dto.PopularChatroomDto;
 import dec.haeyum.popularSearch.dto.PopularSearchDto;
 import dec.haeyum.popularSearch.service.PopularSearchService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,8 @@ public class PopularSearchController {
     }
 
     @GetMapping("/ranking/chatroom")
-    public ResponseEntity<List<ChatRoomDto>> getPopularSearchChatroom() {
-        List<ChatRoomDto> popularChatRoom = popularSearchService.getPopularChatRoom();
+    public ResponseEntity<List<PopularChatroomDto>> getPopularSearchChatroom() {
+        List<PopularChatroomDto> popularChatRoom = popularSearchService.getPopularChatRoom();
         return ResponseEntity.ok(popularChatRoom);
     }
 }
