@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.redis.RedisService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,18 +29,8 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
-                    "/sign-up",
-                    "/weather/img",
-                    "/oauth/kakao/login",
-                    "/image/**",
-                    "/search/**",
-                    "/calendar",
-                    "/calendar/**",
-                    "/view/**",
-                    "/favorite/**",
-                    "/oauth/kakao/**",
-                    "/chatroom/**",
-                    "/img/**");
+                    "/sign-up");
+
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
@@ -47,20 +38,22 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("requestPath ={} ",request.getServletPath());
-        if (shouldNotFilter(request)){
-            filterChain.doFilter(request,response);
-        }
 
         // 1. Request Header에서 JWT 토큰 추출
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         // 2. 토큰 유효성 검사
-        if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
-            setAuthenticationToContext(accessToken);
-            log.info(SecurityContextHolder.getContext().toString());
-        }else {
+
+        try {
+            if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
+                setAuthenticationToContext(accessToken);
+                log.info(SecurityContextHolder.getContext().toString());
+            }
+        }catch (ExpiredJwtException e){
+            e.printStackTrace();
             expiredToken(response);
             return;
         }
+
         filterChain.doFilter(request, response);
     }
 
