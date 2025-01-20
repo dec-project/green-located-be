@@ -35,6 +35,10 @@ logging:
         web: DEBUG
         security: DEBUG
 
+
+front:
+  url: "http://localhost:8080"
+
 ---
 
 spring:
@@ -73,3 +77,6 @@ logging:
       springframework:
         web: DEBUG
         security: DEBUG
+
+front:
+  url: "http://localhost:8080"

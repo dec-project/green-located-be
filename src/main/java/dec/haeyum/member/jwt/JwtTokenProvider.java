@@ -1,5 +1,7 @@
 package dec.haeyum.member.jwt;
 
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.member.dto.JwtToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -140,6 +142,9 @@ public class JwtTokenProvider {
         return false;
     }
 
+
+
+
     // 토큰에서 Authentication 리턴
     public Authentication getAuthentication(String accessToken) {
         //JWT 토큰 복호화
@@ -169,4 +174,20 @@ public class JwtTokenProvider {
         return null;
     }
 
+    public String generateAccessTokenWithKakao(String sub, List<String> roles) {
+        String authorities = roles.stream()
+                .collect(Collectors.joining(","));
+
+        long now = new Date().getTime();
+        //Access Token 생성
+        Date accessTokenExpiresln = new Date(now + accessTokenExpirationMillis);
+        String accessToken = Jwts.builder()
+                .setSubject(sub)
+                .claim("auth", authorities)
+                .setExpiration(accessTokenExpiresln)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return accessToken;
+    }
 }
