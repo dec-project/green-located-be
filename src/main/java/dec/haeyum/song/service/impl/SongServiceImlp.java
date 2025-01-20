@@ -71,7 +71,7 @@ public class SongServiceImlp implements SongService {
         List<CalendarSong> calendarSongs = calendarSongRepository.findSongsByDate(findCalendar.getCalendarDate());
 
         if (calendarSongs.isEmpty()) {
-            return "img/song/" + "default.png";
+            return "img/song/" + "default.webp";
         }
         CalendarSong topSong = calendarSongs.get(0);
         String imgName = topSong.getSong().getImgName();
