@@ -1,6 +1,7 @@
-package dec.haeyum.chat.dto;
+package dec.haeyum.popularSearch.dto;
 
 import dec.haeyum.chat.Entity.ChatRoom;
+import dec.haeyum.chat.dto.ChatRoomDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,20 +9,18 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class ChatRoomDto {
+public class PopularChatroomDto {
     private Long roomId;
     private String name;
-    private LocalDate lastMessageDate;
-    private String lastMessage;
     private String imgUrl;
+    private long chatCnt;
 
-    public static ChatRoomDto toDto(ChatRoom chatRoom) {
-        return ChatRoomDto.builder()
+    public static PopularChatroomDto toDto(ChatRoom chatRoom, long chatCnt) {
+        return PopularChatroomDto.builder()
                 .roomId(chatRoom.getId())
                 .name(chatRoom.getName())
-                .lastMessageDate(chatRoom.getLastMessageDate())
-                .lastMessage(chatRoom.getLastMessage())
                 .imgUrl("/img/chatroom/" + chatRoom.getImgName())
+                .chatCnt(chatCnt)
                 .build();
     }
 }
