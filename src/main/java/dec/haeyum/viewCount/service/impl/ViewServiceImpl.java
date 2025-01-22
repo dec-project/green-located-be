@@ -45,7 +45,7 @@ public class ViewServiceImpl implements ViewService {
             redisService.setValuesInSet(redisKey,userIp);
             calendarService.increaseViewCount(calendar);
         }
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok().build();
     }
 
 

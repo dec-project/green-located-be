@@ -17,16 +17,17 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+  servlet:
+    multipart:
+      max-request-size: 110MB
+      max-file-size: 100MB
 
 server:
   compression:
     enabled: true
     mime-types: application/json, image/gif, image/jpeg, image/png
     min-response-size: 1024
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 110MB
+
 
 logging:
   level:
@@ -60,16 +61,18 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+  servlet:
+    multipart:
+      max-request-size: 110MB
+      max-file-size: 100MB
+
 
 server:
   compression:
     enabled: true
     mime-types: application/json, image/gif, image/jpeg, image/png
     min-response-size: 1024
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 110MB
+
 
 logging:
   level:

@@ -21,9 +21,10 @@ public class ViewController {
     @Operation(summary = "조회수 증가 ", description = "사용자 IP 식별 후 레디스로 IP 조회, 하루에 한 IP당 특정 달력 1번 증가")
     @GetMapping("/view/{calendarId}")
     public ResponseEntity<Void> increaseView(@PathVariable(name = "calendarId")Long calendarId, HttpServletRequest request){
-        viewService.increaseView(calendarId, request);
         popularSearchService.incrementDailySearch(calendarId);
-        return null;
+        ResponseEntity<Void> result = viewService.increaseView(calendarId, request);
+        return result;
+
     }
 
 }
