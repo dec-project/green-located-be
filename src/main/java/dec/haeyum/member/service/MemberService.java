@@ -12,7 +12,7 @@ public interface MemberService {
 
     ResponseEntity<GetSearchProfileResponseDto> searchProfile();
 
-    void updateProfile(PostUpdateProfileRequestDto dto);
+    ResponseEntity<Void> updateProfile(PostUpdateProfileRequestDto dto);
 
     ResponseEntity<GetSearchFavoriteResponseDto> searchFavorite(Long calendarId);
 

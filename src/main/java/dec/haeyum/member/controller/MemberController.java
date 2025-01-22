@@ -53,8 +53,8 @@ public class MemberController {
     @Operation(summary = "프로필 수정", description = "JWT 토큰 으로 유저 식별 후 이미지, 닉네임 수정")
     @PutMapping("/member/profile")
     public ResponseEntity<Void> updateProfile(@ModelAttribute PostUpdateProfileRequestDto dto){
-        memberService.updateProfile(dto);
-        return ResponseEntity.ok().build();
+        ResponseEntity<Void> result = memberService.updateProfile(dto);
+        return result;
     }
     @Operation(summary = "찜 조회",description = "JWT 토큰 으로 유저 식별 후 캘린더 좋아요 여부 조회")
     @GetMapping("/favorite/{calendarId}")

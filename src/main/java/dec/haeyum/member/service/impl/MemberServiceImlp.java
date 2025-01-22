@@ -114,15 +114,13 @@ public class MemberServiceImlp implements MemberService {
     @Override
     public ResponseEntity<GetSearchProfileResponseDto> searchProfile() {
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
-        SecurityContext context = SecurityContextHolder.getContext();
-        log.info("context ={}",context);
         Member member = socialService.findMember(sub);
         return GetSearchProfileResponseDto.success(fileUrl,member);
     }
 
     @Override
     @Transactional
-    public void updateProfile(PostUpdateProfileRequestDto dto) {
+    public ResponseEntity<Void> updateProfile(PostUpdateProfileRequestDto dto) {
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = socialService.findMember(sub);
 
@@ -136,7 +134,7 @@ public class MemberServiceImlp implements MemberService {
             }
             member.setUsername(dto.getNickname());
         }
-
+        return ResponseEntity.ok().build();
     }
 
     @Override
