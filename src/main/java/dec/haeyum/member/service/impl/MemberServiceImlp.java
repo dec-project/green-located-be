@@ -125,14 +125,15 @@ public class MemberServiceImlp implements MemberService {
     public void updateProfile(PostUpdateProfileRequestDto dto) {
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = socialService.findMember(sub);
-        // 기존 이미지 -> /dmoekfope.png , 새 이미지 -> 인형.png
-        if (member.getProfileImg().equals(dto.getProfileImg().getOriginalFilename())){
-            member.setUsername(dto.getNickname());
+
+        if (dto.getProfileImg() != null){
+            String img = imgService.downloadImg(dto.getProfileImg());
+            member.setProfileImg(img);
         }
-        if (!member.getProfileImg().equals(dto.getProfileImg().getOriginalFilename())){
-            imgService.deleteImg(member.getProfileImg());
-            String fileName = imgService.downloadImg(dto.getProfileImg());
-            member.setProfileImg(fileName);
+        if (dto.getNickname() != null && !"".equals(dto.getNickname())){
+            if (dto.getNickname().length() < 2 || dto.getNickname().length() > 10){
+                throw new BusinessException(ErrorCode.NOT_EXISTED_LENGTH);
+            }
             member.setUsername(dto.getNickname());
         }
 
