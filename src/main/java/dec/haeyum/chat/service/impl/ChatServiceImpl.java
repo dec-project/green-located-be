@@ -11,6 +11,7 @@ import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.member.entity.Member;
 import dec.haeyum.member.jwt.JwtTokenProvider;
+import dec.haeyum.popularSearch.service.PopularSearchService;
 import dec.haeyum.social.service.SocialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final SocialService socialService;
+    private final PopularSearchService popularSearchService;
 
     //특정 채팅방 메시지 조회
     @Override
@@ -56,6 +58,8 @@ public class ChatServiceImpl implements ChatService {
 
         chatRoom.setLastMessage(savedMessage.getContent());
         chatRoom.setLastMessageDate(savedMessage.getDate());
+
+        popularSearchService.incrementDailyChatroom(chatRoom.getId());
 
         return ChatMessageDto.toDto(savedMessage);
     }

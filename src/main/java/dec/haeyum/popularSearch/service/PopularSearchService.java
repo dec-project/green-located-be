@@ -9,4 +9,7 @@ import java.util.List;
 public interface PopularSearchService {
     List<PopularSearchDto> getPopularSearch();
     List<PopularChatroomDto> getPopularChatRoom();
+    void resetDailySearch();
+    void incrementDailySearch(Long calendarId);
+    void incrementDailyChatroom(Long chatroomId);
 }
