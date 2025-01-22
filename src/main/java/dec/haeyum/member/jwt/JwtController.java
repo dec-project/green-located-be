@@ -30,26 +30,22 @@ public class JwtController {
     private String frontUrl;
 
     @GetMapping("/refresh")
-    public ResponseEntity<PostRefreshResponseDto> updateAccessToken(HttpServletResponse response){
-        String accessToken = "";
+    public ResponseEntity<PostRefreshResponseDto> updateAccessToken(){
         log.info("updateAccessToken::start");
-        try {
-            // 들어온 refreshToken 을 parse 해서 유저 식별
-            String sub = SecurityContextHolder.getContext().getAuthentication().getName();
-            log.info("sub ={} ",sub);
-            // 레디스 조회 -> value 하고 일치하면 해당 유저 accessToken 만들어주기
-            String isRefreshToken = redisService.getRefreshTokenInString(sub);
-            if (isRefreshToken == null || isRefreshToken.isEmpty()){
-                //response.sendRedirect( frontUrl + "/oauth/kakao/login");
-                throw new BusinessException(ErrorCode.TEST);
-            }
-            Member member = socialService.findMember(sub);
-            List<String> roles = member.getRoles();
-            accessToken = jwtTokenProvider.generateAccessTokenWithKakao(sub, roles);
-
-        }catch (Exception e){
-            e.printStackTrace();
+        // 들어온 refreshToken 을 parse 해서 유저 식별
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("sub ={} ",sub);
+        // 레디스 조회 -> value 하고 일치하면 해당 유저 accessToken 만들어주기
+        String isRefreshToken = redisService.getRefreshTokenInString(sub);
+        log.info("isRefreshToken = {}", isRefreshToken);
+        if (isRefreshToken == null || isRefreshToken.isEmpty()){
+            log.info("ERROR TOKEN");
+            throw new BusinessException(ErrorCode.EXPIRED_TOKNE);
         }
+        Member member = socialService.findMember(sub);
+        List<String> roles = member.getRoles();
+        String accessToken = jwtTokenProvider.generateAccessTokenWithKakao(sub, roles);
+        log.info("new AccessToken = {}",accessToken);
         return PostRefreshResponseDto.success(accessToken);
     }
 }

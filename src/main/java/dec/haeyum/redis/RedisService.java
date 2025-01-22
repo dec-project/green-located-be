@@ -1,16 +1,17 @@
 package dec.haeyum.redis;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -52,6 +53,7 @@ public class RedisService {
 
     public String getRefreshTokenInString(String key){
         String keyValue = "refreshToken::" + key;
+        log.info("keyValue ={}", key);
         return  (String) redisTemplate.opsForValue().get(keyValue);
     }
 
@@ -63,5 +65,28 @@ public class RedisService {
 
     public boolean checkExistsValue(String value) {
         return !value.equals("False");
+    }
+
+    public void deleteRefreshToken(Long key) {
+        String keyValue = "refreshToken::" + key;
+        log.info("keyValue ={}", key);
+        Boolean isDelete = redisTemplate.delete(keyValue);
+        log.info("deleteRefreshToken ={} ",isDelete);
+
+    }
+
+    public void setBlackListOfRefreshToken(String accessToken) {
+        String keyValue = "blackList::refreshToken::" + accessToken;
+        redisTemplate.opsForValue().set(keyValue,true,Duration.ofDays(7));
+    }
+
+    public Boolean getBlackListOfRefreshToken(String accessToken){
+        String keyValue = "blackList::refreshToken::" + accessToken;
+        Object object = redisTemplate.opsForValue().get(keyValue);
+
+        if (object == null){
+            return true;
+        }
+        return false;
     }
 }
