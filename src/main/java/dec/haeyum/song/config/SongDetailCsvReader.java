@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,9 @@ public class SongDetailCsvReader {
         FlatFileItemReader<SongDetailCsvDto> flatFileItemReader = new FlatFileItemReader<>();
         flatFileItemReader.setResource(new ClassPathResource(songDetailCsv));
         flatFileItemReader.setEncoding("UTF-8");
+        flatFileItemReader.setRecordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
         flatFileItemReader.setLinesToSkip(1);   // 첫 줄(헤더) 무시
+
 
         // CSV 데이터를 한 줄씩 읽어서 DTO에 매핑
         DefaultLineMapper<SongDetailCsvDto> defaultLineMapper = new DefaultLineMapper<>();
