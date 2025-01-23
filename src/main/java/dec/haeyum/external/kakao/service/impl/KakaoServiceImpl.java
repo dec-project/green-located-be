@@ -1,5 +1,6 @@
 package dec.haeyum.external.kakao.service.impl;
 
+import dec.haeyum.external.kakao.dto.response.KakaoLogoutResponseDto;
 import dec.haeyum.external.kakao.dto.response.KakaoTokenResponseDto;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.external.kakao.service.KakaoService;
@@ -8,6 +9,7 @@ import dec.haeyum.member.entity.Member;
 import dec.haeyum.redis.RedisService;
 import dec.haeyum.social.service.SocialService;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -33,9 +36,13 @@ public class KakaoServiceImpl implements KakaoService {
     private String kakaoAuthorizeRedirectUrl;
     @Value("${kaKao.kakaoTokenUrl}")
     private String kakaoTokenUrl;
+    @Value("${kaKao.kakaoLogoutUrl}")
+    private String kakaoLogout;
     private WebClient webClient;
     @Value("${kaKao.clientId}")
     private String clientId;
+    @Value("${kaKao.adminKey}")
+    private String adminKey;
     @Value("${kaKao.nonce}")
     private String nonce;
 
@@ -104,6 +111,26 @@ public class KakaoServiceImpl implements KakaoService {
 
     }
 
+    @Override
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        // 1. JWT 블랙리스트 등록
+        String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 2. 카카오 토큰 만료
+        KakaoLogoutResponseDto response = webClient.post()
+                .uri(kakaoLogout)
+                .header("Authorization", "KakaoAk " + adminKey)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("target_id_type", "user_id")
+                        .with("target_id", sub))
+                .retrieve()
+                .bodyToMono(KakaoLogoutResponseDto.class)
+                .block();
+
+        socialService.logout(response, request);
+
+        return null;
+
+    }
 
 
 }

@@ -22,34 +22,12 @@ import java.util.List;
 @Slf4j
 public class JwtController {
 
-    private final RedisService redisService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final SocialService socialService;
-
-    @Value("${front.url}")
-    private String frontUrl;
+    private final JwtService jwtService;
 
     @GetMapping("/refresh")
-    public ResponseEntity<PostRefreshResponseDto> updateAccessToken(HttpServletResponse response){
-        String accessToken = "";
-        log.info("updateAccessToken::start");
-        try {
-            // 들어온 refreshToken 을 parse 해서 유저 식별
-            String sub = SecurityContextHolder.getContext().getAuthentication().getName();
-            log.info("sub ={} ",sub);
-            // 레디스 조회 -> value 하고 일치하면 해당 유저 accessToken 만들어주기
-            String isRefreshToken = redisService.getRefreshTokenInString(sub);
-            if (isRefreshToken == null || isRefreshToken.isEmpty()){
-                //response.sendRedirect( frontUrl + "/oauth/kakao/login");
-                throw new BusinessException(ErrorCode.TEST);
-            }
-            Member member = socialService.findMember(sub);
-            List<String> roles = member.getRoles();
-            accessToken = jwtTokenProvider.generateAccessTokenWithKakao(sub, roles);
+    public ResponseEntity<PostRefreshResponseDto> updateAccessToken(){
+        ResponseEntity<PostRefreshResponseDto> result = jwtService.refreshAccessToken();
+        return result;
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return PostRefreshResponseDto.success(accessToken);
     }
 }

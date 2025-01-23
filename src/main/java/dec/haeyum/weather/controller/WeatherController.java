@@ -16,7 +16,7 @@ public class WeatherController {
 
     private final WeatherService weatherService;
     @Operation(summary = "날씨 조회", description = "날씨 API에 날짜 전송 후 날씨 데이터 수집 후 반환")
-    @GetMapping("/search/weather/{calendarId}")
+    @GetMapping("/search/{calendarId}/weather")
     public ResponseEntity<GetWeatherResponseDto> getWeather(@PathVariable("calendarId") Long calendarId){
         ResponseEntity<GetWeatherResponseDto> result = weatherService.getWeather(calendarId);
         return result;

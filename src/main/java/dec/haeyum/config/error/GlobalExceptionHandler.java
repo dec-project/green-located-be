@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,6 +39,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<ErrorResponse> handle(BadCredentialsException e) {
         return createErrorResponseEntity(ErrorCode.INVALID_CREDENTIALS);
+    }
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<ErrorResponse> handle(MaxUploadSizeExceededException e){
+        e.printStackTrace();
+        return createErrorResponseEntity(ErrorCode.MAX_UPLOAD_SIZE_EXCEPTION);
     }
 
     // 예상하지 못한 예외 처리

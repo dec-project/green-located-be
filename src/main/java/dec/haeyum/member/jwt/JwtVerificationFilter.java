@@ -29,7 +29,15 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
-                    "/sign-up");
+                    "/sign-up",
+                    "/oauth/kakao/**",
+                    "/calendar",
+                    "/view/**",
+                    "/search/**",
+                    "/chatroom",
+                    "/char/**",
+                    "/ranking/**",
+                    "/image/**");
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
@@ -43,6 +51,14 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         // 2. 토큰 유효성 검사
 
+
+
+        if (accessToken == null && !shouldNotFilter(request)){
+            notExistedToken(response);
+            return;
+        }
+
+
         try {
             if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
                 setAuthenticationToContext(accessToken);
@@ -52,9 +68,23 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             e.printStackTrace();
             expiredToken(response);
             return;
+        }catch (Exception e){
+            e.printStackTrace();
+            expiredToken(response);
+            return;
         }
-
         filterChain.doFilter(request, response);
+    }
+
+    private void notExistedToken(HttpServletResponse response) throws IOException {
+        log.info("NOT_EXISTED_TOKEN");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String, String> errorDetail = new HashMap<>();
+        errorDetail.put("code","NT");
+        errorDetail.put("message","토큰이 포함되어 있지 않습니다.");
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString(errorDetail));
     }
 
     private static void expiredToken(HttpServletResponse response) throws IOException {
@@ -63,15 +93,20 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         response.setContentType("application/json;charset=UTF-8");
         Map<String, String> errorDetail = new HashMap<>();
         errorDetail.put("code","ET");
-        errorDetail.put("message","다시 로그인해 주시기 바랍니다.");
+        errorDetail.put("message","토큰이 만료 되었습니다.");
         ObjectMapper objectMapper = new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(errorDetail));
     }
 
+//    // 로그아웃 상태인지 확인
+//    private boolean doNotLogout(String accessToken) {
+//        String isLogout = redisService.getValues(accessToken);
+//        return isLogout.equals("false");    // accessToken이 "false"이면(return값 true) 블랙리스트에 올라온 상태가 아니므로 로그아웃되지 않음
+//    }
+
     // 로그아웃 상태인지 확인
     private boolean doNotLogout(String accessToken) {
-        String isLogout = redisService.getValues(accessToken);
-        return isLogout.equals("false");    // accessToken이 "false"이면(return값 true) 블랙리스트에 올라온 상태가 아니므로 로그아웃되지 않음
+        return redisService.getBlackListOfRefreshToken(accessToken);
     }
 
     // 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장

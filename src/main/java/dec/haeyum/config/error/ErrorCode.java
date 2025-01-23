@@ -15,6 +15,7 @@ public enum ErrorCode {
 
     // 공통 서버 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"ISE","서버 처리 중 오류가 발생했습니다. 관리자에게 문의하세요."),
+    NOT_EXISTED_TOKEN(HttpStatus.UNAUTHORIZED,"NT","토큰을 포함하여 전송해주세요."),
     // Calendar 에러
     NOT_EXISTED_BOUNDARY(HttpStatus.NOT_FOUND,"EB","검색할 수 있는 범위를 초과했습니다."),
     DUPLICATED_CALENDAR_DATE(HttpStatus.BAD_REQUEST,"DC","이미 가장 최신 달력입니다."),
@@ -30,9 +31,12 @@ public enum ErrorCode {
     TOO_MANY_REQUESTS(HttpStatus.INTERNAL_SERVER_ERROR,"TR","너무 많은 요청 입니다. 잠시 후 다시 시도해 주세요."),
     // 뉴스 에러
     NOT_EXISTED_NEWS(HttpStatus.NOT_FOUND,"NN","찾을 수 있는 뉴스가 없습니다."),
+    // 멤버
+    MAX_UPLOAD_SIZE_EXCEPTION(HttpStatus.BAD_REQUEST,"ME","너무 큰 용량의 파일입니다."),
+    NOT_EXISTED_LENGTH(HttpStatus.BAD_REQUEST,"NL","닉네임은 최소 2자 이상, 최대 10자 이하이여야 합니다."),
     // 카카오 로그인 에러
     NOT_EXISTED_SUB(HttpStatus.NOT_FOUND,"NS","카카오의 고유 회원번호가 존재하지 않습니다."),
-    EXPIRED_TOKNE(HttpStatus.NOT_EXTENDED,"ET","다시 로그인 하여 주시기 바랍니다."),
+    EXPIRED_TOKNE(HttpStatus.FORBIDDEN,"ET","토큰이 만료되었습니다."),
     TEST(HttpStatus.BAD_REQUEST,"TEST","TEST"),
     NOT_EXISTED_IMGPATH(HttpStatus.NOT_FOUND,"NI","존재하지 않는 이미지 경로입니다.");
 

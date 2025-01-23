@@ -31,4 +31,7 @@ public interface CalendarRepository extends JpaRepository<CalendarEntity,Long> {
 
     Optional<CalendarEntity> findByCalendarDate(LocalDate calendarDate);
 
+    @Query("SELECT c FROM calendar c WHERE c.calendarId NOT IN :excludeIds ORDER BY c.viewCount DESC")
+    List<CalendarEntity> findTopByViewCountExcluding(@Param("excludeIds") List<Long> excludeIds, Pageable pageable);
+
 }

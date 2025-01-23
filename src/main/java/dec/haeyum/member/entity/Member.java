@@ -31,7 +31,7 @@ public class Member implements UserDetails {
     private String password;
     private LocalDate createDate;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "favorite",
             joinColumns = @JoinColumn(name = "memberId"),

@@ -55,6 +55,7 @@ import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
