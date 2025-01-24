@@ -37,7 +37,8 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                     "/chatroom",
                     "/char/**",
                     "/ranking/**",
-                    "/image/**");
+                    "/image/**",
+                    "/calendar/**");
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
