@@ -31,11 +31,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             List.of("/sign-in",
                     "/sign-up",
                     "/oauth/kakao/**",
-                    "/calendar",
+                    "/calendar/**",
                     "/view/**",
                     "/search/**",
-                    "/chatroom",
-                    "/char/**",
+                    "/chatroom/**",
+                    "/chat/**",
                     "/ranking/**",
                     "/image/**");
 
@@ -54,7 +54,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
 
         if (accessToken == null && !shouldNotFilter(request)){
-            notExistedToken(response);
+            //notExistedToken(response);
             return;
         }
 
