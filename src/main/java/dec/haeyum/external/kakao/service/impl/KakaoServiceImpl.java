@@ -45,6 +45,8 @@ public class KakaoServiceImpl implements KakaoService {
     private String adminKey;
     @Value("${kaKao.nonce}")
     private String nonce;
+    @Value("${kaKao.sendRedirect}")
+    private String sendRedirect;
 
     private final SocialService socialService;
     private final RedisService redisService;
@@ -103,7 +105,8 @@ public class KakaoServiceImpl implements KakaoService {
             log.info("JwtToken ={}",jwtToken);
             // 레디스에 social_sub 별 refreshToken 저장
             redisService.setRefreshTokenInString(response.idTokenDecode().getSub(), jwtToken.getRefreshToken());
-            servletResponse.sendRedirect("http://localhost:3000/oauth/kakao/authorize/fallback?accessToken=" + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&socialSub=" + response.idTokenDecode().getSub());
+            servletResponse.sendRedirect(sendRedirect + jwtToken.getAccessToken() + "&refreshToken=" + jwtToken.getRefreshToken() + "&socialSub=" + response.idTokenDecode().getSub());
+
 
         }catch (Exception e){
             e.printStackTrace();

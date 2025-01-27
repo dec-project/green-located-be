@@ -96,7 +96,7 @@ public class WeatherServiceImpl implements WeatherService {
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
         String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
-        responseDto.setImg(imgPath);
+        responseDto.setImgUrl(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }
 

@@ -28,6 +28,6 @@ public class JwtController {
     public ResponseEntity<PostRefreshResponseDto> updateAccessToken(){
         ResponseEntity<PostRefreshResponseDto> result = jwtService.refreshAccessToken();
         return result;
-
     }
+
 }

@@ -29,16 +29,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
-                    "/sign-up",
-                    "/oauth/kakao/**",
-                    "/calendar",
-                    "/view/**",
-                    "/search/**",
-                    "/chatroom",
-                    "/char/**",
-                    "/ranking/**",
-                    "/image/**",
-                    "/calendar/**");
+                    "/sign-up");
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
@@ -52,14 +43,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         // 2. 토큰 유효성 검사
 
-
-
-        if (accessToken == null && !shouldNotFilter(request)){
-            notExistedToken(response);
-            return;
-        }
-
-
+//        if (accessToken == null && !shouldNotFilter(request)){
+//            notExistedToken(response);
+//            return;
+//        }
+//
         try {
             if (StringUtils.hasText(accessToken) && doNotLogout(accessToken)&& jwtTokenProvider.validateToken(accessToken)) {
                 setAuthenticationToContext(accessToken);
