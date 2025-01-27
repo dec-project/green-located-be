@@ -49,7 +49,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // React 앱의 도메인
+        configuration.addAllowedOrigin("https://www.haeyum.kr"); // React 앱의 도메인
+        configuration.addAllowedOrigin("http://localhost:3000"); // React 앱의 로컬환경
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 허용
