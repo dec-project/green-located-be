@@ -17,6 +17,7 @@ import dec.haeyum.movie.repository.CalendarMovieRepository;
 import dec.haeyum.movie.repository.MovieRepository;
 import dec.haeyum.movie.service.MovieService;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -47,6 +48,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -55,11 +57,11 @@ import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
     private final CalendarMovieRepository calendarMovieRepository;
+    private final EntityManager entityManager;
     private final CalendarService calendarService;
     private final View error;
     private WebClient webClient;
@@ -115,7 +117,6 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    @Transactional
     public ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(Long calendarId, Long movieId) {
 
         MovieEntity movie = movieRepository.findById(movieId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_CONNECT_PAGE));
@@ -147,7 +148,6 @@ public class MovieServiceImpl implements MovieService {
 
 
     private String getMovieInfoWebClient(LocalDate calendarDate) {
-        //String sSearchFrom = String.valueOf(calendarDate.minusDays(3));
         String sSearchFrom = String.valueOf(calendarDate);
         String sSearchTo = String.valueOf(calendarDate);
         String CSRFToken = "xj6vtA4p6rTaiq5vAGm1p0p1WhIMJ1K0_IwR4B3N3Bk";
@@ -223,50 +223,97 @@ public class MovieServiceImpl implements MovieService {
         return list;
     }
 
+//
+//    private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
+//
+//        final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
+//
+//        ExecutorService executorService = Executors.newFixedThreadPool(list.size());
+//
+//        list.forEach(data -> executorService.submit(() -> {
+//
+//            try {
+//                String html = webClient.post()
+//                        .uri(movie_detail_url)
+//                        .header("Accept-Encoding", "gzip")
+//                        .body(BodyInserters.fromFormData(
+//                                        "code", data.getMovieUuid())
+//                                .with("titleYN", "Y")
+//                                .with("isOuterReq", "false")
+//                                .with("CSRFToken", csrfToken))
+//                        .retrieve()
+//                        .bodyToMono(String.class)
+//                        .block();
+//
+//                movieDetailInfoParsing(html, data);
+//                synchronized (this) { // 동기화 블록으로 데이터 저장
+//                    MovieEntity movie = movieRepository.save(new MovieEntity(data));
+//                    calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
+//                }
+//                Thread.sleep(300);
+//            } catch (Exception e) {
+//                log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
+//            }
+//
+//        }));
+//
+//        executorService.shutdown();
+//        try {
+//            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+//                executorService.shutdownNow();
+//            }
+//        } catch (InterruptedException e) {
+//            executorService.shutdownNow();
+//            Thread.currentThread().interrupt();
+//        }
+//
+//    }
 
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
-
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
 
         ExecutorService executorService = Executors.newFixedThreadPool(list.size());
+        List<Future<?>> futures = new ArrayList<>();
 
-        list.forEach(data -> executorService.submit(() -> {
+        for (MovieInfoDto data : list) {
+            Future<?> future = executorService.submit(() -> {
+                try {
+                    String html = webClient.post()
+                            .uri(movie_detail_url)
+                            .header("Accept-Encoding", "gzip")
+                            .body(BodyInserters.fromFormData(
+                                            "code", data.getMovieUuid())
+                                    .with("titleYN", "Y")
+                                    .with("isOuterReq", "false")
+                                    .with("CSRFToken", csrfToken))
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
 
-            try {
-                String html = webClient.post()
-                        .uri(movie_detail_url)
-                        .header("Accept-Encoding", "gzip")
-                        .body(BodyInserters.fromFormData(
-                                        "code", data.getMovieUuid())
-                                .with("titleYN", "Y")
-                                .with("isOuterReq", "false")
-                                .with("CSRFToken", csrfToken))
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
+                    movieDetailInfoParsing(html, data);
 
-                movieDetailInfoParsing(html, data);
-                synchronized (this) { // 동기화 블록으로 데이터 저장
-                    MovieEntity movie = movieRepository.save(new MovieEntity(data));
-                    calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
+                    synchronized (this) {
+                        MovieEntity movie = movieRepository.save(new MovieEntity(data));
+                        calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
+                    }
+                } catch (Exception e) {
+                    log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
                 }
-                Thread.sleep(300);
-            } catch (Exception e) {
-                log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
-            }
-        }));
+            });
+            futures.add(future);
+        }
 
         executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
+
+        // 🎯 모든 비동기 작업이 완료될 때까지 기다리기
+        for (Future<?> future : futures) {
+            try {
+                future.get(); // 작업이 끝날 때까지 대기
+            } catch (Exception e) {
+                log.error("Error waiting for task completion", e);
             }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
         }
     }
-
 
     private void movieDetailInfoParsing(String result, MovieInfoDto data) {
         Document document = Jsoup.parse(result);
@@ -283,7 +330,7 @@ public class MovieServiceImpl implements MovieService {
     private void downloadImage(String imgPath, MovieInfoDto data) {
         final String pullPath = movie_api_url + imgPath;
         UUID uuid = UUID.randomUUID();
-        String fileName = uuid + ".jpg";
+        String fileName = uuid + ".webp";
         String filePath = file_path + fileName;
 
         try {

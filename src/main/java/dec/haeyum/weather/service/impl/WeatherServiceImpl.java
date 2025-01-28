@@ -6,6 +6,7 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.img.service.ImgService;
 import dec.haeyum.weather.dto.request.PostWeatherImgRequestDto;
 import dec.haeyum.weather.dto.response.GetWeatherResponseDto;
 import dec.haeyum.weather.dto.response.PostWeatherImgResponseDto;
@@ -46,6 +47,7 @@ public class WeatherServiceImpl implements WeatherService {
     private final WeatherRepository weatherRepository;
     private final WeatherImgRepository weatherImgRepository;
     private final CalendarService calendarService;
+    private final ImgService imgService;
     private WebClient webClient;
 
     @Value("${weather.service-key}")
@@ -131,16 +133,8 @@ public class WeatherServiceImpl implements WeatherService {
 
     private String saveFile(MultipartFile weatherImg) {
         MultipartFile img = weatherImg;
-        String originalFilename = img.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String uuidFileName = UUID.randomUUID().toString() + extension;
-        String saveFile = filePath + uuidFileName;
-        try {
-            img.transferTo(new File(saveFile));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return uuidFileName;
+        String imgName = imgService.downloadImg(img);
+        return imgName;
     }
 
 
