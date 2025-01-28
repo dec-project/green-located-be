@@ -12,7 +12,7 @@ public class NewsItem {
 
     private String title;
     private String content;
-    private String img;
+    private String imgUrl;
     private String url;
 
 

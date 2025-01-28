@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 public class GetWeatherResponseDto  {
 
     private String weather;
-    private String img;
+    private String imgUrl;
 
 
     // 200

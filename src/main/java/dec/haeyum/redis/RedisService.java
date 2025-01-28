@@ -41,8 +41,7 @@ public class RedisService {
         return Boolean.TRUE.equals(isMember);
     }
     public void setValuesInSet(String key, String values){
-        redisTemplate.opsForSet().add(key,values);
-        redisTemplate.expire(key,Duration.ofDays(1));
+        redisTemplate.opsForSet().add(key,values,Duration.ofDays(1));
     }
 
     public void setRefreshTokenInString(String key, String values){
