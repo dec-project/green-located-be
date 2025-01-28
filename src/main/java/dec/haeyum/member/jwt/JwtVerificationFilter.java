@@ -25,11 +25,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtVerificationFilter extends OncePerRequestFilter {
-
     //인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
             List.of("/sign-in",
                     "/sign-up");
+
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtTokenProvider jwtTokenProvider;
