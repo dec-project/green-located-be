@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/jwt-test","/member/**","/favorite/**").hasRole("USER")
+                        .requestMatchers("/jwt-test","/member/**","/favorite/**","/chat/**").hasRole("USER")
                         .anyRequest().permitAll())
                 .addFilterBefore(new JwtVerificationFilter(jwtTokenProvider, redisService),
                         UsernamePasswordAuthenticationFilter.class)
