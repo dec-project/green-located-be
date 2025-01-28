@@ -44,30 +44,16 @@ public class ImgServiceImpl implements ImgService {
         Resource resource = null;
 
         try {
-            Path file = Paths.get(filePath).resolve(fileName).normalize();
-            if (!Files.exists(file)){
-                throw new BusinessException(ErrorCode.NOT_EXISTED_IMG);
-            }
             resource = new UrlResource("file:" + filePath + fileName);
-        }catch (MalformedURLException e){
+        }catch (Exception e){
+            e.printStackTrace();
             throw new BusinessException(ErrorCode.NOT_EXISTED_IMG);
         }
+
         return resource;
 
     }
 
-    @Override
-    public String findContentType(String fileName) {
-        String extension = fileName.substring(fileName.lastIndexOf("."));
-        if (extension.equals(".png")){
-            return "image/png";
-        } else if (extension.equals("jpg") || extension.equals("jpeg")) {
-            return "image/jpeg";
-        } else if (extension.equals("gif")) {
-            return "image/gif";
-        }
-        return "image/jpeg";
-    }
     @Override
     public String downloadImg(String url)  {
 
@@ -106,7 +92,7 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public String downloadImg(MultipartFile profileImg) {
         String originalFilename = profileImg.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String extension = ".webp";
         String uuidFileName = UUID.randomUUID().toString();
         String fileName = uuidFileName + extension;
         String filePathName = filePath + fileName;

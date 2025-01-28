@@ -5,11 +5,15 @@ import io.netty.handler.codec.http.HttpConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,13 +21,17 @@ public class ImgController {
 
     private final ImgService imgService;
 
-    @ResponseBody
-    @GetMapping("/image/{fileName}")
+    @GetMapping(value = "/image/{fileName}")
     public ResponseEntity<Resource> getImg (@PathVariable(name = "fileName") String fileName){
         Resource img = imgService.getImg(fileName);
-        String contentType = imgService.findContentType(fileName);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE,contentType)
+        String contentType = "image/jpg";
+
+        try {
+            Files.probeContentType(img.getFile().toPath());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
                 .body(img);
     }
 

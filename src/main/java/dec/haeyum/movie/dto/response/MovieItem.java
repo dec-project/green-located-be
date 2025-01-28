@@ -12,13 +12,13 @@ public class MovieItem {
     private Long movieId;
     private Integer ranking;
     private String title;
-    private String img;
+    private String imgUrl;
 
-    protected MovieItem(Long movieId, Integer ranking, String title, String img, String file_url) {
+    protected MovieItem(Long movieId, Integer ranking, String title, String imgUrl, String file_url) {
         this.movieId = movieId;
         this.ranking = ranking;
         this.title = title;
-        this.img =  file_url + img;
+        this.imgUrl =  file_url + imgUrl;
     }
 
     public static List<MovieItem> asList(List<Top5MoviesDto> list, String file_url) {

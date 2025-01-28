@@ -1,13 +1,13 @@
 
 # 설정
 EC2_USER="ec2-user"
-EC2_HOST="13.209.17.226"
+EC2_HOST="15.164.52.83"
 JAR_NAME="haeyum-0.0.1-SNAPSHOT.jar"
 LOCAL_JAR_PATH="/Users/sanggyun/Documents/GitHub/haeyum-server/build/libs/$JAR_NAME"
 IMAGE_PATH="/Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/img/defaultImgOfNews.jpg"
-TARGET_DIR="/home/ec2-user/forder2/"
-TARGET_IMG_DIR="/home/ec2-user/forder2/image/"
-PEM_FILE="/Users/sanggyun/Downloads/secretLunchKey.pem"
+TARGET_DIR="/home/ec2-user/haeyum/"
+TARGET_IMG_DIR="/home/ec2-user/haeyum/image/"
+PEM_FILE="/Users/sanggyun/Downloads/haeyum-server-keyPair.pem"
 
 echo ">>> 1. 빌드 시작 <<<"
 ./gradlew clean build -x test

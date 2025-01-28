@@ -22,8 +22,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
@@ -150,7 +148,7 @@ public class NewsServiceImplWithJsoup implements NewsService {
             img = img.substring(0, img.lastIndexOf("/_"));
         }
         newsItem.setContent(content);
-        newsItem.setImg(img);
+        newsItem.setImgUrl(img);
 
     }
 
