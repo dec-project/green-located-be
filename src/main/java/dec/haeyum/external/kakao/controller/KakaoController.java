@@ -23,9 +23,9 @@ public class KakaoController {
     }
     @Operation(summary = "카카오 API 결과 redirect",description = "로그인 된 사용자 정보 수집 후 식별")
     @GetMapping("/authorize/fallback")
-    public void tokenAccess(@RequestParam("code")String code, @RequestParam(value = "error", required = false)String error,
-                                                @RequestParam(value = "error_description", required = false)String errorDescription, HttpServletResponse response){
-        kakaoService.tokenAccess(code, error, errorDescription, response);
+    public void tokenAccess(@RequestParam("code")String code,
+                            HttpServletResponse response){
+        kakaoService.tokenAccess(code, response);
     }
 
     @Operation(summary = "로그아웃", description = "JWT 블랙리스트 && 카카오JWT 만료")

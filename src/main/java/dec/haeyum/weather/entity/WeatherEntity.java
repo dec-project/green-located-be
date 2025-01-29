@@ -5,10 +5,13 @@ import dec.haeyum.weather.dto.response.WeatherApiResponseDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Entity
 @NoArgsConstructor
 @Getter
@@ -54,21 +57,22 @@ public class WeatherEntity {
     }
 
     private String analysisWeather(Set<String> iscs) {
+        log.info("isces ={}",iscs);
         // 맑음, 흐림, 약간 흐림, 눈, 비, 뇌우
         if (iscs.contains("뇌우")) return "뇌우";
         if (iscs.contains("비")) return "비";
         if (iscs.contains("흐림")) return "흐림";
         if (iscs.contains("눈")) return "눈";
         if (iscs.contains("맑음")) return "맑음";
-
-
         if (this.sumRn > 0){
+            log.info("리턴 = 비");
             return "비";
         }
         // 구름량과 강수량으로 흐림/약간 흐림 판별
         if (this.avgTca != null) {
             if (this.avgTca > 7 && this.sumRn != null && this.sumRn > 0.5) {
                 // 구름량이 7 이상이고 강수량이 조금이라도 있으면 흐림
+                log.info("리턴 = 흐림");
                 return "흐림";
             } else if (this.avgTca > 4) {
                 // 구름량만 기준으로 약간 흐림

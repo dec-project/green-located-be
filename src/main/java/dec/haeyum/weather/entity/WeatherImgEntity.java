@@ -13,6 +13,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class WeatherImgEntity {
+    @Override
+    public String toString() {
+        return "WeatherImgEntity{" +
+                "weatherImgId=" + weatherImgId +
+                ", weatherImgName='" + weatherImgName + '\'' +
+                ", weatherImg='" + weatherImg + '\'' +
+                '}';
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

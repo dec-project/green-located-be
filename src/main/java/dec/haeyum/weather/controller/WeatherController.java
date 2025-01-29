@@ -6,10 +6,13 @@ import dec.haeyum.weather.dto.response.PostWeatherImgResponseDto;
 import dec.haeyum.weather.service.WeatherService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class WeatherController {
@@ -23,8 +26,20 @@ public class WeatherController {
     }
     @Operation(summary = "날씨 이미지 삽입")
     @PostMapping("/weather/img")
-    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(@ModelAttribute PostWeatherImgRequestDto dto){
-        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(dto);
+    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(
+            @RequestParam("weatherImgName") String imgName, @RequestPart("weatherImg")MultipartFile img){
+        log.info("imageName ={}, img ={}",imgName,img);
+        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(imgName, img);
         return result;
     }
+
+
+//    @Operation(summary = "날씨 이미지 삽입")
+//    @PostMapping("/weather/img")
+//    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(@ModelAttribute PostWeatherImgRequestDto dto){
+//        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(dto);
+//        return result;
+//    }
+
+
 }

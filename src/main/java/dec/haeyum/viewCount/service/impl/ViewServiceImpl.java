@@ -28,7 +28,6 @@ public class ViewServiceImpl implements ViewService {
 
 
     @Override
-    @Transactional
     public ResponseEntity<Void> increaseView(Long calendarId, HttpServletRequest request) {
         // HashMap<LocalDate, HashMap<LocalDate,List<String>>> list
         // HashMap<CalendarDate, HashMap<currentDate, List<userIP>>>
@@ -40,7 +39,7 @@ public class ViewServiceImpl implements ViewService {
         String redisKey = calendar.getCalendarDate()+ "::" + currentDate;
         String userIp = getUserIp(request);
         Boolean isValue = redisService.isValueInSet(redisKey, userIp);
-
+        log.info("isValue ={}",isValue);
         if (!isValue){
             redisService.setValuesInSet(redisKey,userIp);
             calendarService.increaseViewCount(calendar);
