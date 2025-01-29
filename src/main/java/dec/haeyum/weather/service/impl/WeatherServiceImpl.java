@@ -92,12 +92,11 @@ public class WeatherServiceImpl implements WeatherService {
         }
         WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(responseDto.getWeather())
                 .orElse(null);
-        log.info("weatherImgEntity ={}",weatherImgEntity.toString());
         if (weatherImgEntity == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
         String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
-        log.info("imgPath=P}",imgPath);
+        log.info("imgPath={}",imgPath);
         responseDto.setImgUrl(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }
