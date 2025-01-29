@@ -34,6 +34,7 @@ public class RedisService {
         }
         return (String) values.get(key);
     }
+
     @Transactional(readOnly = true)
     public Boolean isValueInSet(String key, String value){
         Boolean isMember = redisTemplate.opsForSet().isMember(key, value);
@@ -41,13 +42,16 @@ public class RedisService {
         return Boolean.TRUE.equals(isMember);
     }
     public void setValuesInSet(String key, String values){
-        redisTemplate.opsForSet().add(key,values,Duration.ofDays(1));
+        Long isAdd = redisTemplate.opsForSet().add(key, values);
+        redisTemplate.expire(key,Duration.ofDays(1));
+        log.info("isAdd ={}",isAdd);
     }
 
     public void setRefreshTokenInString(String key, String values){
         // key = refreshToken::social_sub , Value = "refreshToken"
         String keyValue = "refreshToken::" + key;
-        redisTemplate.opsForValue().set(keyValue,values,Duration.ofDays(7));
+        redisTemplate.opsForValue().set(keyValue,values);
+        redisTemplate.expire(keyValue,Duration.ofDays(7));
     }
 
     public String getRefreshTokenInString(String key){
@@ -76,7 +80,8 @@ public class RedisService {
 
     public void setBlackListOfRefreshToken(String accessToken) {
         String keyValue = "blackList::refreshToken::" + accessToken;
-        redisTemplate.opsForValue().set(keyValue,true,Duration.ofDays(7));
+        redisTemplate.opsForValue().set(keyValue,true);
+        redisTemplate.expire(keyValue,Duration.ofDays(7));
     }
 
     public Boolean getBlackListOfRefreshToken(String accessToken){

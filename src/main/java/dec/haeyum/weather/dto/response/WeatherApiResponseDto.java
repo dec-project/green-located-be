@@ -16,7 +16,21 @@ import java.util.regex.Pattern;
 @Getter
 @NoArgsConstructor
 public class WeatherApiResponseDto {
-
+    @Override
+    public String toString() {
+        return "WeatherApiResponseDto{" +
+                "stnNm='" + stnNm + '\'' +
+                ", avgTa=" + avgTa +
+                ", sumRnDur=" + sumRnDur +
+                ", maxTaHrmt=" + maxTaHrmt +
+                ", gr1MaxRn=" + gr1MaxRn +
+                ", sumRn=" + sumRn +
+                ", avgWs=" + avgWs +
+                ", sumSsHr=" + sumSsHr +
+                ", avgTca=" + avgTca +
+                ", iscs=" + iscs +
+                '}';
+    }
 
     private String stnNm; // 관측 지점
     private Double avgTa; // 평균 기온

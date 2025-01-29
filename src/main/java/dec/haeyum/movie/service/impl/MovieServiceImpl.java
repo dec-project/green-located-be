@@ -77,6 +77,8 @@ public class MovieServiceImpl implements MovieService {
     private String file_path;
     @Value("${spring.file.fileUrl}")
     private String file_url;
+    @Value("${spring.config.activate.on-profile}")
+    private String profile;
 
     @PostConstruct
     public void initWebClient(){
@@ -124,6 +126,9 @@ public class MovieServiceImpl implements MovieService {
         if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
             String word = "영화 " + movie.getTitle() + " 예고편";
             YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
+            if (profile.equals("prod")){
+                movie.setYoutubeAddress(youtubeDetailDto);
+            }
             movie.setYoutubeData(youtubeDetailDto);
         }
         return GetMovieDetailResponseDto.success(movie);

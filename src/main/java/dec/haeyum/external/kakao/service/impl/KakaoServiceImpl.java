@@ -85,7 +85,7 @@ public class KakaoServiceImpl implements KakaoService {
     }
 
     @Override
-    public void tokenAccess(String code, String error, String errorDescription, HttpServletResponse servletResponse) {
+    public void tokenAccess(String code, HttpServletResponse servletResponse) {
         log.info("start");
 
         try {
