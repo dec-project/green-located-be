@@ -17,8 +17,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:
@@ -116,7 +114,7 @@ spring:
       on-profile: dev
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
     properties:
       hibernate:
@@ -126,8 +124,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:
@@ -226,7 +222,7 @@ spring:
       on-profile: prod
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
 
     properties:
       hibernate:
@@ -236,8 +232,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:
