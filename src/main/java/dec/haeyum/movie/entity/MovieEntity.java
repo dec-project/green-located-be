@@ -40,6 +40,12 @@ public class MovieEntity {
     }
 
     public void setYoutubeData(YoutubeDetailDto youtubeDetailDto) {
-        this.youtube_address = youtubeDetailDto.getYoutubeAddr();
+        this.youtube_address =  youtubeDetailDto.getYoutubeAddr();
     }
+
+    public void setYoutubeAddress(YoutubeDetailDto dto){
+        this.youtube_address = "https://www.youtube.com/embed/" + dto.getYoutubeAddr();
+    }
+
+
 }

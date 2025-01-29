@@ -9,7 +9,7 @@ public interface KakaoService {
 
      void KakaoAuthorize(HttpServletResponse response);
 
-     void tokenAccess(String code, String error, String errorDescription, HttpServletResponse response);
+     void tokenAccess(String code, HttpServletResponse response);
 
     ResponseEntity<Void> logout(HttpServletRequest request);
 }

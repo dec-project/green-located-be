@@ -23,9 +23,10 @@ spring:
     multipart:
       max-request-size: 110MB
       max-file-size: 100MB
+      enabled: true
 
   datasource:
-    url: jdbc:mysql://localhost:3306/haeyum
+    url: jdbc:mysql://localhost:3306/haeyum?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8
     username: root
     password: '00000000'
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -63,6 +64,11 @@ logging:
 
 
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   compression:
     enabled: true
     mime-types: "*/*"
@@ -130,15 +136,16 @@ spring:
     multipart:
       max-request-size: 110MB
       max-file-size: 100MB
+      enabled: true
 
   datasource:
-    url: jdbc:mysql://localhost:3306/haeyum-test
+    url: jdbc:mysql://localhost:3306/haeyum_test?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8
     username: root
     password: dec1209*
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   file:
-    filePath: /home/ec2-user/haeyum/image/
+    filePath: /home/ec2-user/haeyum/image-test/
     fileUrl: /image/
     fileFullUrl: http://15.164.52.83:8081/image/
 
@@ -170,11 +177,18 @@ logging:
 
 
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   compression:
     enabled: true
     mime-types: "*/*"
     min-response-size: 1024
   port: 8081
+
+
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"
@@ -205,7 +219,7 @@ kaKao:
   adminKey: 7c4792e6ad563a5a6afd3c040954a9c1
   sendRedirect: "http://localhost:3000/oauth/kakao/authorize/fallback?accessToken="
   kakaoAuthorizeUrl: "https://kauth.kakao.com/oauth/authorize"
-  kakaoAuthorizeRedirectUrl: "http://localhost:8081/oauth/kakao/authorize/fallback"
+  kakaoAuthorizeRedirectUrl: "http://15.164.52.83:8081/oauth/kakao/authorize/fallback"
   kakaoTokenUrl: "https://kauth.kakao.com/oauth/token"
   kakaoLogoutUrl: "https://kapi.kakao.com/v1/user/logout"
 
@@ -238,9 +252,10 @@ spring:
     multipart:
       max-request-size: 110MB
       max-file-size: 100MB
+      enabled: true
 
   datasource:
-    url: jdbc:mysql://localhost:3306/haeyum
+    url: jdbc:mysql://localhost:3306/haeyum?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8
     username: root
     password: dec1209*
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -278,11 +293,18 @@ logging:
 
 
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
   compression:
     enabled: true
     mime-types: "*/*"
     min-response-size: 1024
   port: 8080
+
+
+
 
 weather:
   api-url: "http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList"

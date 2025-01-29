@@ -76,11 +76,10 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     @Transactional
     public ResponseEntity<GetWeatherResponseDto> getWeather(Long calendarId) {
+        log.info("WeatherService::getWeather::start");
         GetWeatherResponseDto responseDto = new GetWeatherResponseDto();
-
         // DB 조회
         CalendarEntity calendar = calendarService.getCalendar(calendarId);
-
         // 달력에 날씨 데이터 없을 경우 날씨 API 호출하여 데이터 수집
         if (calendar.getWeather() == null){
             WeatherApiResponseDto weatherApiResponseDto = GetWeatherApiCall(calendar.getCalendarDate());
@@ -93,17 +92,17 @@ public class WeatherServiceImpl implements WeatherService {
         }
         WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(responseDto.getWeather())
                 .orElse(null);
-
+        log.info("weatherImgEntity ={}",weatherImgEntity.toString());
         if (weatherImgEntity == null){
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
         String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
+        log.info("imgPath=P}",imgPath);
         responseDto.setImgUrl(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }
 
     @Override
-    @Transactional
     // 날씨 이미지 저장
     public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(PostWeatherImgRequestDto dto) {
 
@@ -115,8 +114,24 @@ public class WeatherServiceImpl implements WeatherService {
             weatherImgRepository.save(saveWeatherImgEntity);
         }else {
             deleteFile(weatherImgEntity.getWeatherImg());
-
             weatherImgEntity.setWeatherImg(uuidFileName);
+        }
+        return PostWeatherImgResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(String imgName, MultipartFile img) {
+
+        WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(imgName)
+                .orElse(null);
+        String uuidFileName = saveFile(img);
+        if (weatherImgEntity == null){
+            WeatherImgEntity saveWeatherImgEntity = new WeatherImgEntity(imgName, uuidFileName);
+            weatherImgRepository.save(saveWeatherImgEntity);
+        }else {
+            deleteFile(weatherImgEntity.getWeatherImg());
+            weatherImgEntity.setWeatherImg(uuidFileName);
+            weatherImgRepository.save(weatherImgEntity);
         }
         return PostWeatherImgResponseDto.success();
     }
