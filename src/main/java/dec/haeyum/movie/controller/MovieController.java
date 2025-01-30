@@ -5,6 +5,7 @@ import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +13,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequiredArgsConstructor
 public class MovieController {
 
-    private final MovieService movieService;
+    public MovieController(@Qualifier("movieServiceImpl") MovieService movieService) {
+        this.movieService = movieService;
+    }
+
+    private MovieService movieService;
 
     @Operation(summary = "TOP 5 영화 조회", description = "해당 캘린더 날짜의 TOP 5 영화 크롤링 및 데이터 수집 후 반환")
     @GetMapping("/search/{calendarId}/movies")

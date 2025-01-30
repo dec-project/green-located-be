@@ -34,7 +34,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CalendarServiceImpl implements CalendarService {
+public  class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
     private final SongService songService;
@@ -82,6 +82,7 @@ public class CalendarServiceImpl implements CalendarService {
         validatePagingData(paging, MAX_BOUNDARY);
 
         List<ResponseCalendarDto> responseItems = new ArrayList<>();
+
         for (CalendarEntity calendar : paging.getContent()) {
             String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
             ResponseCalendarDto responseCalendarDto = new ResponseCalendarDto(calendar, calendarSongImageUrl);
@@ -112,6 +113,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    @Transactional
     public void increaseViewCount(CalendarEntity calendar) {
         log.info("increaseViewCount before={}",calendar.getViewCount());
         calendar.increaseViewCount();
@@ -119,6 +121,7 @@ public class CalendarServiceImpl implements CalendarService {
         calendarRepository.flush();
         log.info("increaseViewCount after ={}",calendar.getViewCount());
     }
+
 
     private void createCalendar(LocalDate startDate, LocalDate endDate) {
         List<CalendarEntity> list = new ArrayList<>();

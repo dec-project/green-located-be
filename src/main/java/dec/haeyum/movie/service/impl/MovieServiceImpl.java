@@ -126,9 +126,6 @@ public class MovieServiceImpl implements MovieService {
         if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
             String word = "영화 " + movie.getTitle() + " 예고편";
             YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
-            if (profile.equals("prod")){
-                movie.setYoutubeAddress(youtubeDetailDto);
-            }
             movie.setYoutubeData(youtubeDetailDto);
         }
         return GetMovieDetailResponseDto.success(movie);
@@ -153,6 +150,7 @@ public class MovieServiceImpl implements MovieService {
 
 
     private String getMovieInfoWebClient(LocalDate calendarDate) {
+
         String sSearchFrom = String.valueOf(calendarDate);
         String sSearchTo = String.valueOf(calendarDate);
         String CSRFToken = "xj6vtA4p6rTaiq5vAGm1p0p1WhIMJ1K0_IwR4B3N3Bk";

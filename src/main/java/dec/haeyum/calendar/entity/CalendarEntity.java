@@ -43,7 +43,7 @@ public class CalendarEntity {
     }
 
     public void increaseViewCount() {
-        this.viewCount++;
+        this.viewCount = viewCount + 1;
     }
 /*
     @OneToMany(mappedBy = "calendarEntity")
