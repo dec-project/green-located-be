@@ -44,7 +44,7 @@ import java.util.UUID;
 @Slf4j
 public class WeatherServiceImpl implements WeatherService {
 
-    private final WeatherRepository weatherRepository;
+
     private final WeatherImgRepository weatherImgRepository;
     private final CalendarService calendarService;
     private final ImgService imgService;

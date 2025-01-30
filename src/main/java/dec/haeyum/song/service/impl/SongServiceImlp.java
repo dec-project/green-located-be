@@ -67,7 +67,7 @@ public class SongServiceImlp implements SongService {
     public String getCalendarSongImageUrl(Long calendarId) {
         //1. Top1 노래 조회
         CalendarEntity findCalendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+                .orElse(null);
         List<CalendarSong> calendarSongs = calendarSongRepository.findSongsByDate(findCalendar.getCalendarDate());
 
         if (calendarSongs.isEmpty()) {
