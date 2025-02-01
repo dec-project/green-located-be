@@ -52,6 +52,6 @@ public class Song {
     }
 
     public void setImg(YoutubeDetailDto youtubeDetailDto) {
-        this.youtubeAddr = youtubeDetailDto.getYoutubeAddr();
+        this.youtubeAddr ="https://www.youtube.com/embed/" + youtubeDetailDto.getYoutubeAddr();
     }
 }

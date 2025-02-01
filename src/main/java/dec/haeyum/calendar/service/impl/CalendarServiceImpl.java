@@ -117,12 +117,10 @@ public  class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    @Transactional
     public void increaseViewCount(CalendarEntity calendar) {
         log.info("increaseViewCount before={}",calendar.getViewCount());
         calendar.increaseViewCount();
         calendarRepository.save(calendar);
-        calendarRepository.flush();
         log.info("increaseViewCount after ={}",calendar.getViewCount());
     }
 
