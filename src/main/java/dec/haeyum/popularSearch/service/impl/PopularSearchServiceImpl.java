@@ -144,9 +144,9 @@ public class PopularSearchServiceImpl implements PopularSearchService {
 
     @Override
     @Transactional
-    public void incrementDailyChatroom(Long chatRoomId) {
+    public void incrementDailyChatroom(Long chatroomId) {
         String redisKey = "dailyChatroom";
-        String calendarIdStr = String.valueOf(chatRoomId);
+        String calendarIdStr = String.valueOf(chatroomId);
         redisTemplate.opsForZSet().incrementScore(redisKey, calendarIdStr, 1);
         List<String> topChatrooms = getTopChatrooms();
         log.info("popularchatroom : {}", topChatrooms);

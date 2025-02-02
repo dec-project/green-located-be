@@ -10,14 +10,14 @@ import java.time.LocalDate;
 @Getter
 @Builder
 public class PopularChatroomDto {
-    private Long roomId;
+    private Long chatroomId;
     private String name;
     private String imgUrl;
     private long chatCnt;
 
     public static PopularChatroomDto toDto(ChatRoom chatRoom, long chatCnt) {
         return PopularChatroomDto.builder()
-                .roomId(chatRoom.getId())
+                .chatroomId(chatRoom.getId())
                 .name(chatRoom.getName())
                 .imgUrl("/img/chatroom/" + chatRoom.getImgName())
                 .chatCnt(chatCnt)

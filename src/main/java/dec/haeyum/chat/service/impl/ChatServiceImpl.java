@@ -37,8 +37,8 @@ public class ChatServiceImpl implements ChatService {
     //특정 채팅방 메시지 조회
     @Override
     @Transactional
-    public List<ChatMessageDto> getMessages(Long chatRoomId) {
-        return chatMessageRepository.findByChatRoomId(chatRoomId).stream()
+    public List<ChatMessageDto> getMessages(Long chatroomId) {
+        return chatMessageRepository.findByChatRoomId(chatroomId).stream()
                 .map(ChatMessageDto::toDto)
                 .toList();
     }
@@ -54,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
         Member member = socialService.findMember(subject);
 
         //해당하는 채팅방 찾기
-        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequestDto.getChatRoomId())
+        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequestDto.getChatroomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHATROOM_NOT_FOUND));
 
         ChatMessage message = new ChatMessage(chatRoom, member, chatMessageRequestDto.getContent());
