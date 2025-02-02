@@ -8,7 +8,7 @@ import dec.haeyum.chat.dto.ChatMessageRequestDto;
 import java.util.List;
 
 public interface ChatService {
-    List<ChatMessageDto> getMessages(Long chatRoomId);
+    List<ChatMessageDto> getMessages(Long chatroomId);
 
     ChatMessageDto saveMessage(ChatMessageRequestDto chatMessageDto, String bearerToken);
 

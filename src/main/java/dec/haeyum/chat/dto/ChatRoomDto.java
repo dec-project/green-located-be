@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Builder
 public class ChatRoomDto {
-    private Long roomId;
+    private Long chatroomId;
     private String name;
     private LocalDate lastMessageDate;
     private String lastMessage;
@@ -17,7 +17,7 @@ public class ChatRoomDto {
 
     public static ChatRoomDto toDto(ChatRoom chatRoom) {
         return ChatRoomDto.builder()
-                .roomId(chatRoom.getId())
+                .chatroomId(chatRoom.getId())
                 .name(chatRoom.getName())
                 .lastMessageDate(chatRoom.getLastMessageDate())
                 .lastMessage(chatRoom.getLastMessage())
