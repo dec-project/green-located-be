@@ -1,5 +1,7 @@
 package dec.haeyum.chat.service.impl;
 
+import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.chat.Entity.ChatMessage;
 import dec.haeyum.chat.Entity.ChatRoom;
 import dec.haeyum.chat.dto.ChatMessageDto;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -29,6 +32,7 @@ public class ChatServiceImpl implements ChatService {
     private final JwtTokenProvider jwtTokenProvider;
     private final SocialService socialService;
     private final PopularSearchService popularSearchService;
+    private final CalendarRepository calendarRepository;
 
     //특정 채팅방 메시지 조회
     @Override
@@ -83,5 +87,14 @@ public class ChatServiceImpl implements ChatService {
         chatRoomRepository.save(chatRoom80s);
         chatRoomRepository.save(chatRoom70s);
 
+    }
+
+    @Override
+    @Transactional
+    public Long getChatRoomIdByCalendar(CalendarEntity calendar) {
+        String prefix = calendar.getCalendarName().substring(0, 3);
+        return chatRoomRepository.findByNameStartingWith(prefix)
+                .map(ChatRoom::getId)
+                .orElse(null);
     }
 }
