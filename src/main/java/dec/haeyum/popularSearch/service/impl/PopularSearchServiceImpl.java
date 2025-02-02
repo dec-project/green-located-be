@@ -6,6 +6,8 @@ import dec.haeyum.chat.Entity.ChatRoom;
 import dec.haeyum.chat.dto.ChatRoomDto;
 import dec.haeyum.chat.repository.ChatMessageRepository;
 import dec.haeyum.chat.repository.ChatRoomRepository;
+import dec.haeyum.chat.service.ChatService;
+import dec.haeyum.chat.service.ChatroomService;
 import dec.haeyum.popularSearch.dto.PopularChatroomDto;
 import dec.haeyum.popularSearch.dto.PopularSearchDto;
 import dec.haeyum.popularSearch.service.PopularSearchService;
@@ -33,6 +35,7 @@ public class PopularSearchServiceImpl implements PopularSearchService {
     private final ChatMessageRepository chatMessageRepository;
     private final SongService songService;
     private final RedisTemplate redisTemplate;
+    private final ChatroomService chatroomService;
 
     @Override
     @Transactional
@@ -65,7 +68,8 @@ public class PopularSearchServiceImpl implements PopularSearchService {
                     CalendarEntity calendarEntity = calendarRepository.findById(calendarId).orElse(null);
                     if (calendarEntity != null) {
                         String imgUrl = songService.getCalendarSongImageUrl(calendarEntity.getCalendarId());
-                        return PopularSearchDto.toDto(calendarEntity, imgUrl);
+                        Long chatroomId = chatroomService.getChatRoomIdByCalendar(calendarEntity);
+                        return PopularSearchDto.toDto(calendarEntity, imgUrl, chatroomId);
                     } else {
                         return null;
                     }

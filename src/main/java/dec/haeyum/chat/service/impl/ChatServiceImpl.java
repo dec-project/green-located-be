@@ -89,12 +89,4 @@ public class ChatServiceImpl implements ChatService {
 
     }
 
-    @Override
-    @Transactional
-    public Long getChatRoomIdByCalendar(CalendarEntity calendar) {
-        String prefix = calendar.getCalendarName().substring(0, 3);
-        return chatRoomRepository.findByNameStartingWith(prefix)
-                .map(ChatRoom::getId)
-                .orElse(null);
-    }
 }
