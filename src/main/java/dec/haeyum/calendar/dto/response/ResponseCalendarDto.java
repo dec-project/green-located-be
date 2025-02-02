@@ -13,12 +13,14 @@ public class ResponseCalendarDto {
     private String calendarName; // 2022년 10월 12일
     private Integer viewCount;
     private Integer favoriteCount;
+    private Long chatroomId;
 
-    public ResponseCalendarDto(CalendarEntity calendar, String calendarSongImageUrl) {
+    public ResponseCalendarDto(CalendarEntity calendar, String calendarSongImageUrl, Long chatroomId) {
         this.calendarId = calendar.getCalendarId();
         this.calendarName = calendar.getCalendarName();
         this.viewCount = calendar.getViewCount();
         this.favoriteCount = calendar.getFavorite().size();
         this.imgUrl = calendarSongImageUrl;
+        this.chatroomId = chatroomId;
     }
 }
