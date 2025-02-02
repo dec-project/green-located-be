@@ -14,5 +14,5 @@ public interface ChatService {
 
     void createChatRoom();
 
-    Long getChatRoomIdByCalendar(CalendarEntity calendar);
+
 }

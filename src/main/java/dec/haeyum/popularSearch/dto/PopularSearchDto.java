@@ -15,8 +15,9 @@ public class PopularSearchDto {
     private Integer viewCount;
     private Integer favoriteCount;
     private String imgUrl;
+    private Long chatroomId;
 
-    public static PopularSearchDto toDto(CalendarEntity calendarEntity, String imgUrl) {
+    public static PopularSearchDto toDto(CalendarEntity calendarEntity, String imgUrl, Long chatroomId) {
         return PopularSearchDto.builder()
                 .calendarId(calendarEntity.getCalendarId())
                 .calendarDate(calendarEntity.getCalendarDate())
@@ -24,6 +25,7 @@ public class PopularSearchDto {
                 .viewCount(calendarEntity.getViewCount())
                 .favoriteCount(calendarEntity.getFavorite().size())
                 .imgUrl(imgUrl)
+                .chatroomId(chatroomId)
                 .build();
     }
 }
