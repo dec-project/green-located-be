@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -33,7 +34,7 @@ public class ViewServiceImpl implements ViewService {
         // HashMap<CalendarDate, HashMap<currentDate, List<userIP>>>
         // redis -> key : {calendarDate::currentDate} , value : {userIP}
 
-        CalendarEntity calendar = calendarService.getCalendar(calendarId);
+        CalendarEntity calendar = calendarService.getCalendarForUpdate(calendarId);
         LocalDate currentDate = LocalDate.now();
         // 2010-12-23::2024-12-24
         String redisKey = calendar.getCalendarDate()+ "::" + currentDate;

@@ -46,6 +46,11 @@ public class MovieEntity {
 
     }
 
+    public MovieEntity(String movieName, String movieId) {
+        this.title = movieName;
+        this.movieUuid = movieId;
+    }
+
     public void setYoutubeData(YoutubeDetailDto youtubeDetailDto) {
         this.youtube_address =  youtubeDetailDto.getYoutubeAddr();
     }

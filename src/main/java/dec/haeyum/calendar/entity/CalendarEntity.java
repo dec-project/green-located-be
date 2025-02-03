@@ -42,13 +42,5 @@ public class CalendarEntity {
         this.weather.setCalendar(this);
     }
 
-    public void increaseViewCount() {
-        this.viewCount = viewCount + 1;
-    }
-/*
-    @OneToMany(mappedBy = "calendarEntity")
-    private List<CalendarSong> calendarSongs = new ArrayList<>();
-
- */
 
 }
