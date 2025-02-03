@@ -65,12 +65,12 @@ public class ChatController {
     public void receiveMessage(ChatMessageRequestDto chatMessageRequestDto, @Header("Authorization") String bearerToken) {
 
         log.info("메시지 전송: {}", chatMessageRequestDto.getContent());
-        log.info("채팅방: {}", chatMessageRequestDto.getChatRoomId());
+        log.info("채팅방: {}", chatMessageRequestDto.getChatroomId());
 
         //메시지 저장
         ChatMessageDto savedMessage = chatService.saveMessage(chatMessageRequestDto, bearerToken);
 
         // 메시지를 해당 채팅방 구독자들에게 전송
-        template.convertAndSend("/sub/chatroom/" + savedMessage.getChatRoomId(), savedMessage);
+        template.convertAndSend("/sub/chatroom/" + savedMessage.getChatroomId(), savedMessage);
     }
 }

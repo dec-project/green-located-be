@@ -9,6 +9,8 @@ import dec.haeyum.calendar.dto.response.Top5MoviesDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.calendar.service.CalendarService;
+import dec.haeyum.chat.service.ChatService;
+import dec.haeyum.chat.service.ChatroomService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.movie.entity.MovieEntity;
@@ -39,6 +41,7 @@ public  class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
     private final SongService songService;
+    private final ChatroomService chatroomService;
 
     @Override
     @Transactional
@@ -85,8 +88,9 @@ public  class CalendarServiceImpl implements CalendarService {
         List<ResponseCalendarDto> responseItems = new ArrayList<>();
 
         for (CalendarEntity calendar : paging.getContent()) {
+            Long chatroomId = chatroomService.getChatRoomIdByCalendar(calendar);
             String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
-            ResponseCalendarDto responseCalendarDto = new ResponseCalendarDto(calendar, calendarSongImageUrl);
+            ResponseCalendarDto responseCalendarDto = new ResponseCalendarDto(calendar, calendarSongImageUrl, chatroomId);
             responseItems.add(responseCalendarDto);
         }
 

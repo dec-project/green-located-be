@@ -7,7 +7,7 @@ spring:
       on-profile: default
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
     properties:
       hibernate:
@@ -17,8 +17,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:
@@ -30,7 +28,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/haeyum?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8
     username: root
-    password: dec1209*
+    password: '00000000'
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   file:
@@ -132,8 +130,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:
@@ -250,8 +246,6 @@ spring:
     open-in-view: false
 
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   servlet:

@@ -1,5 +1,7 @@
 package dec.haeyum.chat.service.impl;
 
+import dec.haeyum.calendar.entity.CalendarEntity;
+import dec.haeyum.calendar.repository.CalendarRepository;
 import dec.haeyum.chat.Entity.ChatMessage;
 import dec.haeyum.chat.Entity.ChatRoom;
 import dec.haeyum.chat.dto.ChatMessageDto;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -29,12 +32,13 @@ public class ChatServiceImpl implements ChatService {
     private final JwtTokenProvider jwtTokenProvider;
     private final SocialService socialService;
     private final PopularSearchService popularSearchService;
+    private final CalendarRepository calendarRepository;
 
     //특정 채팅방 메시지 조회
     @Override
     @Transactional
-    public List<ChatMessageDto> getMessages(Long chatRoomId) {
-        return chatMessageRepository.findByChatRoomId(chatRoomId).stream()
+    public List<ChatMessageDto> getMessages(Long chatroomId) {
+        return chatMessageRepository.findByChatRoomId(chatroomId).stream()
                 .map(ChatMessageDto::toDto)
                 .toList();
     }
@@ -50,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
         Member member = socialService.findMember(subject);
 
         //해당하는 채팅방 찾기
-        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequestDto.getChatRoomId())
+        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequestDto.getChatroomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHATROOM_NOT_FOUND));
 
         ChatMessage message = new ChatMessage(chatRoom, member, chatMessageRequestDto.getContent());
@@ -84,4 +88,5 @@ public class ChatServiceImpl implements ChatService {
         chatRoomRepository.save(chatRoom70s);
 
     }
+
 }
