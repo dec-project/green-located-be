@@ -4,6 +4,7 @@ import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -25,7 +26,11 @@ public class MovieInfoDto {
         this.movieUuid = movieId;
         this.title = movieName;
         this.ranking = Integer.parseInt(ranking);
-        this.openDate = LocalDate.parse(openDate);
+        if (openDate != null && !openDate.trim().isEmpty()){
+            this.openDate = LocalDate.parse(openDate);
+        }else {
+            this.openDate = null;
+        }
     }
 
     @Override

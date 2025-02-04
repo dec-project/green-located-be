@@ -265,7 +265,9 @@ public class MovieServiceImplV2 implements MovieService {
             String movieName = element.select("td.tal span a").text();
             String onClick = element.select("td.tal span a").attr("onClick");
             String movieId = onClick.replaceAll(".*mstView\\('movie','(\\d+)'\\).*", "$1");
-            String openDate = element.select("td").get(2).text();
+            String openDate = Optional.ofNullable(element.select("td").get(2).text())
+                    .filter(text -> !text.isEmpty())
+                    .orElse(null);
 
             MovieInfoDto movieInfoDto = new MovieInfoDto(movieName, movieId, ranking,openDate);
 

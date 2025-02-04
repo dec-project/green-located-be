@@ -5,10 +5,12 @@ import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 public class MovieController {
 
@@ -35,6 +37,7 @@ public class MovieController {
     @GetMapping("/movie/generate")
     public String movieGenerate(@RequestParam String endDate){
         movieService.crawlingMovie(endDate);
+        log.error("영화 데이터 생성 성공");
         return "영화 데이터 생성 성공";
     }
 
