@@ -50,9 +50,11 @@ public class MemberController {
         ResponseEntity<GetSearchProfileResponseDto> result = memberService.searchProfile();
         return result;
     }
+
     @Operation(summary = "프로필 수정", description = "JWT 토큰 으로 유저 식별 후 이미지, 닉네임 수정")
     @PutMapping("/member/profile")
     public ResponseEntity<Void> updateProfile(@ModelAttribute PostUpdateProfileRequestDto dto){
+        log.info("{},{}",dto.getNickname(),dto.getProfileImg());
         ResponseEntity<Void> result = memberService.updateProfile(dto);
         return result;
     }

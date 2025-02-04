@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,19 +25,20 @@ public class WeatherController {
         ResponseEntity<GetWeatherResponseDto> result = weatherService.getWeather(calendarId);
         return result;
     }
-    @Operation(summary = "날씨 이미지 삽입")
-    @PostMapping("/weather/img")
+    //@Operation(summary = "날씨 이미지 삽입")
+    @PostMapping(value = "/weather/img")
     public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(
-            @RequestParam("weatherImgName") String imgName, @RequestPart("weatherImg")MultipartFile img){
+            @RequestParam("weatherImgName") String imgName, @RequestParam("weatherImg")MultipartFile img){
         log.info("imageName ={}, img ={}",imgName,img);
         ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(imgName, img);
         return result;
     }
 
-
+//
 //    @Operation(summary = "날씨 이미지 삽입")
-//    @PostMapping("/weather/img")
+//    @PostMapping(value = "/weather/img",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(@ModelAttribute PostWeatherImgRequestDto dto){
+//        log.info("img ={} imgName ={}",dto.getWeatherImgName(),dto.getWeatherImg().getOriginalFilename());
 //        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(dto);
 //        return result;
 //    }

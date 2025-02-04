@@ -67,14 +67,12 @@ public class WeatherServiceImpl implements WeatherService {
 
         this.webClient = WebClient.builder()
                 .uriBuilderFactory(factory)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .baseUrl(weather_api_url)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.ACCEPT,MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     @Override
-    @Transactional
     public ResponseEntity<GetWeatherResponseDto> getWeather(Long calendarId) {
         log.info("WeatherService::getWeather::start");
         GetWeatherResponseDto responseDto = new GetWeatherResponseDto();
