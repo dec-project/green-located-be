@@ -5,6 +5,7 @@ import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.img.service.ImgService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -19,8 +20,10 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImgServiceImpl implements ImgService {
@@ -114,6 +117,27 @@ public class ImgServiceImpl implements ImgService {
         }catch (IOException e){
             throw new BusinessException(ErrorCode.CANT_DELETE_FILE);
         }
+    }
+
+    @Override
+    public String downloadImg(Path path) {
+        String originalFile = path.getFileName().toString();
+        String originalFileName = originalFile.substring(0,originalFile.lastIndexOf("."));
+        try {
+            // originalFile
+            String extension = ".webp";
+            String fileName = originalFileName + extension;
+            // 저장 위치
+            String destinationPath = filePath + fileName;
+            Path destination = Paths.get(destinationPath);
+            Files.copy(path,destination, StandardCopyOption.REPLACE_EXISTING);
+            log.info("downloadImg success = {}",originalFileName);
+            return fileName;
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("downloadImg Fail = {}", originalFileName);
+        }
+        return null;
     }
 
 }

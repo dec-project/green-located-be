@@ -1,14 +1,11 @@
 package dec.haeyum.weather.controller;
 
-import dec.haeyum.weather.dto.request.PostWeatherImgRequestDto;
 import dec.haeyum.weather.dto.response.GetWeatherResponseDto;
 import dec.haeyum.weather.dto.response.PostWeatherImgResponseDto;
 import dec.haeyum.weather.service.WeatherService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +29,7 @@ public class WeatherController {
     public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(
             @RequestParam("weatherImgName") String imgName, @RequestParam("weatherImg")MultipartFile img){
         log.info("imageName ={}, img ={}",imgName,img);
-        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.setWeatherImg(imgName, img);
+        ResponseEntity<PostWeatherImgResponseDto> result = weatherService.initWeatherImg(imgName, img);
         return result;
     }
 

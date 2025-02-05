@@ -45,12 +45,10 @@ public  class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(String updateDate) {
+    public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(LocalDate endDate) {
         LocalDate startDate = LocalDate.of(1970,1,1);
         try {
 
-            // endDate = 업데이트 하려는 캘린더 날짜
-            LocalDate endDate = LocalDate.parse(updateDate);
             // 1. DB에 가장 마지막 캘린더 날짜 조회
             CalendarEntity calendarEntity = searchDatabase();
 
@@ -130,16 +128,23 @@ public  class CalendarServiceImpl implements CalendarService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
     }
 
+    @Override
+    public Boolean existedCalendar() {
+
+        long count = calendarRepository.count();
+        if (count == 0){
+            return false;
+        }
+        return true;
+
+    }
+
 
     @Override
     public void increaseViewCount(CalendarEntity calendar) {
-        log.info("increaseViewCount before={}",calendar.getViewCount());
         calendar.setViewCount(calendar.getViewCount() + 1);
-        CalendarEntity save = calendarRepository.save(calendar);
+        calendarRepository.save(calendar);
         calendarRepository.flush();
-        log.info("increaseViewCount after ={} , calendar ={}",calendar.getViewCount(),save.getViewCount());
-        CalendarEntity calendar1 = calendarRepository.findById(calendar.getCalendarId()).orElse(null);
-        log.info("update calendar={}",calendar1.getViewCount());
     }
 
 
