@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.net.URLEncoder;
@@ -26,6 +27,8 @@ public class YoutubeServiceImpl implements YoutubeService {
     private WebClient webClient;
     @Value("${youtube.api-key}")
     private String serviceKey;
+    @Value("${youtube.api-key2}")
+    private String serviceKey2;
     @Value("${youtube.baseUrl}")
     private String youtube_api_url;
 
@@ -54,27 +57,19 @@ public class YoutubeServiceImpl implements YoutubeService {
     private YoutubeDetailDto apiCall(String searchWord) {
 
         YoutubeDetailDto youtubeDetailDto = new YoutubeDetailDto();
-
+        String response = "";
+        String encodeWord = URLEncoder.encode(searchWord, StandardCharsets.UTF_8);
         try {
-
-            String encodeWord = URLEncoder.encode(searchWord, StandardCharsets.UTF_8);
-            String block = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/search")
-                            .queryParam("key", serviceKey)
-                            .queryParam("q", encodeWord)
-                            .queryParam("part", "snippet")
-                            .queryParam("type", "video")
-                            .queryParam("maxResults", 1)
-                            .queryParam("videoEmbeddable", true)
-                            .queryParam("fields", "items(id,snippet(title,publishedAt))")
-                            .build()
-                    )
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            response = youtubeApiCall(serviceKey,encodeWord);
+        }catch (WebClientResponseException e){
+            e.printStackTrace();
+            response = youtubeApiCall(serviceKey2,encodeWord);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode node = objectMapper.readTree(block);
+            JsonNode node = objectMapper.readTree(response);
             JsonNode itemList = node.path("items");
 
             if (itemList.isArray() && itemList.size() > 0){
@@ -87,7 +82,27 @@ public class YoutubeServiceImpl implements YoutubeService {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return youtubeDetailDto;
+    }
+
+    private String youtubeApiCall(String serviceKey,String encodeWord) {
+        String block = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/search")
+                        .queryParam("key", serviceKey)
+                        .queryParam("q", encodeWord)
+                        .queryParam("part", "snippet")
+                        .queryParam("type", "video")
+                        .queryParam("maxResults", 1)
+                        .queryParam("videoEmbeddable", true)
+                        .queryParam("fields", "items(id,snippet(title,publishedAt))")
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return block;
     }
 
 }
