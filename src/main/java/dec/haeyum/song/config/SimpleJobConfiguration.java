@@ -29,7 +29,7 @@ public class SimpleJobConfiguration {
     @Bean
     public Job sequentialJob(JobRepository jobRepository, Flow jobFlow) {
         // Flow를 Job으로 연결
-        return new JobBuilder("SequentialJob", jobRepository)
+        return new JobBuilder("SequentialJob2", jobRepository)
                 .start(jobFlow) // Flow 실행
                 .end()          // Job 종료
                 .build();
