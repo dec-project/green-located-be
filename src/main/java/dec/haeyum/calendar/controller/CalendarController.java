@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 public  class CalendarController {
@@ -28,7 +30,7 @@ public  class CalendarController {
     @Operation(summary = "달력 최신화", description = "endDate 까지의 달력 갱신")
     @GetMapping("/calendar/generate")
     public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(@RequestParam String endDate){
-        ResponseEntity<? super GetInitCalendarResponseDto> responseEntity = service.initCalendar(endDate);
+        ResponseEntity<? super GetInitCalendarResponseDto> responseEntity = service.initCalendar(LocalDate.parse(endDate));
         return responseEntity;
 
     }

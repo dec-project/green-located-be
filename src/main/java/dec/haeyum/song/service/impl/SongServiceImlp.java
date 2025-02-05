@@ -60,7 +60,18 @@ public class SongServiceImlp implements SongService {
         String searchWord = song.getArtists() + song.getTitle();
         YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(searchWord);
         song.setImg(youtubeDetailDto);
+        songRepository.save(song);
         return SongDetailDto.toDto(song);
+    }
+
+    @Override
+    public Boolean existedSong() {
+        long count = songRepository.count();
+
+        if (count == 0){
+            return false;
+        }
+        return true;
     }
 
     @Override

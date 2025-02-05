@@ -11,4 +11,5 @@ public interface SongService {
     List<SongSummaryDto> getTop5Songs(Long calendarId);
     String getCalendarSongImageUrl(Long calendarId);
     SongDetailDto getSongDetails(Long songId);
+    Boolean existedSong();
 }

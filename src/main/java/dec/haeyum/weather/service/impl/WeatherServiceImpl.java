@@ -14,7 +14,6 @@ import dec.haeyum.weather.dto.response.WeatherApiResponseDto;
 import dec.haeyum.weather.entity.WeatherEntity;
 import dec.haeyum.weather.entity.WeatherImgEntity;
 import dec.haeyum.weather.repository.WeatherImgRepository;
-import dec.haeyum.weather.repository.WeatherRepository;
 import dec.haeyum.weather.service.WeatherService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +23,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,14 +92,13 @@ public class WeatherServiceImpl implements WeatherService {
             throw new BusinessException(ErrorCode.NOT_EXISTED_WEATHERIMG);
         }
         String imgPath = fileUrl + weatherImgEntity.getWeatherImg();
-        log.info("imgPath={}",imgPath);
         responseDto.setImgUrl(imgPath);
         return GetWeatherResponseDto.success(responseDto);
     }
 
     @Override
     // 날씨 이미지 저장
-    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(PostWeatherImgRequestDto dto) {
+    public ResponseEntity<PostWeatherImgResponseDto> initWeatherImg(PostWeatherImgRequestDto dto) {
 
         WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(dto.getWeatherImgName())
                 .orElse(null);
@@ -117,7 +114,7 @@ public class WeatherServiceImpl implements WeatherService {
     }
 
     @Override
-    public ResponseEntity<PostWeatherImgResponseDto> setWeatherImg(String imgName, MultipartFile img) {
+    public ResponseEntity<PostWeatherImgResponseDto> initWeatherImg(String imgName, MultipartFile img) {
 
         WeatherImgEntity weatherImgEntity = weatherImgRepository.findByWeatherImgName(imgName)
                 .orElse(null);
@@ -131,6 +128,42 @@ public class WeatherServiceImpl implements WeatherService {
             weatherImgRepository.save(weatherImgEntity);
         }
         return PostWeatherImgResponseDto.success();
+    }
+
+    @Override
+    public Boolean existedWeatherImg() {
+
+        long count = weatherImgRepository.count();
+        if (count == 0){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void initWeatherImg() {
+
+        final String filePath = "src/main/resources/static/img/weatherImg";
+
+        try {
+            List<Path> collect = Files.list(Paths.get(filePath))
+                    .filter(item -> Files.isRegularFile(item))
+                    .toList();
+
+            for (Path path : collect) {
+                String fileName = imgService.downloadImg(path);
+                String originalFilename = fileName.substring(0, fileName.lastIndexOf("."));
+                WeatherImgEntity weatherImgEntity = new WeatherImgEntity(originalFilename, fileName);
+                weatherImgRepository.save(weatherImgEntity);
+                log.info("initWeatherImg success = {}",fileName);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("initWeatherImg fail");
+        }
+
+
+
     }
 
     private void deleteFile(String weatherImg) {

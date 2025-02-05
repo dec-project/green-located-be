@@ -16,7 +16,7 @@ public interface CalendarService {
     // 달력 범위 조회
     ResponseEntity<? super PostCalendarResponseDto> getCalendar(PostCalendarRequestDto dto);
     // 달력 DB 초기화
-    ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(String endDate);
+    ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(LocalDate endDate);
     // 달력 검증
     boolean validateCalendar(Long calendarId);
     // 특정 달력 조회
@@ -27,4 +27,6 @@ public interface CalendarService {
     CalendarEntity getCalendarForUpdate(Long calendarId);
 
     CalendarEntity getCalendar(LocalDate startDate);
+
+    Boolean existedCalendar();
 }

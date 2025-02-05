@@ -69,7 +69,6 @@ public class KakaoServiceImpl implements KakaoService {
 
     @Override
     public void KakaoAuthorize(HttpServletResponse response) {
-        log.info("start");
         try {
 
             String redirectUrl = kakaoAuthorizeUrl
@@ -100,7 +99,6 @@ public class KakaoServiceImpl implements KakaoService {
                     .retrieve()
                     .bodyToMono(TokenAccessResponseDto.class)
                     .block();
-            log.info("response = {} ",response);
             JwtToken jwtToken = socialService.validateMember(response);
             log.info("JwtToken ={}",jwtToken);
             // 레디스에 social_sub 별 refreshToken 저장

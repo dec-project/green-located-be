@@ -2,6 +2,7 @@ package dec.haeyum.redis;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,6 @@ public class RedisService {
 
     public String getRefreshTokenInString(String key){
         String keyValue = "refreshToken::" + key;
-        log.info("keyValue ={}", key);
         return  (String) redisTemplate.opsForValue().get(keyValue);
     }
 
@@ -94,4 +94,20 @@ public class RedisService {
         }
         return false;
     }
+
+    public Boolean flushAll(){
+        try {
+            redisTemplate.execute((RedisConnection connect) -> {
+                connect.serverCommands().flushAll();
+                return null;
+            });
+            log.info("Redis flushAll success");
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            log.info("Redis flushAll fail");
+        }
+        return false;
+    }
+
 }

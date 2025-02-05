@@ -24,7 +24,6 @@ public class YoutubeDetailDto {
         LocalDate localDate = zonDate.toLocalDate();
         this.releaseDate = localDate;
 
-        log.info("youtubeAddr={} , releaseDate={}",youtubeAddr,this.releaseDate);
 
     }
 }

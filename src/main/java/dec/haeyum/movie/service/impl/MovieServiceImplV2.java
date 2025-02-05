@@ -110,6 +110,7 @@ public class MovieServiceImplV2 implements MovieService {
             String word = "영화 " + movie.getTitle() + " 예고편";
             YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
             movie.setYoutubeData(youtubeDetailDto);
+            movieRepository.save(movie);
         }
         return GetMovieDetailResponseDto.success(movie);
 

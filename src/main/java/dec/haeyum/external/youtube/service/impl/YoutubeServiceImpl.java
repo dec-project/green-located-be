@@ -73,7 +73,6 @@ public class YoutubeServiceImpl implements YoutubeService {
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            log.info("apiCall ={}",block);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode node = objectMapper.readTree(block);
             JsonNode itemList = node.path("items");
@@ -82,7 +81,6 @@ public class YoutubeServiceImpl implements YoutubeService {
                 for (JsonNode jsonNode : itemList) {
                     String videoId = jsonNode.path("id").path("videoId").asText();
                     String releaseDate = jsonNode.path("snippet").path("publishedAt").asText();
-                    log.info("videoId={} , releaseDate={}",videoId,releaseDate);
                     youtubeDetailDto.setData(videoId,releaseDate);
                 }
             }
