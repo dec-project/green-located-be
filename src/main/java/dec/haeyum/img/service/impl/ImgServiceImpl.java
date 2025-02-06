@@ -6,17 +6,26 @@ import dec.haeyum.img.service.ImgService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -138,6 +147,29 @@ public class ImgServiceImpl implements ImgService {
             log.error("downloadImg Fail = {}", originalFileName);
         }
         return null;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> compressImg(String fileName) {
+        try {
+            File file = new File(filePath + fileName);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Thumbnails.of(file)
+                    .size(80,80)
+                    .outputQuality(0.5)
+                    .outputFormat("jpeg")
+                    .toOutputStream(baos);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(baos.toByteArray());
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 }
