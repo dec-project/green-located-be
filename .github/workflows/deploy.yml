@@ -22,11 +22,7 @@ jobs:
         run: echo "${{ secrets.APPLICATION_PROPERTIES}}" > ./src/main/resources/application.yml
 
       - name: 테스트 및 빌드하기
-<<<<<<< HEAD
         run: ./gradlew clean build -x test
-=======
-        run: ./gradlew clean build
->>>>>>> develop
 
       - name: 빌드된 파일 이름 변경하기
         run: mv ./build/libs/*SNAPSHOT.jar ./haeyum.jar
