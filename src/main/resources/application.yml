@@ -29,7 +29,6 @@ spring:
     url: jdbc:mysql://localhost:3306/haeyum?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=UTF-8
     username: root
     password: '00000000'
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   file:
     filePath: /Users/sanggyun/Documents/GitHub/haeyum-server/src/main/resources/img/
@@ -324,7 +323,7 @@ movie:
 
 youtube:
   baseUrl: "https://www.googleapis.com/youtube/v3"
-  api-key: AIzaSyC-ib4O351ZMixIyrf4_nZQYwquPFT6eJk
+  4api-key: AIzaSyC-ib4O351ZMixIyrf4_nZQYwquPFT6eJk
 
 news:
   joongang-page: "https://www.joongang.co.kr/sitemap/index/"

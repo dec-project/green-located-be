@@ -5,8 +5,10 @@ import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
 import dec.haeyum.external.youtube.service.YoutubeService;
-import dec.haeyum.movie.dto.CrowlingMovieData;
+import dec.haeyum.movie.dto.CalendarMovieItem;
+import dec.haeyum.movie.dto.MovieInfoDto;
 import dec.haeyum.movie.dto.response.GetMovieDetailResponseDto;
 import dec.haeyum.movie.dto.response.GetTop5Movies;
 import dec.haeyum.movie.dto.response.MovieDbKeyDto;
@@ -16,26 +18,30 @@ import dec.haeyum.movie.repository.CalendarMovieRepository;
 import dec.haeyum.movie.repository.MovieRepository;
 import dec.haeyum.movie.service.MovieService;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.servlet.View;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +66,7 @@ public class MovieServiceImplV2 implements MovieService {
     private final CalendarMovieRepository calendarMovieRepository;
     private final MovieRepository movieRepository;
     private final CalendarService calendarService;
+    private final YoutubeService youtubeService;
     private WebClient webClient;
 
 
@@ -97,44 +104,178 @@ public class MovieServiceImplV2 implements MovieService {
     @Override
     public ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(Long calendarId, Long movieId) {
 
-        Optional<MovieEntity> byId = movieRepository.findById(movieId);
-        if (byId == null || byId.isEmpty()){
-            throw new BusinessException(ErrorCode.NOT_EXISTED_MOVIE);
+        MovieEntity movie = movieRepository.findById(movieId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_CONNECT_PAGE));
+
+        if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
+            String word = "영화 " + movie.getTitle() + " 예고편";
+            YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
+            movie.setYoutubeData(youtubeDetailDto);
         }
-        MovieEntity movie = byId.get();
         return GetMovieDetailResponseDto.success(movie);
 
     }
 
 
-    protected String crowlingMovie( String inputEndDate){
-        LocalDate startDate = LocalDate.of(2023,11,11);
+    @Transactional
+    public void crawlingMovie(String inputEndDate){
+        LocalDate startDate = LocalDate.of(2003,11,11);
         LocalDate endDate = LocalDate.parse(inputEndDate);
+        final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
         // DB의 마지막 크롤링 날짜 확인 후 크롤링
         Optional<CalendarMovieEntity> byLastCalendar = calendarMovieRepository.findByLastCalendar();
 
+        Long calendarId = 0L;
         if (byLastCalendar.isPresent()){
             CalendarMovieEntity calendarMovieEntity = byLastCalendar.get();
             CalendarEntity calendar = calendarService.getCalendar(calendarMovieEntity.getCalendarId());
-            LocalDate localDate = calendar.getCalendarDate().plusDays(1);
-            startDate = localDate;
+            startDate = calendar.getCalendarDate().plusDays(1);
+            calendarId = calendar.getCalendarId();
+        }else {
+            calendarId = calendarService.getCalendar(startDate).getCalendarId();
         }
 
         while (!startDate.isEqual(endDate)){
-            int check = 0;
+            log.error("startDate ={}",startDate);
+            ArrayList<MovieInfoDto> movieEntities = new ArrayList<>();
+            ArrayList<CalendarMovieItem> calendarMovieEntities = new ArrayList<>();
             String html = getMovieInfoWebClient(startDate);
             if (html == null || html.isEmpty()){
-                log.info("{} 일 에는 영화 데이터가 없습니다.",startDate);
-                startDate.plusDays(1);
+                log.error("{} 일 에는 영화 데이터가 없습니다.",startDate);
+                startDate = startDate.plusDays(1);
                 continue;
             }
 
+            // 일단 5위까지 수집하고 DB하고 체크해서 movieUUID 중복되는거 제거 하고 수집
+
+            parseMovieRanking(html, movieEntities, calendarMovieEntities,calendarId);
+
+            Set<String> collect = movieEntities.stream()
+                    .map(item -> item.getMovieUuid())
+                    .collect(Collectors.toSet());
+
+            List<MovieDbKeyDto> existingMovies = movieRepository.findByMovieUuid(collect);
+            // movieEntites - DB = 저장하지 않은 데이터
+            List<MovieInfoDto> list = movieEntities.stream()
+                    .filter(item -> existingMovies.stream()
+                            .noneMatch(target -> Objects.equals(item.getMovieUuid(), target.getMovieUuid())))
+                    .toList();
+
+            // DB에 저장되어 있는 데이터
+            for (CalendarMovieItem calendarMovieItem : calendarMovieEntities) {
+                Optional<MovieDbKeyDto> existingMovie = existingMovies.stream()
+                        .filter(item -> item.getMovieUuid().equals(calendarMovieItem.getMovieUuid()))
+                        .findFirst();
+                if (existingMovie.isPresent()) {
+                    CalendarMovieEntity calendarMovieEntity = new CalendarMovieEntity(calendarId, existingMovie.get().getMovieId(), calendarMovieItem.getRanking());
+                    calendarMovieRepository.save(calendarMovieEntity);
+                }
+            }
+
+            // DB에 저장되지 않은 데이터
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            List<CompletableFuture<Void>> futures = list.stream()
+                    .map(data -> CompletableFuture.runAsync(() -> {
+                        try {
+                            String detailPage = webClient.post()
+                                    .uri(movie_detail_url)
+                                    .header("Accept-Encoding", "gzip")
+                                    .body(BodyInserters.fromFormData("code", data.getMovieUuid())
+                                            .with("titleYN", "Y")
+                                            .with("isOuterReq", "false")
+                                            .with("CSRFToken", csrfToken))
+                                    .retrieve()
+                                    .bodyToMono(String.class)
+                                    .block();
+
+                            parseMovieDetail(detailPage,data);
+                            Thread.sleep(300);
+                        } catch (Exception e) {
+                            log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
+                        }
+                    }, executorService))
+                    .collect(Collectors.toList());
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+            executorService.shutdown();
+
+            for (MovieInfoDto movieInfoDto : list) {
+                MovieEntity movie = new MovieEntity(movieInfoDto);
+                MovieEntity save = movieRepository.save(movie);
+                CalendarMovieEntity calendarMovieEntity = new CalendarMovieEntity(calendarId, save.getMovieId(), movieInfoDto.getRanking());
+                calendarMovieRepository.save(calendarMovieEntity);
+            }
+            startDate = startDate.plusDays(1);
+            calendarId++;
+        }
+        // 2. movieEntities 사이즈 만큼 크롤링 시작
+        // 3. 하나의 list에 5위까지의 데이터 수집 하고 각 데이터 마다 디테일 데이터 수집
+    }
+
+    private void parseMovieDetail(String html, MovieInfoDto data){
+        Document document = Jsoup.parse(html);
+
+        String imgPath = document.select("a.fl").attr("href");
+        String content = document.select("p.desc_info").text();
+
+        downloadImage(imgPath,data);
+        data.setContent(content);
+
+    }
+
+    private void downloadImage(String imgPath, MovieInfoDto data) {
+        final String pullPath = movie_api_url + imgPath;
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid + ".webp";
+        String filePath = file_path + fileName;
+
+        try {
+            byte[] imgBytes = webClient.get()
+                    .uri(pullPath)
+                    .header("Accept-Encoding", "gzip")
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+
+            Path path = Paths.get(filePath);
+            Files.createDirectories(path.getParent());
+            Files.write(path,imgBytes);
+            data.setImg(fileName);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private void parseMovieRanking(String html, ArrayList<MovieInfoDto> list, ArrayList<CalendarMovieItem> calendarMovieEntities, Long calendarId) {
+        Document document = Jsoup.parse(html);
+
+        // 1. 랭킹, 2. 영화명, 3. 영화id
+
+        String date = document.select("div.board_tit h4").text();
+        log.info("Date = {}",date);
+        int size = document.select("table.th_sort tbody tr").size();
+        int time = 0;
+        for (int i = 0; i < size; i++) {
+            if (time >= 5){
+                break;
+            }
+            Element element = document.select("table.th_sort tbody tr").get(i);
+            String ranking = element.select("td").get(0).text();
+            String movieName = element.select("td.tal span a").text();
+            String onClick = element.select("td.tal span a").attr("onClick");
+            String movieId = onClick.replaceAll(".*mstView\\('movie','(\\d+)'\\).*", "$1");
+            String openDate = element.select("td").get(2).text();
+
+            MovieInfoDto movieInfoDto = new MovieInfoDto(movieName, movieId, ranking,openDate);
+
+
+            list.add(movieInfoDto);
+            CalendarMovieItem calendarMovieItem = new CalendarMovieItem(calendarId, movieId, ranking);
+            calendarMovieEntities.add(calendarMovieItem);
+            time++;
         }
 
-        // 2. list 사이즈 만큼 크롤링 시작
-        // 3. 하나의 list에 5위까지의 데이터 수집 하고 각 데이터 마다 디테일 데이터 수집
-
-        return null;
     }
 
 

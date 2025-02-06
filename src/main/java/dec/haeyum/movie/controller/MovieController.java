@@ -7,15 +7,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MovieController {
 
-    public MovieController(@Qualifier("movieServiceImpl") MovieService movieService) {
+    public MovieController(@Qualifier("movieServiceImplV2") MovieService movieService) {
         this.movieService = movieService;
     }
 
@@ -34,6 +31,13 @@ public class MovieController {
 
         return result;
     }
+
+    @GetMapping("/movie/generate")
+    public String movieGenerate(@RequestParam String endDate){
+        movieService.crawlingMovie(endDate);
+        return "영화 데이터 생성 성공";
+    }
+
     @GetMapping("/favicon.ico")
     @ResponseBody
     public void returnNoFavicon(){

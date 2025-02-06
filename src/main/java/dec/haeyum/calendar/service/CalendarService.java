@@ -7,6 +7,7 @@ import dec.haeyum.calendar.dto.response.Top5MoviesDto;
 import dec.haeyum.calendar.entity.CalendarEntity;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,7 @@ public interface CalendarService {
     //ViewCount 증가
     void increaseViewCount(CalendarEntity calendarId);
 
+    CalendarEntity getCalendarForUpdate(Long calendarId);
+
+    CalendarEntity getCalendar(LocalDate startDate);
 }

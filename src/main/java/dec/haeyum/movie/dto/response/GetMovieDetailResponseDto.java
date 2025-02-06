@@ -18,7 +18,7 @@ public class GetMovieDetailResponseDto {
         this.title = movie.getTitle();
         this.content = movie.getContent();
         this.releaseDate = movie.getOpenDate();
-        this.youtubeAddr = "https://www.youtube.com/embed/" + movie.getYoutube_address();
+        this.youtubeAddr = movie.getYoutube_address();
     }
 
 

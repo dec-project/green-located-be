@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -116,12 +117,29 @@ public  class CalendarServiceImpl implements CalendarService {
         return calendarRepository.findById(calendarId).orElseThrow(() ->  new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
     }
 
+
+    // 특정 달력 DB 반환
+    @Override
+    public CalendarEntity getCalendarForUpdate(Long calendarId) {
+        return calendarRepository.findByIdForUpdate(calendarId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+    @Override
+    public CalendarEntity getCalendar(LocalDate startDate) {
+        return calendarRepository.findByCalendarDate(startDate)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+
     @Override
     public void increaseViewCount(CalendarEntity calendar) {
         log.info("increaseViewCount before={}",calendar.getViewCount());
-        calendar.increaseViewCount();
-        calendarRepository.save(calendar);
-        log.info("increaseViewCount after ={}",calendar.getViewCount());
+        calendar.setViewCount(calendar.getViewCount() + 1);
+        CalendarEntity save = calendarRepository.save(calendar);
+        calendarRepository.flush();
+        log.info("increaseViewCount after ={} , calendar ={}",calendar.getViewCount(),save.getViewCount());
+        CalendarEntity calendar1 = calendarRepository.findById(calendar.getCalendarId()).orElse(null);
+        log.info("update calendar={}",calendar1.getViewCount());
     }
 
 

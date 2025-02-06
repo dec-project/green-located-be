@@ -29,4 +29,10 @@ public class CalendarMovieEntity {
         this.ranking = ranking;
 
     }
+
+    public CalendarMovieEntity(Long calendarId, Long movieId, String ranking) {
+        this.calendarId = calendarId;
+        this.movieId = movieId;
+        this.ranking = Integer.parseInt(ranking);
+    }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-public class CalendarController {
+public  class CalendarController {
 
     private final CalendarService service;
 

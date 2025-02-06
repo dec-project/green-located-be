@@ -10,4 +10,7 @@ public interface MovieService {
     ResponseEntity<GetMovieDetailResponseDto> getMovieDetail(Long calendarId, Long movieId);
     // movieId 존재 여부
 
+    void crawlingMovie(String endDate);
+
+
 }
