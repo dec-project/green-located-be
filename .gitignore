@@ -20,8 +20,6 @@ bin/
 ### IntelliJ IDEA ###
 src/main/resources/application.yml
 deploy.sh
-.github/workflows/deploy.yml
-
 
 .idea
 *.iws
