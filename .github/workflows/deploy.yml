@@ -52,4 +52,3 @@ jobs:
             nohup java -jar haeyum.jar --spring.profiles.active=prod > ./app.log 2>&1 &
             rm -rf /home/ec2-user/haeyum/update
             
-            
