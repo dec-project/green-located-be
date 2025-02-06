@@ -21,19 +21,28 @@ public class ImgController {
 
     private final ImgService imgService;
 
-    @GetMapping(value = "/image/{fileName}")
-    public ResponseEntity<Resource> getImg (@PathVariable(name = "fileName") String fileName){
-        Resource img = imgService.getImg(fileName);
-        String contentType = "image/jpg";
+//    @GetMapping(value = "/image/{fileName}")
+//    public ResponseEntity<Resource> getImg (@PathVariable(name = "fileName") String fileName){
+//        Resource img = imgService.getImg(fileName);
+//        imgService.compressImg(img);
+//        String contentType = "image/jpg";
+//
+//        try {
+//            Files.probeContentType(img.getFile().toPath());
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+//                .body(img);
+//    }
 
-        try {
-            Files.probeContentType(img.getFile().toPath());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                .body(img);
+
+    @GetMapping(value = "/image/{fileName}")
+    public ResponseEntity<byte[]> getImg (@PathVariable(name = "fileName") String fileName){
+        return imgService.compressImg(fileName);
     }
+
+
 
 
 }

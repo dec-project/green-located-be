@@ -2,9 +2,9 @@ package dec.haeyum.img.service;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public interface ImgService {
@@ -18,4 +18,6 @@ public interface ImgService {
     void deleteImg(String profileImg);
 
     String downloadImg(Path path);
+
+    ResponseEntity<byte[]> compressImg(String fileName);
 }
