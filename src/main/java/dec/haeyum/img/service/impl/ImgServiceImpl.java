@@ -155,7 +155,7 @@ public class ImgServiceImpl implements ImgService {
             File file = new File(filePath + fileName);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             Thumbnails.of(file)
-                    .size(80,80)
+                    .size(150,150)
                     .outputQuality(0.5)
                     .outputFormat("jpeg")
                     .toOutputStream(baos);
