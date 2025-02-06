@@ -57,7 +57,7 @@ import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MovieServiceImpl implements MovieService {
+public abstract class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
     private final CalendarMovieRepository calendarMovieRepository;
@@ -126,9 +126,6 @@ public class MovieServiceImpl implements MovieService {
         if (movie.getYoutube_address() == null || movie.getYoutube_address().isEmpty()){
             String word = "영화 " + movie.getTitle() + " 예고편";
             YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(word);
-            if (profile.equals("prod")){
-                movie.setYoutubeAddress(youtubeDetailDto);
-            }
             movie.setYoutubeData(youtubeDetailDto);
         }
         return GetMovieDetailResponseDto.success(movie);
@@ -153,6 +150,7 @@ public class MovieServiceImpl implements MovieService {
 
 
     private String getMovieInfoWebClient(LocalDate calendarDate) {
+
         String sSearchFrom = String.valueOf(calendarDate);
         String sSearchTo = String.valueOf(calendarDate);
         String CSRFToken = "xj6vtA4p6rTaiq5vAGm1p0p1WhIMJ1K0_IwR4B3N3Bk";
@@ -228,51 +226,6 @@ public class MovieServiceImpl implements MovieService {
         return list;
     }
 
-//
-//    private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
-//
-//        final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
-//
-//        ExecutorService executorService = Executors.newFixedThreadPool(list.size());
-//
-//        list.forEach(data -> executorService.submit(() -> {
-//
-//            try {
-//                String html = webClient.post()
-//                        .uri(movie_detail_url)
-//                        .header("Accept-Encoding", "gzip")
-//                        .body(BodyInserters.fromFormData(
-//                                        "code", data.getMovieUuid())
-//                                .with("titleYN", "Y")
-//                                .with("isOuterReq", "false")
-//                                .with("CSRFToken", csrfToken))
-//                        .retrieve()
-//                        .bodyToMono(String.class)
-//                        .block();
-//
-//                movieDetailInfoParsing(html, data);
-//                synchronized (this) { // 동기화 블록으로 데이터 저장
-//                    MovieEntity movie = movieRepository.save(new MovieEntity(data));
-//                    calendarMovieRepository.save(new CalendarMovieEntity(calendar, movie, data.getRanking()));
-//                }
-//                Thread.sleep(300);
-//            } catch (Exception e) {
-//                log.error("Error processing movie detail for UUID: {}", data.getMovieUuid(), e);
-//            }
-//
-//        }));
-//
-//        executorService.shutdown();
-//        try {
-//            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-//                executorService.shutdownNow();
-//            }
-//        } catch (InterruptedException e) {
-//            executorService.shutdownNow();
-//            Thread.currentThread().interrupt();
-//        }
-//
-//    }
 
     private void getMovieDetailInfoWebClient(List<MovieInfoDto> list, CalendarEntity calendar) {
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";

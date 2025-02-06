@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -36,7 +37,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CalendarServiceImpl implements CalendarService {
+public  class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
     private final SongService songService;
@@ -44,12 +45,10 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(String updateDate) {
+    public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(LocalDate endDate) {
         LocalDate startDate = LocalDate.of(1970,1,1);
         try {
 
-            // endDate = 업데이트 하려는 캘린더 날짜
-            LocalDate endDate = LocalDate.parse(updateDate);
             // 1. DB에 가장 마지막 캘린더 날짜 조회
             CalendarEntity calendarEntity = searchDatabase();
 
@@ -85,6 +84,7 @@ public class CalendarServiceImpl implements CalendarService {
         validatePagingData(paging, MAX_BOUNDARY);
 
         List<ResponseCalendarDto> responseItems = new ArrayList<>();
+
         for (CalendarEntity calendar : paging.getContent()) {
             Long chatroomId = chatroomService.getChatRoomIdByCalendar(calendar);
             String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
@@ -115,14 +115,38 @@ public class CalendarServiceImpl implements CalendarService {
         return calendarRepository.findById(calendarId).orElseThrow(() ->  new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
     }
 
+
+    // 특정 달력 DB 반환
+    @Override
+    public CalendarEntity getCalendarForUpdate(Long calendarId) {
+        return calendarRepository.findByIdForUpdate(calendarId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+    @Override
+    public CalendarEntity getCalendar(LocalDate startDate) {
+        return calendarRepository.findByCalendarDate(startDate)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+    }
+
+    @Override
+    public Boolean existedCalendar() {
+
+        long count = calendarRepository.count();
+        if (count == 0){
+            return false;
+        }
+        return true;
+
+    }
+
+
     @Override
     public void increaseViewCount(CalendarEntity calendar) {
-        log.info("increaseViewCount before={}",calendar.getViewCount());
-        calendar.increaseViewCount();
+        calendar.setViewCount(calendar.getViewCount() + 1);
         calendarRepository.save(calendar);
         calendarRepository.flush();
-        log.info("increaseViewCount after ={}",calendar.getViewCount());
     }
+
 
     private void createCalendar(LocalDate startDate, LocalDate endDate) {
         List<CalendarEntity> list = new ArrayList<>();

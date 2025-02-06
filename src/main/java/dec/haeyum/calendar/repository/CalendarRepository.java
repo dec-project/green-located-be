@@ -1,9 +1,11 @@
 package dec.haeyum.calendar.repository;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,4 +36,6 @@ public interface CalendarRepository extends JpaRepository<CalendarEntity,Long> {
     @Query("SELECT c FROM calendar c WHERE c.calendarId NOT IN :excludeIds ORDER BY c.viewCount DESC")
     List<CalendarEntity> findTopByViewCountExcluding(@Param("excludeIds") List<Long> excludeIds, Pageable pageable);
 
+    @Query("select c from calendar c where c.calendarId = :calendarId")
+    Optional<CalendarEntity> findByIdForUpdate(Long calendarId);
 }

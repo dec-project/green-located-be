@@ -29,7 +29,7 @@ public class SimpleJobConfiguration {
     @Bean
     public Job sequentialJob(JobRepository jobRepository, Flow jobFlow) {
         // Flow를 Job으로 연결
-        return new JobBuilder("SequentialJob", jobRepository)
+        return new JobBuilder("SequentialJob2", jobRepository)
                 .start(jobFlow) // Flow 실행
                 .end()          // Job 종료
                 .build();
@@ -43,15 +43,15 @@ public class SimpleJobConfiguration {
                 .next(calendarSongDataLoadStep)    // 두 번째 Step
                 .build();
     }
+
 /*
     @Bean
     public Job SongDetailDataLoadJob(JobRepository jobRepository, @Qualifier("SongDetailDataLoadStep") Step songDetailDataLoadStep) {
         return new JobBuilder("SongDetailDataLoadJob", jobRepository)
                 .start(songDetailDataLoadStep).build();
     }
-
-
  */
+
     @Bean
     public Step SongDetailDataLoadStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new StepBuilder("SongDetailDataLoadStep", jobRepository)
@@ -60,15 +60,16 @@ public class SimpleJobConfiguration {
                 .writer(songDetailCsvScheduleWriter)
                 .build();
     }
+
 /*
     @Bean
     public Job CalendarSongDataLoadJob(JobRepository jobRepository, @Qualifier("CalendarSongDataLoadStep") Step calendarSongDataLoadStep) {
         return new JobBuilder("CalendarSongDataLoadJob", jobRepository)
                 .start(calendarSongDataLoadStep).build();
     }
-
-
  */
+
+
     @Bean
     public Step CalendarSongDataLoadStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new StepBuilder("CalendarSongDataLoadStep", jobRepository)

@@ -9,9 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostWeatherImgRequestDto {
-
-    private String weatherImgName;
     private MultipartFile weatherImg;
+    private String weatherImgName;
 
 }

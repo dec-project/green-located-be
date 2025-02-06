@@ -2,13 +2,16 @@ package dec.haeyum.movie.dto;
 
 import dec.haeyum.movie.dto.response.MovieDbKeyDto;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class MovieInfoDto {
 
     private String movieUuid;
@@ -18,6 +21,17 @@ public class MovieInfoDto {
 
     private String img;
     private String content;
+
+    public MovieInfoDto(String movieName, String movieId, String ranking, String openDate) {
+        this.movieUuid = movieId;
+        this.title = movieName;
+        this.ranking = Integer.parseInt(ranking);
+        if (openDate != null && !openDate.trim().isEmpty()){
+            this.openDate = LocalDate.parse(openDate);
+        }else {
+            this.openDate = null;
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

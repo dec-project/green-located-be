@@ -2,11 +2,13 @@ package dec.haeyum.movie.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "calendar_movie")
 @IdClass(MoviePk.class)
 @NoArgsConstructor
+@Getter
 public class CalendarMovieEntity {
 
     @Id
@@ -26,5 +28,11 @@ public class CalendarMovieEntity {
         this.movieId = movieId;
         this.ranking = ranking;
 
+    }
+
+    public CalendarMovieEntity(Long calendarId, Long movieId, String ranking) {
+        this.calendarId = calendarId;
+        this.movieId = movieId;
+        this.ranking = Integer.parseInt(ranking);
     }
 }

@@ -2,6 +2,7 @@ package dec.haeyum.member.service.impl;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.calendar.service.CalendarService;
+import dec.haeyum.chat.service.ChatroomService;
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
@@ -51,6 +52,7 @@ public class MemberServiceImlp implements MemberService {
     private final ImgService imgService;
     private final CalendarService calendarService;
     private final SongService songService;
+    private final ChatroomService chatroomService;
 
     @Value("${spring.file.fileUrl}")
     private String fileUrl;
@@ -173,19 +175,25 @@ public class MemberServiceImlp implements MemberService {
 
     @Override
     public ResponseEntity<GetFavoriteListResponseDto> favoriteList() {
+        // 유저 식별
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 유저 조회
         Member member = socialService.findMember(sub);
-        List<CalendarEntity> favorite = member.getFavorite();
+
         List<FavoriteItem> itemList = member.getFavorite().stream()
                 .map(calendar -> {
                     String calendarSongImageUrl = songService.getCalendarSongImageUrl(calendar.getCalendarId());
+                    Long chatRoomIdByCalendar = chatroomService.getChatRoomIdByCalendar(calendar);
                     return new FavoriteItem(
                             calendar.getCalendarId(),
                             calendar.getCalendarName(),
+                            calendar.getCalendarDate(),
+                            chatRoomIdByCalendar,
                             calendarSongImageUrl
                     );
                 })
                 .collect(Collectors.toList());
+
 
         return GetFavoriteListResponseDto.success(itemList);
     }

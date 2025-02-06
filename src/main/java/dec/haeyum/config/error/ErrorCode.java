@@ -27,6 +27,7 @@ public enum ErrorCode {
     // 이미지 에러
     NOT_EXISTED_IMG(HttpStatus.INTERNAL_SERVER_ERROR,"EI","존재하지 않는 이미지 파일입니다."),
     // 영화 에러
+    NOT_EXISTED_MOVIE(HttpStatus.NOT_FOUND,"EM","영화 데이터가 없습니다."),
     NOT_CONNECT_PAGE(HttpStatus.INTERNAL_SERVER_ERROR,"NC","영화 페이지 를 찾을 수 없습니다."),
     TOO_MANY_REQUESTS(HttpStatus.INTERNAL_SERVER_ERROR,"TR","너무 많은 요청 입니다. 잠시 후 다시 시도해 주세요."),
     // 뉴스 에러

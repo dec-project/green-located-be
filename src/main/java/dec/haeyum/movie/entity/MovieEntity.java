@@ -2,6 +2,7 @@ package dec.haeyum.movie.entity;
 
 import dec.haeyum.calendar.entity.CalendarEntity;
 import dec.haeyum.external.youtube.dto.YoutubeDetailDto;
+import dec.haeyum.movie.dto.CrowlingMovieData;
 import dec.haeyum.movie.dto.MovieInfoDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,13 +40,21 @@ public class MovieEntity {
         this.content = data.getContent();
     }
 
+    public MovieEntity(CrowlingMovieData crowlingMovieData) {
+        this.movieUuid = crowlingMovieData.getMovieId();
+        this.title = crowlingMovieData.getMovieName();
+
+    }
+
+    public MovieEntity(String movieName, String movieId) {
+        this.title = movieName;
+        this.movieUuid = movieId;
+    }
+
     public void setYoutubeData(YoutubeDetailDto youtubeDetailDto) {
         this.youtube_address =  youtubeDetailDto.getYoutubeAddr();
     }
 
-    public void setYoutubeAddress(YoutubeDetailDto dto){
-        this.youtube_address = "https://www.youtube.com/embed/" + dto.getYoutubeAddr();
-    }
 
 
 }

@@ -60,14 +60,25 @@ public class SongServiceImlp implements SongService {
         String searchWord = song.getArtists() + song.getTitle();
         YoutubeDetailDto youtubeDetailDto = youtubeService.searchVideoUrl(searchWord);
         song.setImg(youtubeDetailDto);
+        songRepository.save(song);
         return SongDetailDto.toDto(song);
+    }
+
+    @Override
+    public Boolean existedSong() {
+        long count = songRepository.count();
+
+        if (count == 0){
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String getCalendarSongImageUrl(Long calendarId) {
         //1. Top1 노래 조회
         CalendarEntity findCalendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_CALENDAR));
+                .orElse(null);
         List<CalendarSong> calendarSongs = calendarSongRepository.findSongsByDate(findCalendar.getCalendarDate());
 
         if (calendarSongs.isEmpty()) {

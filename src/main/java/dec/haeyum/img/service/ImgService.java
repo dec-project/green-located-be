@@ -5,6 +5,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public interface ImgService {
     Resource getImg(String fileName);
@@ -15,4 +16,6 @@ public interface ImgService {
     String downloadImg(@NotNull MultipartFile profileImg);
 
     void deleteImg(String profileImg);
+
+    String downloadImg(Path path);
 }
