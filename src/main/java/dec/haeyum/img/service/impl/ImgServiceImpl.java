@@ -6,10 +6,7 @@ import dec.haeyum.img.service.ImgService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< HEAD
-=======
 import net.coobird.thumbnailator.Thumbnails;
->>>>>>> develop
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
