@@ -45,7 +45,7 @@ jobs:
           envs: APPLICATION_PROPERTIES
           script_stop: true
           script: |
-            rm /home/ec2-user/haeyum/haeyum.jar
+            rm /home/ec2-user/haeyum/haeyum.jar || true
             mv /home/ec2-user/haeyum/update/haeyum.jar /home/ec2-user/haeyum
             cd /home/ec2-user/haeyum
             sudo fuser -k -n tcp 8080 || true
