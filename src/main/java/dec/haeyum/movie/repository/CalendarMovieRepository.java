@@ -33,5 +33,5 @@ public interface CalendarMovieRepository extends JpaRepository<CalendarMovieEnti
     @Query(
             value = "select * from calendar_movie order by calendar_id DESC limit 1", nativeQuery = true
     )
-    Optional<CalendarMovieEntity> findByLastCalendar();
+    Optional<CalendarMovieEntity> findByLastCalendarMovie();
 }

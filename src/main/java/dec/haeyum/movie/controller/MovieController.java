@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @Slf4j
 @RestController
 public class MovieController {
@@ -36,7 +38,7 @@ public class MovieController {
 
     @GetMapping("/movie/generate")
     public String movieGenerate(@RequestParam String endDate){
-        movieService.crawlingMovie(endDate);
+        movieService.crawlingMovie(LocalDate.parse(endDate));
         log.error("영화 데이터 생성 성공");
         return "영화 데이터 생성 성공";
     }

@@ -118,12 +118,11 @@ public class MovieServiceImplV2 implements MovieService {
 
 
     @Transactional
-    public void crawlingMovie(String inputEndDate){
+    public void crawlingMovie(LocalDate endDate){
         LocalDate startDate = LocalDate.of(2003,11,11);
-        LocalDate endDate = LocalDate.parse(inputEndDate);
         final String csrfToken = "yoH3nEsLHvex4kzCaKSNdH7pAbtthxALcxPWK03l5OQ";
         // DB의 마지막 크롤링 날짜 확인 후 크롤링
-        Optional<CalendarMovieEntity> byLastCalendar = calendarMovieRepository.findByLastCalendar();
+        Optional<CalendarMovieEntity> byLastCalendar = calendarMovieRepository.findByLastCalendarMovie();
 
         Long calendarId = 0L;
         if (byLastCalendar.isPresent()){

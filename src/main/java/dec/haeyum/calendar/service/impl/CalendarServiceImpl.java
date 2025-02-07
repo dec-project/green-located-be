@@ -48,14 +48,18 @@ public  class CalendarServiceImpl implements CalendarService {
     public ResponseEntity<? super GetInitCalendarResponseDto> initCalendar(LocalDate endDate) {
         LocalDate startDate = LocalDate.of(1970,1,1);
         try {
-
             // 1. DB에 가장 마지막 캘린더 날짜 조회
             CalendarEntity calendarEntity = searchDatabase();
+            if (calendarEntity != null){
+                startDate = calendarEntity.getCalendarDate();
+            }
+            log.info("startDate = {} , updateDate = {}",startDate, endDate);
 
 
             if (calendarEntity != null){
                 // 입력 -> 2000-01-01 , DB 마지막날이 2000-01-01
                 LocalDate localDate = calendarEntity.getCalendarDate();
+                // startDate == updateDate 가 같다면
                 if (localDate.isEqual(endDate)){
                     throw new BusinessException(ErrorCode.DUPLICATED_CALENDAR_DATE);
                 }
