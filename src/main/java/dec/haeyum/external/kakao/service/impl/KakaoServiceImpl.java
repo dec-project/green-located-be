@@ -1,11 +1,13 @@
 package dec.haeyum.external.kakao.service.impl;
 
+import dec.haeyum.config.error.ErrorCode;
+import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.kakao.dto.request.PostKakaoLoginRequestDto;
 import dec.haeyum.external.kakao.dto.response.KakaoLogoutResponseDto;
-import dec.haeyum.external.kakao.dto.response.KakaoTokenResponseDto;
+import dec.haeyum.external.kakao.dto.response.PostKakaoLoginResponseDto;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.external.kakao.service.KakaoService;
 import dec.haeyum.member.dto.JwtToken;
-import dec.haeyum.member.entity.Member;
 import dec.haeyum.redis.RedisService;
 import dec.haeyum.social.service.SocialService;
 import jakarta.annotation.PostConstruct;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -133,5 +134,30 @@ public class KakaoServiceImpl implements KakaoService {
 
     }
 
-
+    @Override
+    public ResponseEntity<PostKakaoLoginResponseDto> login(PostKakaoLoginRequestDto dto) {
+        // 반환 1. accessToken, 2. refreshToken, 3. social_id
+        try {
+            TokenAccessResponseDto response = webClient.post()
+                    .uri(kakaoTokenUrl)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                            .with("client_id", clientId)
+                            .with("redirect_uri", kakaoAuthorizeRedirectUrl)
+                            .with("code", dto.getCode()))
+                    .retrieve()
+                    .bodyToMono(TokenAccessResponseDto.class)
+                    .block();
+            log.info(" = {}",response.toString());
+            JwtToken jwtToken = socialService.validateMember(response);
+            log.info("JwtToken ={}",jwtToken);
+            // 레디스에 social_sub 별 refreshToken 저장
+            redisService.setRefreshTokenInString(response.idTokenDecode().getSub(), jwtToken.getRefreshToken());
+            return PostKakaoLoginResponseDto.success(jwtToken, response.idTokenDecode().getSub());
+        }catch (Exception e){
+            // DB 에러
+            e.printStackTrace();
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

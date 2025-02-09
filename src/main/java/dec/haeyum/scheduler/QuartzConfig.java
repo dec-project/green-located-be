@@ -4,6 +4,8 @@ import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.TimeZone;
+
 @Configuration
 public class QuartzConfig {
 
@@ -20,7 +22,8 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail())
                 .withIdentity("Calendar_Movie-initTrigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?")) // 매일 자정 업데이트
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?")
+                        .inTimeZone(TimeZone.getTimeZone("Asia/Seoul"))) // 매일 자정 업데이트
                 .build();
     }
 
