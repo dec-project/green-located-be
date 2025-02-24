@@ -14,7 +14,7 @@ import java.util.List;
 @Entity(name = "calendar")
 @Getter
 @Setter
-public class CalendarEntity {
+public class CalendarEntity implements Comparable<CalendarEntity>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,4 +43,8 @@ public class CalendarEntity {
     }
 
 
+    @Override
+    public int compareTo(CalendarEntity o) {
+        return this.calendarDate.compareTo(o.calendarDate);
+    }
 }
