@@ -2,6 +2,7 @@ package dec.haeyum.social.service.impl;
 
 import dec.haeyum.config.error.ErrorCode;
 import dec.haeyum.config.error.exception.BusinessException;
+import dec.haeyum.external.kakao.dto.KakaoTokenInfo;
 import dec.haeyum.external.kakao.dto.response.KakaoLogoutResponseDto;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.img.service.ImgService;
@@ -46,14 +47,29 @@ public class SocialServiceImpl implements SocialService {
         if (isMember){
             roles = searchRoles(response);
         }
+
         JwtToken jwtToken = jwtTokenProvider.generateTokenWithKakao(response.idTokenDecode().getSub(), roles);
         return jwtToken;
+
     }
 
-    public Member findMember(String sub){
-         return socialRepository.findBySocialSub(sub)
+    public Member findMember(String subject){
+        return socialRepository.findBySocialSub(subject)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_SUB))
-                 .getMember();
+                .getMember();
+    }
+
+
+    private Boolean findMemberV2(String sub) {
+
+        if (sub == null || sub.isEmpty()){
+            throw new BusinessException(ErrorCode.NOT_EXISTED_SUB);
+        }
+        Optional<SocialEntity> bySocialSub = socialRepository.findBySocialSub(sub);
+        if (bySocialSub.isPresent()){
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -67,11 +83,46 @@ public class SocialServiceImpl implements SocialService {
 
     }
 
+    @Override
+    public JwtToken validateMemberV2(KakaoTokenInfo kakaoInfo) {
+        // sub를 사용해서 회원 구분
+        Boolean isMember = findMemberV2(kakaoInfo.getSub());
+        List<String> roles = new ArrayList<>();
+        // 신규 유저
+        if (!isMember){
+            roles = createMemberV2(kakaoInfo);
+        }
+        if (isMember){
+            roles = searchRolesV2(kakaoInfo);
+        }
+
+        JwtToken jwtToken = jwtTokenProvider.generateTokenWithKakao(kakaoInfo.getSub(), roles);
+        return jwtToken;
+
+    }
+
+    private List<String> searchRolesV2(KakaoTokenInfo kakaoInfo) {
+        SocialEntity socialEntity = socialRepository.findBySocialSub(kakaoInfo.getSub())
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_SUB));
+        return socialEntity.getMember().getRoles();
+    }
+
+    private List<String> createMemberV2(KakaoTokenInfo kakaoInfo) {
+        SocialEntity socialEntity = new SocialEntity();
+        String imgName = imgService.downloadImg(kakaoInfo.getPicture());
+        List<String> roles = socialEntity.createSocialWithKakao(kakaoInfo, imgName);
+        socialRepository.save(socialEntity);
+
+        return roles;
+
+    }
+
 
     private List<String> searchRoles(TokenAccessResponseDto response) {
         SocialEntity socialEntity = socialRepository.findBySocialSub(response.idTokenDecode().getSub())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTED_SUB));
         return socialEntity.getMember().getRoles();
+
     }
 
     private List<String> createMember(TokenAccessResponseDto response){
@@ -79,7 +130,9 @@ public class SocialServiceImpl implements SocialService {
         String imgName = imgService.downloadImg(response.idTokenDecode().getPicture());
         List<String> roles = socialEntity.createSocialWithKakao(response, imgName);
         socialRepository.save(socialEntity);
+
         return roles;
+
     }
 
     private Boolean findMember(TokenAccessResponseDto response) {

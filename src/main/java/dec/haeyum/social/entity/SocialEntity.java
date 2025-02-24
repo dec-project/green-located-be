@@ -1,5 +1,6 @@
 package dec.haeyum.social.entity;
 
+import dec.haeyum.external.kakao.dto.KakaoTokenInfo;
 import dec.haeyum.external.kakao.dto.response.TokenAccessResponseDto;
 import dec.haeyum.member.entity.Member;
 import jakarta.persistence.*;
@@ -27,6 +28,7 @@ public class SocialEntity {
         Member memberEntity = new Member(response.idTokenDecode().getNickname(),imgName);
         setMember(memberEntity);
         return member.getRoles();
+
     }
 
     private void setMember(Member memberEntity) {
@@ -34,4 +36,13 @@ public class SocialEntity {
         this.member.setSocial(this);
     }
 
+    public List<String> createSocialWithKakao(KakaoTokenInfo response, String imgName) {
+        this.socialName = "카카오";
+        this.socialSub = response.getSub();
+
+        Member memberEntity = new Member(response.getNickname(), imgName);
+        setMember(memberEntity);
+        return member.getRoles();
+
+    }
 }
